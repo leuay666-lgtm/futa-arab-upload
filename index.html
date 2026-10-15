@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>الرئيسية - Futa Arab</title>
+    <style>
+        .manga-card:hover img { transform: scale(1.05); }
+    </style>
+</head>
+<body class="bg-[#0b0c10] text-white min-h-screen font-sans">
+
+    <!-- الشريط العلوي (Navbar) -->
+    <nav class="bg-[#12141d]/90 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                    <i class="fas fa-book-open text-sm"></i>
+                </div>
+                <h1 class="font-black text-xl tracking-tight text-white">Futa Arab</h1>
+            </div>
+            
+            <!-- زر الرفع الذي ينقلك لصفحة upload.html -->
+            <a href="upload.html" class="bg-purple-600/20 text-purple-400 hover:bg-purple-600 hover:text-white border border-purple-600/50 px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span class="hidden sm:inline">رفع عمل</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي (معرض المانغا) -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <div class="flex items-center gap-3 mb-8">
+            <i class="fas fa-fire text-orange-500 text-xl"></i>
+            <h2 class="text-2xl font-bold">أحدث الإصدارات</h2>
+        </div>
+
+        <!-- الحاوية التي ستظهر فيها الأعمال -->
+        <div id="mangaGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <!-- رسالة التحميل الافتراضية -->
+            <div class="col-span-full text-center text-gray-500 py-10">
+                <i class="fas fa-circle-notch fa-spin text-3xl mb-3 text-purple-500 block"></i>
+                جاري جلب الأعمال...
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // إعداد الاتصال بقاعدة البيانات
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        window.addEventListener('load', loadApprovedMangas);
+
+        async function loadApprovedMangas() {
+            const gridDiv = document.getElementById('mangaGrid');
+            
+            try {
+                // جلب الأعمال المقبولة فقط (approved)
+                const { data, error } = await sbClient.from('mangas')
+                    .select('*')
+                    .eq('status', 'approved'); // الشرط الأهم: الأعمال المقبولة فقط
+
+                if (error) throw error;
+
+                if (data.length === 0) {
+                    gridDiv.innerHTML = `
+                        <div class="col-span-full text-center bg-[#12141d] border border-gray-800 rounded-2xl p-10 mt-10">
+                            <i class="fas fa-folder-open text-4xl text-gray-600 mb-4 block"></i>
+                            <p class="text-gray-400">لا توجد أعمال معتمدة حتى الآن.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                gridDiv.innerHTML = ''; // مسح رسالة التحميل
+                
+                // رسم شبكة المانغا
+                data.forEach(manga => {
+                    gridDiv.innerHTML += `
+                        <a href="reader.html?id=${manga.id}" class="manga-card block bg-[#1a1c23] rounded-2xl overflow-hidden border border-gray-800 hover:border-purple-500 transition-colors group cursor-pointer shadow-lg">
+                            <div class="relative h-64 overflow-hidden">
+                                <img src="${manga.cover_image_url}" alt="${manga.title}" class="w-full h-full object-cover transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#1a1c23] to-transparent opacity-80"></div>
+                            </div>
+                            <div class="p-3 relative z-10 -mt-8">
+                                <h3 class="font-bold text-sm text-white truncate drop-shadow-md text-center">${manga.title}</h3>
+                            </div>
+                        </a>
+                    `;
+                });
+
+            } catch (error) {
+                gridDiv.innerHTML = `<div class="col-span-full text-red-500 text-center py-10 font-bold">خطأ في جلب البيانات: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
