@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>قارئ المانغا - Futa Arab</title>
+    <style>
+        /* إخفاء شريط التمرير لجمالية أفضل */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0c10; }
+        ::-webkit-scrollbar-thumb { background: #1f2833; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #45a29e; }
+        .manga-image { user-select: none; -webkit-user-drag: none; transition: width 0.3s ease; }
+    </style>
+</head>
+<body class="bg-[#0b0c10] text-white min-h-screen flex flex-col selection:bg-purple-500 selection:text-white">
+
+    <!-- الشريط العلوي -->
+    <div id="topBar" class="fixed top-0 w-full bg-[#12141d]/90 backdrop-blur-md border-b border-gray-800 p-4 flex justify-between items-center z-40 transition-transform duration-300">
+        <a href="#" onclick="history.back()" class="text-gray-400 hover:text-white"><i class="fas fa-arrow-right text-xl"></i></a>
+        <h1 id="mangaTitle" class="font-bold text-lg text-purple-400 truncate px-4 flex-1 text-center">جاري التحميل...</h1>
+        <button onclick="toggleSettings()" class="text-gray-400 hover:text-white"><i class="fas fa-cog text-xl"></i></button>
+    </div>
+
+    <!-- لوحة الإعدادات (مخفية افتراضياً) -->
+    <div id="settingsPanel" class="fixed top-16 left-4 bg-[#1a1c23] border border-gray-700 rounded-xl shadow-2xl p-4 z-50 w-64 hidden flex-col gap-4">
+        <div>
+            <h3 class="text-xs text-gray-400 mb-2 font-bold"><i class="fas fa-book-open"></i> نمط القراءة</h3>
+            <div class="flex gap-2 bg-[#0b0c10] p-1 rounded-lg border border-gray-800">
+                <button onclick="setReadMode('scroll')" id="btnScroll" class="flex-1 text-sm py-1.5 rounded bg-purple-600 text-white font-bold transition">طولي (تمرير)</button>
+                <button onclick="setReadMode('single')" id="btnSingle" class="flex-1 text-sm py-1.5 rounded text-gray-400 hover:text-white transition">صفحة بصفحة</button>
+            </div>
+        </div>
+        <div>
+            <h3 class="text-xs text-gray-400 mb-2 font-bold"><i class="fas fa-search-plus"></i> حجم الصور</h3>
+            <div class="flex gap-2 bg-[#0b0c10] p-1 rounded-lg border border-gray-800">
+                <button onclick="setImageSize('60%')" class="flex-1 text-xs py-1.5 rounded text-gray-400 hover:bg-gray-800 hover:text-white transition">صغير</button>
+                <button onclick="setImageSize('80%')" class="flex-1 text-xs py-1.5 rounded text-gray-400 hover:bg-gray-800 hover:text-white transition">متوسط</button>
+                <button onclick="setImageSize('100%')" class="flex-1 text-xs py-1.5 rounded text-gray-400 hover:bg-gray-800 hover:text-white transition">كامل</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- منطقة عرض المانغا -->
+    <div id="readerContainer" class="mt-16 w-full flex-1 flex flex-col items-center bg-[#0b0c10] pb-20">
+        <div id="loadingIndicator" class="mt-20 text-purple-500 flex flex-col items-center gap-3">
+            <i class="fas fa-spinner fa-spin text-4xl"></i>
+            <p class="font-bold">جاري تحميل الصفحات...</p>
+        </div>
+        <!-- سيتم حقن الصور هنا -->
+        <div id="imagesWrapper" class="w-full flex flex-col items-center"></div>
+    </div>
+
+    <!-- أزرار التحكم في وضع "صفحة بصفحة" (مخفية في الوضع الطولي) -->
+    <div id="paginationControls" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#12141d]/90 backdrop-blur-md border border-gray-700 rounded-full px-6 py-3 flex items-center gap-6 z-40 hidden shadow-xl">
+        <button onclick="prevPage()" class="text-white hover:text-purple-400 active:scale-90 transition"><i class="fas fa-chevron-right text-2xl"></i></button>
+        <span id="pageCounter" class="text-sm font-bold w-16 text-center">1 / 1</span>
+        <button onclick="nextPage()" class="text-white hover:text-purple-400 active:scale-90 transition"><i class="fas fa-chevron-left text-2xl"></i></button>
+    </div>
+
+    <script>
+        // إعدادات قاعدة البيانات
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // متغيرات القارئ
+        let pagesData = [];
+        let currentIndex = 0;
+        let currentMode = 'scroll'; // 'scroll' أو 'single'
+        let currentSize = '100%';
+
+        window.addEventListener('load', () => {
+            // استخراج ID المانغا من الرابط (مثال: reader.html?id=123)
+            const urlParams = new URLSearchParams(window.location.search);
+            const mangaId = urlParams.get('id');
+
+            if (!mangaId) {
+                document.getElementById('loadingIndicator').innerHTML = '<div class="text-red-500"><i class="fas fa-exclamation-triangle"></i> خطأ: لم يتم تحديد المانغا!</div>';
+                return;
+            }
+
+            fetchMangaData(mangaId);
+        });
+
+        async function fetchMangaData(id) {
+            try {
+                // 1. جلب اسم المانغا
+                const { data: mangaInfo } = await sbClient.from('mangas').select('title').eq('id', id).single();
+                if (mangaInfo) document.getElementById('mangaTitle').innerText = mangaInfo.title;
+
+                // 2. جلب الصفحات مرتبة
+                const { data, error } = await sbClient.from('manga_pages')
+                    .select('image_url')
+                    .eq('manga_id', id)
+                    .order('page_number', { ascending: true });
+
+                if (error) throw error;
+                if (!data || data.length === 0) throw new Error("لا توجد صفحات مرفوعة لهذا العمل.");
+
+                pagesData = data.map(p => p.image_url);
+                document.getElementById('loadingIndicator').style.display = 'none';
+                renderPages();
+
+            } catch (error) {
+                document.getElementById('loadingIndicator').innerHTML = `<div class="text-red-500 font-bold">${error.message}</div>`;
+            }
+        }
+
+        // إعدادات الواجهة
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('hidden');
+            panel.classList.toggle('flex');
+        }
+
+        function setReadMode(mode) {
+            currentMode = mode;
+            currentIndex = 0; // العودة للصفحة الأولى عند تغيير النمط
+            
+            // تحديث ألوان الأزرار
+            const btnScroll = document.getElementById('btnScroll');
+            const btnSingle = document.getElementById('btnSingle');
+            if(mode === 'scroll') {
+                btnScroll.className = "flex-1 text-sm py-1.5 rounded bg-purple-600 text-white font-bold transition";
+                btnSingle.className = "flex-1 text-sm py-1.5 rounded text-gray-400 hover:text-white transition";
+                document.getElementById('paginationControls').classList.add('hidden');
+            } else {
+                btnSingle.className = "flex-1 text-sm py-1.5 rounded bg-purple-600 text-white font-bold transition";
+                btnScroll.className = "flex-1 text-sm py-1.5 rounded text-gray-400 hover:text-white transition";
+                document.getElementById('paginationControls').classList.remove('hidden');
+            }
+            renderPages();
+        }
+
+        function setImageSize(size) {
+            currentSize = size;
+            const images = document.querySelectorAll('.manga-image');
+            images.forEach(img => {
+                img.style.width = size;
+            });
+        }
+
+        // رسم الصفحات بناءً على النمط المختار
+        function renderPages() {
+            const wrapper = document.getElementById('imagesWrapper');
+            wrapper.innerHTML = ''; // مسح القديم
+
+            if (currentMode === 'scroll') {
+                // وضع التمرير: عرض كل الصور فوق بعضها (بدون فواصل للويب تون)
+                pagesData.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.className = 'manga-image max-w-full';
+                    img.style.width = currentSize;
+                    wrapper.appendChild(img);
+                });
+            } else {
+                // وضع صفحة بصفحة
+                const img = document.createElement('img');
+                img.src = pagesData[currentIndex];
+                img.className = 'manga-image max-w-full rounded-md shadow-2xl mt-4';
+                img.style.width = currentSize;
+                wrapper.appendChild(img);
+                updateCounter();
+            }
+        }
+
+        // أزرار التنقل للوضع الفردي
+        function nextPage() {
+            if (currentIndex < pagesData.length - 1) {
+                currentIndex++;
+                renderPages();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function prevPage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderPages();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function updateCounter() {
+            document.getElementById('pageCounter').innerText = `${currentIndex + 1} / ${pagesData.length}`;
+        }
+    </script>
+</body>
+</html>
