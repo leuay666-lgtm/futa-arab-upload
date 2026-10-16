@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- مكتبة فك ضغط ملفات ZIP و CBZ و EPUB -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- مكتبة استخراج الصفحات من ملفات PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>رفع عمل جديد - Futa Arab</title>
+</head>
+<body class="bg-[#0b0c10] text-white min-h-screen p-4 flex items-center justify-center">
+
+    <div class="bg-[#12141d] p-6 rounded-3xl border border-gray-800 shadow-2xl max-w-md w-full">
+        <h1 class="text-2xl font-black mb-6 text-center text-purple-400">
+            <i class="fas fa-upload mb-2 block text-3xl"></i>
+            منصة رفع الأعمال
+        </h1>
+        
+        <div class="space-y-4">
+            <!-- اسم المانغا -->
+            <div>
+                <label class="text-sm text-gray-400 mb-1 block">عنوان المانغا</label>
+                <input id="mangaTitle" type="text" placeholder="اكتب العنوان..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500">
+            </div>
+            
+            <!-- الغلاف -->
+            <div>
+                <label class="text-sm text-gray-400 mb-1 block">الغلاف الرسمي (صورة واحدة)</label>
+                <input id="mangaCover" type="file" accept="image/*" class="w-full bg-[#1a1c23] p-2 rounded-xl border-2 border-dashed border-gray-700 text-gray-400 text-sm">
+            </div>
+
+            <!-- صفحات الفصل (يدعم كل الصيغ) -->
+            <div class="bg-indigo-900/20 p-4 rounded-xl border border-indigo-900/50">
+                <label class="text-sm text-indigo-300 mb-1 block font-bold">
+                    ملف الفصل أو الصور (ZIP, CBZ, PDF, أو صور متعددة)
+                </label>
+                <input id="mangaPages" type="file" accept=".zip,.cbz,.epub,.pdf,image/*" multiple class="w-full bg-[#1a1c23] p-2 rounded-xl border-2 border-dashed border-indigo-700 text-gray-400 text-sm">
+                <div class="flex flex-wrap gap-1 mt-2">
+                    <span class="bg-indigo-950 text-indigo-300 border border-indigo-800/60 text-[10px] px-2 py-0.5 rounded-md font-bold">ZIP</span>
+                    <span class="bg-indigo-950 text-indigo-300 border border-indigo-800/60 text-[10px] px-2 py-0.5 rounded-md font-bold">CBZ</span>
+                    <span class="bg-indigo-950 text-indigo-300 border border-indigo-800/60 text-[10px] px-2 py-0.5 rounded-md font-bold">PDF</span>
+                    <span class="bg-indigo-950 text-indigo-300 border border-indigo-800/60 text-[10px] px-2 py-0.5 rounded-md font-bold">EPUB</span>
+                    <span class="bg-indigo-950 text-indigo-300 border border-indigo-800/60 text-[10px] px-2 py-0.5 rounded-md font-bold">JPG / PNG / WebP</span>
+                </div>
+                <p class="text-xs text-indigo-400 mt-2">
+                    <i class="fas fa-magic"></i> سيتم استخراج الصفحات وترتيبها وضغطها إلى WebP تلقائياً.
+                </p>
+            </div>
+
+            <!-- شريط التقدم والحالة -->
+            <div id="statusDiv" class="hidden text-center text-sm font-bold p-3 rounded-xl bg-[#1a1c23] border border-gray-700 space-y-2">
+                <div id="statusText">جاري الرفع...</div>
+                <div id="progressBarContainer" class="w-full bg-gray-800 rounded-full h-2 overflow-hidden hidden">
+                    <div id="progressBarFill" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <button onclick="uploadFullManga()" id="uploadBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 font-bold py-3 rounded-xl transition hover:opacity-90 active:scale-95">
+                رفع العمل للمراجعة
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // إعداد محرك قراءة ملفات PDF
+        if (window['pdfjs-dist/build/pdf']) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        // أداة الترتيب الرقمي الذكي للصور (1, 2, 3 ... 10)
+        const naturalSort = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
+        // دالة ضغط وتحويل أي صورة (File أو Blob) إلى WebP
+        function compressImage(fileOrBlob, quality = 0.75, maxWidth = 1200) {
+            return new Promise((resolve, reject) => {
+                const url = URL.createObjectURL(fileOrBlob);
+                const img = new Image();
+                img.onload = () => {
+                    URL.revokeObjectURL(url);
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    canvas.toBlob((blob) => {
+                        if (!blob) return reject(new Error('فشل ضغط الصورة'));
+                        const compressedFile = new File([blob], `img_${Date.now()}.webp`, {
+                            type: 'image/webp',
+                            lastModified: Date.now()
+                        });
+                        resolve(compressedFile);
+                    }, 'image/webp', quality);
+                };
+                img.onerror = (error) => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('تعذر قراءة إحدى الصور'));
+                };
+                img.src = url;
+            });
+        }
+
+        // دالة تحويل صفحة PDF إلى صورة WebP مضغوطة مباشرة
+        async function renderPdfPageToWebP(pdfDoc, pageNum, quality = 0.75, maxWidth = 1200) {
+            const page = await pdfDoc.getPage(pageNum);
+            const initialViewport = page.getViewport({ scale: 2.0 });
+            let scale = 2.0;
+            if (initialViewport.width > maxWidth) {
+                scale = (maxWidth / initialViewport.width) * 2.0;
+            }
+            const viewport = page.getViewport({ scale: scale });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+            return new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (!blob) return reject(new Error('فشل تحويل صفحة PDF'));
+                    const file = new File([blob], `pdf_page_${pageNum}.webp`, { type: 'image/webp' });
+                    resolve(file);
+                }, 'image/webp', quality);
+            });
+        }
+
+        // دالة تحليل وتجهيز قائمة الصفحات من جميع الصيغ (دون استهلاك ذاكرة الهاتف)
+        async function prepareChapterTasks(fileList, updateStatus) {
+            const tasks = [];
+            const files = Array.from(fileList);
+            const directImages = [];
+
+            for (const file of files) {
+                const ext = file.name.split('.').pop().toLowerCase();
+
+                // 1. إذا كان الملف مضغوطاً (ZIP, CBZ, EPUB)
+                if (['zip', 'cbz', 'epub'].includes(ext)) {
+                    updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> جاري قراءة الملف المضغوط: ${file.name}...`);
+                    const zip = await JSZip.loadAsync(file);
+                    const zipEntries = [];
+
+                    zip.forEach((relativePath, zipEntry) => {
+                        if (!zipEntry.dir && !relativePath.includes('__MACOSX') && /\.(jpe?g|png|webp|gif|avif|bmp)$/i.test(zipEntry.name)) {
+                            zipEntries.push(zipEntry);
+                        }
+                    });
+
+                    // ترتيب الصور داخل الملف المضغوط رقمياً
+                    zipEntries.sort((a, b) => naturalSort.compare(a.name, b.name));
+
+                    for (const entry of zipEntries) {
+                        tasks.push({
+                            type: 'zip',
+                            name: entry.name,
+                            getWebP: async () => {
+                                const blob = await entry.async('blob');
+                                return await compressImage(blob, 0.70);
+                            }
+                        });
+                    }
+                }
+                // 2. إذا كان الملف PDF
+                else if (ext === 'pdf') {
+                    updateStatus(`<i class="fas fa-file-pdf fa-bounce"></i> جاري تحليل صفحات ملف PDF...`);
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+                    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+                        tasks.push({
+                            type: 'pdf',
+                            name: `page_${pageNum}`,
+                            getWebP: async () => await renderPdfPageToWebP(pdfDoc, pageNum, 0.70)
+                        });
+                    }
+                }
+                // 3. إذا كانت صوراً عادية
+                else if (file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|avif|bmp)$/i.test(file.name)) {
+                    directImages.push(file);
+                }
+            }
+
+            // ترتيب الصور العادية رقمياً وإضافتها للمهام
+            if (directImages.length > 0) {
+                directImages.sort((a, b) => naturalSort.compare(a.name, b.name));
+                for (const imgFile of directImages) {
+                    tasks.push({
+                        type: 'image',
+                        name: imgFile.name,
+                        getWebP: async () => await compressImage(imgFile, 0.70)
+                    });
+                }
+            }
+
+            return tasks;
+        }
+
+        function updateProgressUI(text, percentage = null) {
+            const statusText = document.getElementById('statusText');
+            const progressContainer = document.getElementById('progressBarContainer');
+            const progressFill = document.getElementById('progressBarFill');
+
+            statusText.innerHTML = text;
+            if (percentage !== null) {
+                progressContainer.classList.remove('hidden');
+                progressFill.style.width = `${percentage}%`;
+            } else {
+                progressContainer.classList.add('hidden');
+            }
+        }
+
+        async function uploadFullManga() {
+            const title = document.getElementById('mangaTitle').value.trim();
+            const coverFile = document.getElementById('mangaCover').files[0];
+            const pageFiles = document.getElementById('mangaPages').files;
+            const btn = document.getElementById('uploadBtn');
+            const statusDiv = document.getElementById('statusDiv');
+
+            if (!title || !coverFile || pageFiles.length === 0) {
+                return alert('⚠️ يرجى إدخال العنوان، واختيار الغلاف، واختيار ملف الفصل أو الصور!');
+            }
+
+            btn.disabled = true;
+            statusDiv.classList.remove('hidden');
+            statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-blue-900 bg-blue-900/20 text-blue-400 space-y-2';
+            
+            try {
+                // 1. فحص واستخراج صفحات الفصل أولاً للتأكد من سلامة الملفات
+                const pageTasks = await prepareChapterTasks(pageFiles, (msg) => updateProgressUI(msg, 5));
+                
+                if (pageTasks.length === 0) {
+                    throw new Error('لم يتم العثور على صور صالحة داخل الملف المختار!');
+                }
+
+                // 2. ضغط ورفع صورة الغلاف
+                updateProgressUI('<i class="fas fa-compress-arrows-alt"></i> جاري ضغط ورفع الغلاف...', 10);
+                const compressedCover = await compressImage(coverFile, 0.75);
+                const coverName = `cover_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
+                const { error: coverUploadError } = await sbClient.storage.from('manga-covers').upload(coverName, compressedCover);
+                if (coverUploadError) throw coverUploadError;
+                const coverUrl = sbClient.storage.from('manga-covers').getPublicUrl(coverName).data.publicUrl;
+
+                // 3. إنشاء المانغا في جدول mangas
+                updateProgressUI('<i class="fas fa-spinner fa-spin"></i> جاري تسجيل بيانات العمل...', 15);
+                const { data: newManga, error: mangaError } = await sbClient.from('mangas')
+                    .insert([{ title: title, cover_image_url: coverUrl, status: 'pending' }])
+                    .select();
+                if (mangaError) throw mangaError;
+                const mangaId = newManga[0].id;
+
+                // 4. استخراج وضغط ورفع صفحات الفصل صفحة تلو الأخرى
+                const totalPages = pageTasks.length;
+                for (let i = 0; i < totalPages; i++) {
+                    const currentPercent = Math.round(15 + ((i + 1) / totalPages) * 85);
+                    updateProgressUI(
+                        `<i class="fas fa-cloud-upload-alt"></i> جاري معالجة ورفع صفحة (${i + 1} من ${totalPages})...`,
+                        currentPercent
+                    );
+                    
+                    const compressedPage = await pageTasks[i].getWebP();
+                    const pageName = `page_${mangaId}_${i + 1}_${Math.random().toString(36).substring(2, 7)}.webp`;
+                    
+                    const { error: pageUploadError } = await sbClient.storage.from('manga-pages').upload(pageName, compressedPage);
+                    if (pageUploadError) throw pageUploadError;
+                    
+                    const pageUrl = sbClient.storage.from('manga-pages').getPublicUrl(pageName).data.publicUrl;
+                    
+                    const { error: dbPageError } = await sbClient.from('manga_pages').insert([{
+                        manga_id: mangaId,
+                        image_url: pageUrl,
+                        page_number: i + 1
+                    }]);
+                    if (dbPageError) throw dbPageError;
+                }
+
+                // النجاح
+                statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-green-900 bg-green-900/20 text-green-400 space-y-2';
+                updateProgressUI(`<i class="fas fa-check-circle"></i> تم رفع العمل (${totalPages} صفحة) بنجاح! هو الآن قيد المراجعة.`, 100);
+                
+                document.getElementById('mangaTitle').value = '';
+                document.getElementById('mangaCover').value = '';
+                document.getElementById('mangaPages').value = '';
+
+            } catch (error) {
+                statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-red-900 bg-red-900/20 text-red-400 space-y-2';
+                updateProgressUI('<i class="fas fa-times-circle"></i> خطأ: ' + error.message, null);
+            }
+            
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
