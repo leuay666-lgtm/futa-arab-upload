@@ -47,21 +47,21 @@
 
     <div class="body-glow"></div>
 
-    <!-- نافذة البحث الذكية (منسوخة من الرئيسية) -->
+    <!-- نافذة البحث الذكية -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
             <div class="relative flex-1">
                 <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
-                <input type="text" id="searchInput" placeholder="ابحث عن مانغا (مثال: Naruto)..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
+                <input type="text" id="searchInput" placeholder="ابحث عن مانغا أو تصنيف (مثال: رومانسي)..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
             </div>
         </div>
         <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3">
-            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>
+            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) المتطابقة -->
+    <!-- القائمة الجانبية (Sidebar) -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -94,7 +94,8 @@
             </div>
         </div>
         <div class="p-6 border-t border-gray-800/50 text-center">
-            <a href="#" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+            <!-- ربط الزر هنا -->
+            <a href="auth.html" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
                 <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
             </a>
             <p class="text-[10px] text-gray-500 mt-2 font-semibold">تظهر خيارات الحساب بعد تسجيل الدخول.</p>
@@ -166,7 +167,7 @@
                 <a href="#" class="hover:text-white transition">DMCA</a>
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
-                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع لأغراض القراءة المجانية. الموقع لا يستضيف أي ملفات على خوادمه.
+                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.
             </p>
             <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
         </div>
@@ -184,10 +185,9 @@
         
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
         
-        // المتغيرات الخاصة بالفلترة
-        let allMangas = []; // سنخزن فيها كل المانغات لتسهيل الفلترة السريعة بدون إعادة التحميل
-        let availableTags = new Set(); // لاستخراج التاغات الفريدة بدون تكرار
-        let selectedTags = new Set(); // التاغات التي اختارها المستخدم للبحث
+        let allMangas = []; 
+        let availableTags = new Set(); 
+        let selectedTags = new Set(); 
 
         window.onload = () => {
             updateAuthUI();
@@ -214,7 +214,6 @@
         function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
         function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
 
-        // --- دوال البحث المنبثق ---
         function openSearch() {
             const modal = document.getElementById('searchModal');
             modal.classList.remove('hidden');
@@ -230,7 +229,7 @@
                 modal.classList.add('hidden');
                 document.body.style.overflow = 'auto';
                 document.getElementById('searchInput').value = '';
-                document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>';
+                document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
             }, 300);
         }
 
@@ -241,14 +240,14 @@
             const resultsContainer = document.getElementById('searchResults');
             
             if (query.length < 2) {
-                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>';
+                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
                 return;
             }
             resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
 
             searchTimeout = setTimeout(async () => {
                 try {
-                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%`).limit(10);
+                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(10);
                     if (error) throw error;
                     if (data.length === 0) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>'; return; }
 
@@ -277,16 +276,13 @@
             } catch (err) { console.error("خطأ: ", err); }
         }
 
-        // --- نظام جلب التاغات وفلترة المانغا السريع ---
         async function fetchAllMangas() {
             try {
-                // جلب جميع الأعمال المنشورة مرة واحدة لحفظها وتسهيل الفلترة
                 const { data: mangas, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
                 if (error) throw error;
 
                 allMangas = mangas;
 
-                // استخراج جميع التاغات المتاحة من جميع الأعمال
                 allMangas.forEach(manga => {
                     if (manga.tags) {
                         manga.tags.split(',').forEach(tag => {
@@ -297,7 +293,6 @@
                 });
 
                 renderTagsFilters();
-                // العرض الافتراضي: عرض كل المانغات إذا لم يتم اختيار أي تاغ
                 renderFilteredResults(allMangas);
 
             } catch (err) {
@@ -319,21 +314,17 @@
         }
 
         function toggleTagFilter(tag) {
-            // إضافة التاغ أو إزالته من قائمة الاختيارات
-            if (selectedTags.has(tag)) {
-                selectedTags.delete(tag);
-            } else {
-                selectedTags.add(tag);
-            }
+            if (selectedTags.has(tag)) { selectedTags.delete(tag); } 
+            else { selectedTags.add(tag); }
             
-            renderTagsFilters(); // إعادة رسم الأزرار لتغيير لون الزر النشط
-            filterMangas(); // بدء الفلترة
+            renderTagsFilters(); 
+            filterMangas(); 
         }
 
         function clearFilters() {
             selectedTags.clear();
             renderTagsFilters();
-            renderFilteredResults(allMangas); // عرض الكل من جديد
+            renderFilteredResults(allMangas); 
         }
 
         function filterMangas() {
@@ -342,13 +333,10 @@
                 return;
             }
 
-            // تصفية الأعمال: يجب أن يحتوي العمل على (على الأقل) أحد التاغات المختارة
-            // (يمكنك تغيير some إلى every إذا كنت تريد أن يكون العمل يحتوي على *جميع* التاغات المحددة)
             const filtered = allMangas.filter(manga => {
                 if (!manga.tags) return false;
                 const mangaTagsList = manga.tags.split(',').map(t => t.trim());
                 return Array.from(selectedTags).every(selectedTag => mangaTagsList.includes(selectedTag)); 
-                // وضعناها every لكي يكون البحث دقيقاً (يجب توفر كل التاغات المختارة في نفس العمل)
             });
 
             renderFilteredResults(filtered);
