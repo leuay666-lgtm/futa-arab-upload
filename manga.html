@@ -15,11 +15,15 @@
         ::-webkit-scrollbar-track { background: #121214; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         
+        /* هذا هو كود البلور الذي تم إصلاحه ليكون واضحاً وجميلاً مثل المرجع */
         .page-blur-bg {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-size: cover; background-position: center;
-            filter: blur(50px) brightness(0.22);
-            transform: scale(1.2); z-index: -1;
+            position: fixed;
+            top: -10%; left: -10%; right: -10%; bottom: -10%; /* تمديد لتجنب الحواف البيضاء */
+            background-size: cover;
+            background-position: center top; /* التركيز على أعلى الصورة */
+            filter: blur(40px) brightness(0.3); /* بلور واضح وإضاءة مناسبة */
+            transform: scale(1.1);
+            z-index: -1;
         }
 
         .tag-badge {
@@ -30,10 +34,11 @@
 </head>
 <body class="relative min-h-screen pb-16">
 
+    <!-- الخلفية الضبابية (البلور) الواضحة -->
     <div id="pageBlurBg" class="page-blur-bg"></div>
 
-    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/60 px-4 py-3 flex justify-between items-center max-w-lg mx-auto">
-        <button onclick="window.history.back()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-arrow-right"></i></button>
+    <nav class="sticky top-0 z-40 bg-[#121214]/80 backdrop-blur-md border-b border-gray-800/60 px-4 py-3 flex justify-between items-center max-w-lg mx-auto">
+        <button onclick="window.location.href='index.html'" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-arrow-right"></i></button>
         <a href="index.html" class="text-xl font-black text-accent tracking-wider">Futa Arab</a>
         <a href="index.html" class="text-gray-300 hover:text-white text-lg"><i class="fas fa-home"></i></a>
     </nav>
@@ -43,94 +48,106 @@
         <p class="text-xs text-gray-400">جاري تحميل بيانات العمل...</p>
     </div>
 
-    <main id="mainContainer" class="hidden max-w-md mx-auto px-4 pt-6 space-y-6">
+    <main id="mainContainer" class="hidden max-w-md mx-auto px-4 pt-8 space-y-6">
 
-        <div class="flex flex-col items-center text-center space-y-4">
-            <div class="w-64 h-96 rounded-2xl overflow-hidden shadow-2xl border border-gray-700/60 bg-black flex-shrink-0">
+        <!-- القسم العلوي: الغلاف والأزرار (مصمم ليتطابق مع المرجع) -->
+        <div class="flex flex-col items-center text-center space-y-5">
+            <!-- تكبير حجم الغلاف قليلاً ليكون أبرز -->
+            <div class="w-64 h-[24rem] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-black flex-shrink-0">
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
             </div>
 
             <div class="space-y-1">
-                <div class="flex justify-center items-center gap-1 text-yellow-400 text-lg">
+                <div class="flex justify-center items-center gap-1 text-yellow-400 text-xl">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                    <span class="text-white font-black text-base mr-1">4.5</span>
+                    <span class="text-white font-black text-lg mr-2">4.5</span>
                 </div>
                 <p class="text-[11px] text-gray-400">التقييم: 4.5 / 5 من 1 صوت</p>
             </div>
 
-            <div class="flex gap-3 w-full max-w-xs pt-1">
-                <button onclick="openReader()" class="flex-1 bg-[#e11d48] hover:bg-pink-600 text-white font-black py-3 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
-                    <i class="fas fa-book-open"></i> قراءة الآن
+            <!-- أزرار القراءة والمفضلة متطابقة مع تصميمك -->
+            <div class="flex gap-3 w-full pt-2">
+                <button onclick="openReader()" class="flex-1 bg-[#e11d48] hover:bg-pink-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-thumbs-up"></i> قراءة الآن
                 </button>
-                <button onclick="toggleBookmark()" id="bookmarkBtn" class="flex-1 bg-[#059669] hover:bg-emerald-600 text-white font-black py-3 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
-                    <i class="far fa-bookmark"></i> المفضلة
+                <button onclick="toggleBookmark()" id="bookmarkBtn" class="flex-1 bg-[#059669] hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-bookmark"></i> المفضلة
                 </button>
             </div>
         </div>
 
-        <div class="space-y-3 pt-2">
+        <div class="space-y-4 pt-4">
             <div>
-                <h1 id="mangaTitle" class="text-2xl font-black text-white leading-tight">...</h1>
-                <h2 id="mangaTitleEn" class="text-xs text-gray-400 font-bold mt-1" dir="ltr">...</h2>
+                <h1 id="mangaTitle" class="text-3xl font-black text-white leading-tight">...</h1>
+                <h2 id="mangaTitleEn" class="text-sm text-gray-400 font-bold mt-1" dir="ltr">...</h2>
             </div>
 
-            <div class="space-y-2.5 text-xs text-gray-300 pt-2 border-t border-gray-800/80">
-                <div class="flex items-center gap-3">
-                    <span class="text-gray-400 w-20 font-bold">التاغات:</span>
-                    <div id="tagsList" class="flex flex-wrap gap-1.5 flex-1"></div>
+            <div class="space-y-3 text-sm text-gray-300 pt-4 border-t border-gray-800/80">
+                <div class="flex items-start gap-4">
+                    <span class="text-gray-400 w-20 font-bold mt-1">التاغات:</span>
+                    <div id="tagsList" class="flex flex-wrap gap-2 flex-1"></div>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">التصنيف:</span>
                     <span class="tag-badge">مانغا</span>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">الحالة:</span>
-                    <span class="text-emerald-400 font-bold">مكتمل</span>
+                    <span class="text-gray-300">مكتمل</span>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
+                    <span class="text-gray-400 w-20 font-bold">المشاهدات:</span>
+                    <span class="text-gray-300">N/A, it has 10 views</span>
+                </div>
+                <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">الرافع:</span>
-                    <span id="uploaderName" class="text-accent font-bold">مجهول</span>
+                    <span id="uploaderName" class="text-gray-300">مجهول</span>
                 </div>
             </div>
         </div>
 
-        <div class="bg-[#18181b]/80 border border-gray-800/90 rounded-2xl p-4 space-y-2">
-            <h3 class="text-xs font-black uppercase text-gray-400 tracking-wider">نبذة عن العمل والقصة</h3>
-            <p id="mangaDesc" class="text-xs text-gray-300 leading-relaxed">
+        <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-3 mt-6">
+            <h3 class="text-sm font-black uppercase text-white tracking-wider">ملخص القصة والتفاصيل</h3>
+            <p id="mangaDesc" class="text-sm text-gray-300 leading-relaxed font-semibold">
                 لا يوجد وصف متاح لهذا العمل حالياً.
             </p>
         </div>
 
-        <div class="bg-[#18181b]/80 border border-gray-800/90 rounded-2xl p-4 space-y-3">
-            <h3 class="text-xs font-black uppercase text-gray-300 tracking-wider">قائمة الفصول المتاحة</h3>
+        <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-black uppercase text-white tracking-wider">قائمة الفصول المتاحة</h3>
+            <div class="relative mb-2">
+                <i class="fas fa-search absolute right-3 top-3 text-gray-500"></i>
+                <input type="text" placeholder="ابحث عن فصل..." class="w-full bg-[#111113] p-2.5 pr-9 rounded-xl border border-gray-800 text-white text-sm outline-none">
+            </div>
             
-            <div onclick="openReader()" class="bg-[#111113] hover:bg-gray-800/70 border border-gray-800 p-3 rounded-xl flex justify-between items-center cursor-pointer transition active:scale-95">
+            <div onclick="openReader()" class="bg-[#111113] hover:bg-gray-800/70 border border-gray-800 p-4 rounded-xl flex justify-between items-center cursor-pointer transition active:scale-95">
                 <div>
-                    <span class="text-xs font-black text-white block">الفصل 1 (Oneshot)</span>
-                    <span class="text-[10px] text-gray-500">جاهز للقراءة بجودة عالية</span>
+                    <span class="text-sm font-black text-white block mb-1">Oneshot</span>
+                    <span class="text-xs text-gray-500">جاهز للقراءة</span>
                 </div>
-                <i class="fas fa-chevron-left text-xs text-accent"></i>
+                <i class="fas fa-chevron-left text-sm text-accent"></i>
             </div>
         </div>
 
-        <div class="space-y-3 pt-2">
-            <h3 class="text-xs font-black uppercase text-gray-300 tracking-wider">أعمال مشابهة قد تعجبك</h3>
-            <div id="similarGrid" class="grid grid-cols-2 gap-3"></div>
+        <div class="space-y-4 pt-4">
+            <h3 class="text-sm font-black uppercase text-white tracking-wider">أعمال مشابهة</h3>
+            <div id="similarGrid" class="grid grid-cols-2 gap-4"></div>
         </div>
 
-        <div class="bg-[#18181b]/80 border border-gray-800/90 rounded-2xl p-4 space-y-4">
-            <h3 class="text-xs font-black uppercase text-accent tracking-wider flex items-center gap-2">
+        <!-- قسم التعليقات -->
+        <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4 mt-6">
+            <h3 class="text-sm font-black uppercase text-accent tracking-wider flex items-center gap-2">
                 <i class="far fa-comments"></i> التعليقات والمناقشة
             </h3>
-            <div class="space-y-2">
-                <input id="commentUser" type="text" placeholder="اسمك (أو اتركه مجهول)..." maxlength="30" class="w-full bg-[#111113] text-xs p-2.5 rounded-xl border border-gray-800 text-white outline-none focus:border-accent">
-                <textarea id="commentText" rows="2" placeholder="اكتب رأيك في هذا العمل..." maxlength="300" class="w-full bg-[#111113] text-xs p-2.5 rounded-xl border border-gray-800 text-white outline-none focus:border-accent resize-none"></textarea>
-                <button onclick="postComment()" id="postCommentBtn" class="w-full bg-accent hover:bg-pink-500 text-white text-xs font-black py-2.5 rounded-xl active:scale-95 transition">
+            <div class="space-y-3">
+                <input id="commentUser" type="text" placeholder="اسمك (أو اتركه مجهول)..." maxlength="30" class="w-full bg-[#111113] text-sm p-3 rounded-xl border border-gray-800 text-white outline-none focus:border-accent">
+                <textarea id="commentText" rows="3" placeholder="اكتب رأيك في هذا العمل..." maxlength="300" class="w-full bg-[#111113] text-sm p-3 rounded-xl border border-gray-800 text-white outline-none focus:border-accent resize-none"></textarea>
+                <button onclick="postComment()" id="postCommentBtn" class="w-full bg-accent hover:bg-pink-500 text-white text-sm font-black py-3 rounded-xl active:scale-95 transition">
                     إرسال التعليق
                 </button>
             </div>
-            <div id="commentsList" class="space-y-2.5 pt-2">
-                <p class="text-[11px] text-gray-500 text-center py-2">كن أول من يعلق على هذا العمل!</p>
+            <div id="commentsList" class="space-y-3 pt-4">
+                <p class="text-xs text-gray-500 text-center py-2">كن أول من يعلق على هذا العمل!</p>
             </div>
         </div>
 
@@ -148,7 +165,7 @@
     </div>
 
     <!-- زر الصعود -->
-    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-9 h-9 rounded-lg shadow-lg flex items-center justify-center active:scale-95 z-40 text-xs">
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded-lg shadow-lg flex items-center justify-center active:scale-95 z-40 text-sm">
         <i class="fas fa-arrow-up"></i>
     </button>
 
@@ -157,7 +174,6 @@
         let currentMangaId = null;
         let chapterPages = [];
 
-        // الطريقة الأكثر أماناً لجلب ID بدون إعادة التوجيه الخاطئ
         document.addEventListener('DOMContentLoaded', async () => {
             const urlString = window.location.href;
             const paramString = urlString.split('?')[1];
@@ -167,17 +183,15 @@
             }
 
             if (!currentMangaId) {
-                document.getElementById('loadingScreen').innerHTML = '<div class="text-center"><i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i><p class="text-white font-bold mb-4">لم يتم العثور على العمل المطلوب!</p><a href="index.html" class="bg-accent text-white px-4 py-2 rounded-lg font-bold">العودة للرئيسية</a></div>';
+                document.getElementById('loadingScreen').innerHTML = '<div class="text-center"><p class="text-white font-bold mb-4">لم يتم العثور على العمل المطلوب!</p><a href="index.html" class="bg-accent text-white px-4 py-2 rounded-lg font-bold">العودة</a></div>';
                 return;
             }
 
             try {
                 const { data: manga, error } = await sbClient.from('mangas').select('*').eq('id', currentMangaId).single();
-                
-                if (error || !manga) {
-                    throw new Error('هذا العمل غير موجود أو تم حذفه.');
-                }
+                if (error || !manga) throw new Error('العمل غير موجود.');
 
+                // تطبيق الغلاف والخلفية الضبابية (Blur)
                 document.getElementById('mangaCover').src = manga.cover_image_url;
                 document.getElementById('pageBlurBg').style.backgroundImage = `url('${manga.cover_image_url}')`;
 
@@ -203,12 +217,12 @@
                 loadComments();
 
             } catch (err) {
-                document.getElementById('loadingScreen').innerHTML = `<div class="text-center"><i class="fas fa-times-circle text-red-500 text-4xl mb-4"></i><p class="text-white font-bold mb-4">${err.message}</p><a href="index.html" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold">العودة للرئيسية</a></div>`;
+                document.getElementById('loadingScreen').innerHTML = `<div class="text-center"><p class="text-white font-bold mb-4">${err.message}</p><a href="index.html" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold">العودة</a></div>`;
             }
         });
 
         function openReader() {
-            if (chapterPages.length === 0) return alert('لا توجد صفحات مرفوعة لهذا العمل.');
+            if (chapterPages.length === 0) return alert('لا توجد صفحات لهذا العمل.');
             document.body.style.overflow = 'hidden';
             document.getElementById('readerModal').classList.remove('hidden');
             const box = document.getElementById('readerContent');
@@ -227,16 +241,16 @@
             const btn = document.getElementById('bookmarkBtn');
             btn.classList.toggle('bg-[#059669]');
             btn.classList.toggle('bg-gray-700');
-            btn.innerHTML = btn.classList.contains('bg-gray-700') ? '<i class="fas fa-check"></i> تم الحفظ' : '<i class="far fa-bookmark"></i> المفضلة';
+            btn.innerHTML = btn.classList.contains('bg-gray-700') ? '<i class="fas fa-check"></i> تم الحفظ' : '<i class="fas fa-bookmark"></i> المفضلة';
         }
 
         async function loadSimilarWorks() {
             const { data } = await sbClient.from('mangas').select('id, title, cover_image_url').eq('status', 'approved').neq('id', currentMangaId).limit(2);
             if (data && data.length > 0) {
                 document.getElementById('similarGrid').innerHTML = data.map(m => `
-                    <a href="manga.html?id=${m.id}" class="bg-[#111113] rounded-xl overflow-hidden border border-gray-800 block">
-                        <img src="${m.cover_image_url}" class="w-full h-36 object-cover">
-                        <span class="text-[11px] font-bold text-white p-2 truncate block">${m.title}</span>
+                    <a href="manga.html?id=${m.id}" class="bg-[#111113] rounded-xl overflow-hidden border border-gray-800 block shadow-md">
+                        <img src="${m.cover_image_url}" class="w-full h-44 object-cover">
+                        <span class="text-xs font-bold text-white p-2.5 truncate block">${m.title}</span>
                     </a>
                 `).join('');
             }
@@ -245,22 +259,16 @@
         async function loadComments() {
             const box = document.getElementById('commentsList');
             const { data, error } = await sbClient.from('comments').select('*').eq('manga_id', currentMangaId).order('created_at', { ascending: false });
-            
-            // إذا لم يتم إنشاء جدول comments في Supabase، تجاهل الخطأ بصمت
-            if (error && error.code === '42P01') {
-                box.innerHTML = '<p class="text-[11px] text-red-500 text-center py-2">ملاحظة للآدمن: يجب إنشاء جدول comments في Supabase.</p>';
-                return;
-            }
-
+            if (error && error.code === '42P01') return box.innerHTML = ''; // تجاهل الخطأ بصمت
             if (!data || data.length === 0) return;
 
             box.innerHTML = data.map(c => `
-                <div class="bg-[#111113] p-2.5 rounded-xl border border-gray-800 text-xs space-y-1">
-                    <div class="flex justify-between items-center text-[10px] text-gray-500">
+                <div class="bg-[#111113] p-3 rounded-xl border border-gray-800 text-sm space-y-1.5 shadow-sm">
+                    <div class="flex justify-between items-center text-xs text-gray-500">
                         <span class="font-bold text-accent">${c.username || 'مجهول'}</span>
                         <span>${new Date(c.created_at).toLocaleDateString('ar-EG')}</span>
                     </div>
-                    <p class="text-gray-300">${c.comment_text}</p>
+                    <p class="text-gray-300 font-semibold">${c.comment_text}</p>
                 </div>
             `).join('');
         }
@@ -268,31 +276,15 @@
         async function postComment() {
             const user = document.getElementById('commentUser').value.trim() || 'مجهول';
             const text = document.getElementById('commentText').value.trim();
-            if (!text) return alert('يرجى كتابة نص التعليق أولاً.');
+            if (!text) return alert('اكتب تعليقاً.');
 
             const btn = document.getElementById('postCommentBtn');
-            btn.disabled = true;
-            btn.innerText = 'جاري الإرسال...';
+            btn.disabled = true; btn.innerText = 'إرسال...';
 
-            const { error } = await sbClient.from('comments').insert([{
-                manga_id: currentMangaId,
-                username: user,
-                comment_text: text
-            }]);
-
-            if (error) {
-                if(error.code === '42P01') {
-                    alert('يجب إنشاء جدول باسم comments في Supabase أولاً لتفعيل هذه الميزة.');
-                } else {
-                    alert('فشل الإرسال: تأكد من تعطيل حماية RLS لجدول comments.');
-                }
-            } else {
-                document.getElementById('commentText').value = '';
-                loadComments();
-            }
+            const { error } = await sbClient.from('comments').insert([{ manga_id: currentMangaId, username: user, comment_text: text }]);
+            if (!error) { document.getElementById('commentText').value = ''; loadComments(); }
             
-            btn.disabled = false;
-            btn.innerText = 'إرسال التعليق';
+            btn.disabled = false; btn.innerText = 'إرسال التعليق';
         }
     </script>
 </body>
