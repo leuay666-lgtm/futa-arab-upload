@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>التصنيفات - Futa Arab</title>
+    <style>
+        body { background-color: #111113; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #18181b; }
+        .text-accent { color: #f472b6; }
+        .bg-accent { background-color: #f472b6; }
+        .cover-image { transition: transform 0.3s ease; }
+        .card:hover .cover-image { transform: scale(1.05); }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #111113; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        
+        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
+        #sidebarMenu { transition: transform 0.3s ease-in-out; }
+
+        .body-glow {
+            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
+            background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(17,17,19,0) 70%);
+            z-index: -1; pointer-events: none;
+        }
+
+        .tag-badge { background-color: #000000; border: 1px solid #262626; color: #d1d5db; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; }
+        .sidebar-link { display: flex; align-items: center; justify-content: flex-start; gap: 12px; color: #d1d5db; padding: 10px; border-radius: 8px; transition: all 0.3s ease; }
+        .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
+        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+        .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
+
+        /* ستايل زر التاغ القابل للضغط */
+        .filter-tag {
+            background-color: #18181b; border: 1px solid #333; color: #9ca3af;
+            padding: 8px 16px; border-radius: 9999px; font-size: 12px; font-weight: bold;
+            cursor: pointer; transition: all 0.2s ease; user-select: none;
+        }
+        .filter-tag:hover { border-color: #f472b6; color: #ffffff; }
+        .filter-tag.active { background-color: #f472b6; border-color: #f472b6; color: #ffffff; }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col">
+
+    <div class="body-glow"></div>
+
+    <!-- نافذة البحث الذكية (منسوخة من الرئيسية) -->
+    <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
+        <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
+            <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
+            <div class="relative flex-1">
+                <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
+                <input type="text" id="searchInput" placeholder="ابحث عن مانغا (مثال: Naruto)..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
+            </div>
+        </div>
+        <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>
+        </div>
+    </div>
+
+    <!-- القائمة الجانبية (Sidebar) المتطابقة -->
+    <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
+    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
+            <button onclick="closeSidebar()" class="absolute right-4 top-6 text-gray-500 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-times"></i></button>
+            <div class="w-full text-left pl-2">
+                <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
+                <p class="text-[11px] text-gray-500 mt-0.5 font-semibold">Manga • Manhwa • Doujinshi</p>
+            </div>
+        </div>
+        <div class="flex-1 py-6 flex flex-col gap-8 px-6">
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
+                    <li><a href="index.html" class="sidebar-link"><i class="far fa-clock"></i><span>آخر التحديثات</span></a></li>
+                    <li><a href="#" onclick="closeSidebar()" class="sidebar-link bg-[#1a1c23] text-white"><i class="fas fa-tags text-accent"></i><span>التصنيفات</span></a></li>
+                </ul>
+            </div>
+            <div class="h-[1px] w-full bg-gray-800/50"></div>
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-users"></i><span>اشتراكاتي</span></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="p-6 border-t border-gray-800/50 text-center">
+            <a href="#" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
+            </a>
+            <p class="text-[10px] text-gray-500 mt-2 font-semibold">تظهر خيارات الحساب بعد تسجيل الدخول.</p>
+        </div>
+    </div>
+
+    <!-- شريط التنقل العلوي -->
+    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
+                <span id="userBadge" class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
+            </div>
+            
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
+                <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
+            <a href="index.html" class="hover:text-white transition">الأحدث</a>
+            <a href="#" class="text-white border-b-2 border-accent pb-1">تصنيفات</a>
+            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+            <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي لصفحة التصنيفات -->
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-6 w-full">
+        
+        <!-- عنوان الصفحة -->
+        <div class="text-center py-4">
+            <h1 class="text-2xl font-black text-white mb-2">تصفح حسب <span class="text-accent">التصنيف</span></h1>
+            <p class="text-xs text-gray-400 font-semibold">اختر تصنيفاً أو أكثر لتصفية الأعمال وعرض ما يناسب ذوقك.</p>
+        </div>
+
+        <!-- حاوية عرض أزرار التاغات المتاحة -->
+        <div class="bg-[#18181b]/80 border border-gray-800 rounded-2xl p-4 shadow-lg">
+            <div id="filterTagsContainer" class="flex flex-wrap gap-2 justify-center">
+                <span class="text-gray-500 text-xs py-2"><i class="fas fa-spinner fa-spin ml-2"></i>جاري استخراج التصنيفات...</span>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center px-1">
+            <h2 class="text-sm font-black uppercase tracking-wider text-gray-300">النتائج: <span id="resultCount" class="text-accent">0</span> عمل</h2>
+            <button onclick="clearFilters()" class="text-[11px] text-gray-400 hover:text-white font-bold bg-[#111113] border border-gray-700 px-3 py-1.5 rounded-lg transition active:scale-95">
+                إعادة ضبط <i class="fas fa-redo text-[10px] ml-1"></i>
+            </button>
+        </div>
+
+        <!-- حاوية النتائج المفلترة -->
+        <div id="filteredResults" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-sm">
+                اختر تصنيفاً من الأعلى لعرض النتائج...
+            </div>
+        </div>
+
+    </main>
+
+    <!-- الفوتر الموحد -->
+    <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
+            <div class="flex gap-4 text-sm font-bold text-gray-400">
+                <a href="index.html" class="hover:text-white transition">الرئيسية</a>
+                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="#" class="hover:text-white transition">DMCA</a>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
+                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع لأغراض القراءة المجانية. الموقع لا يستضيف أي ملفات على خوادمه.
+            </p>
+            <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- زر الصعود للأعلى -->
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
+        
+        // المتغيرات الخاصة بالفلترة
+        let allMangas = []; // سنخزن فيها كل المانغات لتسهيل الفلترة السريعة بدون إعادة التحميل
+        let availableTags = new Set(); // لاستخراج التاغات الفريدة بدون تكرار
+        let selectedTags = new Set(); // التاغات التي اختارها المستخدم للبحث
+
+        window.onload = () => {
+            updateAuthUI();
+            fetchAllMangas();
+        };
+
+        function updateAuthUI() {
+            const badge = document.getElementById('userBadge');
+            const menuText = document.getElementById('authMenuText');
+            if (currentUser) {
+                badge.innerText = currentUser.username;
+                badge.className = "bg-purple-900 text-purple-200 text-[10px] font-bold px-2 py-1 rounded-md border border-purple-500";
+                menuText.innerText = "تسجيل الخروج";
+            } else {
+                badge.innerText = "مجاني";
+                menuText.innerText = "تسجيل الدخول / حساب جديد";
+            }
+        }
+
+        function checkAuthForFavorites() {
+            if (!currentUser) return alert('⚠️ عذراً، يجب تسجيل الدخول لفتح هذه القائمة.');
+        }
+
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
+
+        // --- دوال البحث المنبثق ---
+        function openSearch() {
+            const modal = document.getElementById('searchModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10);
+            document.getElementById('searchInput').focus();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSearch() {
+            const modal = document.getElementById('searchModal');
+            modal.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                document.getElementById('searchInput').value = '';
+                document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>';
+            }, 300);
+        }
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (query.length < 2) {
+                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>';
+                return;
+            }
+            resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%`).limit(10);
+                    if (error) throw error;
+                    if (data.length === 0) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>'; return; }
+
+                    resultsContainer.innerHTML = data.map(manga => {
+                        const tagsHtml = (manga.tags ? manga.tags.split(',').slice(0, 3) : []).map(tag => `<span class="bg-black border border-gray-700 text-gray-300 px-2 py-0.5 rounded text-[9px] font-bold">${tag.trim()}</span>`).join('');
+                        return `
+                            <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
+                                <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                                <div class="flex-1 overflow-hidden">
+                                    <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                                    <div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+                } catch (err) { resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>'; }
+            }, 600);
+        });
+
+        async function goToRandomManga() {
+            try {
+                if (allMangas.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
+                const randomId = allMangas[Math.floor(Math.random() * allMangas.length)].id;
+                localStorage.setItem('selectedMangaId', randomId);
+                window.location.href = `manga.html?id=${randomId}`;
+            } catch (err) { console.error("خطأ: ", err); }
+        }
+
+        // --- نظام جلب التاغات وفلترة المانغا السريع ---
+        async function fetchAllMangas() {
+            try {
+                // جلب جميع الأعمال المنشورة مرة واحدة لحفظها وتسهيل الفلترة
+                const { data: mangas, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
+                if (error) throw error;
+
+                allMangas = mangas;
+
+                // استخراج جميع التاغات المتاحة من جميع الأعمال
+                allMangas.forEach(manga => {
+                    if (manga.tags) {
+                        manga.tags.split(',').forEach(tag => {
+                            const cleanTag = tag.trim();
+                            if (cleanTag) availableTags.add(cleanTag);
+                        });
+                    }
+                });
+
+                renderTagsFilters();
+                // العرض الافتراضي: عرض كل المانغات إذا لم يتم اختيار أي تاغ
+                renderFilteredResults(allMangas);
+
+            } catch (err) {
+                document.getElementById('filterTagsContainer').innerHTML = `<span class="text-red-500 text-xs">فشل تحميل التصنيفات: ${err.message}</span>`;
+            }
+        }
+
+        function renderTagsFilters() {
+            const container = document.getElementById('filterTagsContainer');
+            if (availableTags.size === 0) {
+                container.innerHTML = '<span class="text-gray-500 text-xs py-2">لا توجد تصنيفات متاحة حالياً.</span>';
+                return;
+            }
+
+            container.innerHTML = Array.from(availableTags).sort().map(tag => {
+                const isActive = selectedTags.has(tag) ? 'active' : '';
+                return `<button onclick="toggleTagFilter('${tag}')" class="filter-tag ${isActive}">${tag}</button>`;
+            }).join('');
+        }
+
+        function toggleTagFilter(tag) {
+            // إضافة التاغ أو إزالته من قائمة الاختيارات
+            if (selectedTags.has(tag)) {
+                selectedTags.delete(tag);
+            } else {
+                selectedTags.add(tag);
+            }
+            
+            renderTagsFilters(); // إعادة رسم الأزرار لتغيير لون الزر النشط
+            filterMangas(); // بدء الفلترة
+        }
+
+        function clearFilters() {
+            selectedTags.clear();
+            renderTagsFilters();
+            renderFilteredResults(allMangas); // عرض الكل من جديد
+        }
+
+        function filterMangas() {
+            if (selectedTags.size === 0) {
+                renderFilteredResults(allMangas);
+                return;
+            }
+
+            // تصفية الأعمال: يجب أن يحتوي العمل على (على الأقل) أحد التاغات المختارة
+            // (يمكنك تغيير some إلى every إذا كنت تريد أن يكون العمل يحتوي على *جميع* التاغات المحددة)
+            const filtered = allMangas.filter(manga => {
+                if (!manga.tags) return false;
+                const mangaTagsList = manga.tags.split(',').map(t => t.trim());
+                return Array.from(selectedTags).every(selectedTag => mangaTagsList.includes(selectedTag)); 
+                // وضعناها every لكي يكون البحث دقيقاً (يجب توفر كل التاغات المختارة في نفس العمل)
+            });
+
+            renderFilteredResults(filtered);
+        }
+
+        function renderFilteredResults(mangasToRender) {
+            const container = document.getElementById('filteredResults');
+            const countDisplay = document.getElementById('resultCount');
+            
+            countDisplay.innerText = mangasToRender.length;
+
+            if (mangasToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 md:col-span-4 text-center py-16 text-gray-500 flex flex-col items-center">
+                        <i class="far fa-frown text-4xl mb-3 opacity-30"></i>
+                        <p class="text-sm font-bold">لا توجد أعمال تحتوي على هذه التجميعة من التصنيفات.</p>
+                        <button onclick="clearFilters()" class="mt-4 text-accent hover:text-white underline text-xs">امسح التحديد وجرب مرة أخرى</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = mangasToRender.map(manga => {
+                const mangaLink = `manga.html?id=${manga.id}`;
+                return `
+                    <a href="${mangaLink}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
+                        <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
+                            <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
+                        </div>
+                        <div class="p-2.5 pointer-events-none bg-[#111113]">
+                            <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
+                                <span class="text-pink-400"><i class="fas fa-heart text-[9px]"></i> تفاعل</span>
+                                <span class="truncate max-w-[60%]">${manga.uploader_name || 'مجهول'}</span>
+                            </div>
+                            <h3 class="font-bold text-xs text-white line-clamp-2 leading-tight">${manga.title}</h3>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
