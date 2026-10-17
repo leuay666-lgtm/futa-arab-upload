@@ -8,67 +8,69 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <title>Futa Arab - أفضل منصة مانغا</title>
     <style>
-        /* تخصيص الألوان بناءً على التصميم المطلوب */
         body { background-color: #121212; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; }
         .bg-card { background-color: #1a1a1a; }
-        .text-accent { color: #f472b6; } /* لون وردي/بنفسجي فاتح */
+        .text-accent { color: #f472b6; }
         .bg-accent { background-color: #f472b6; }
-        
-        /* تأثيرات الأغلفة */
         .cover-image { transition: transform 0.3s ease; }
         .card:hover .cover-image { transform: scale(1.05); }
-        
-        /* إخفاء شريط التمرير */
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #121212; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
     </style>
 </head>
 <body class="relative pb-16">
 
-    <!-- 1. شريط التنقل العلوي (Navbar) -->
+    <!-- شريط التنقل العلوي المحدث -->
     <nav class="sticky top-0 z-50 bg-[#151515] border-b border-gray-800 shadow-md">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-            <!-- أيقونة القائمة (للموبايل) -->
-            <button class="text-gray-300 hover:text-white text-xl"><i class="fas fa-bars"></i></button>
             
-            <!-- الشعار -->
-            <a href="index.html" class="text-2xl font-black tracking-wider text-accent flex items-center gap-2">
+            <!-- اليمين: القائمة وحالة الاشتراك (تعديل 1) -->
+            <div class="flex items-center gap-3">
+                <button class="text-gray-300 hover:text-white text-xl"><i class="fas fa-bars"></i></button>
+                <!-- شارة الاشتراك المجاني باللون البني -->
+                <span class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">
+                    مجاني
+                </span>
+            </div>
+            
+            <!-- الوسط: الشعار -->
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">
                 Futa Arab
             </a>
             
-            <!-- أيقونة البحث ورفع العمل -->
+            <!-- اليسار: النرد والبحث (تعديل 2) -->
             <div class="flex items-center gap-4">
+                <!-- زر النرد العشوائي المبرمج -->
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي">
+                    <i class="fas fa-dice"></i>
+                </button>
                 <button class="text-gray-300 hover:text-white text-lg"><i class="fas fa-search"></i></button>
-                <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hidden sm:flex bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition items-center gap-1">
-                    <i class="fas fa-upload"></i> مساهمة
-                </a>
             </div>
         </div>
         
-        <!-- الشريط الفرعي للأقسام -->
-        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800">
+        <!-- الشريط الفرعي للأقسام (تعديل 3) -->
+        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="#" class="text-white border-b-2 border-accent pb-1">الأحدث</a>
             <a href="#" class="hover:text-white transition">تصنيفات</a>
-            <a href="#" class="hover:text-white transition">المانهوا</a>
+            <!-- الروابط الجديدة التي طلبتها -->
+            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+            <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
             <a href="#" class="hover:text-white transition">الأكثر قراءة</a>
         </div>
     </nav>
 
-    <!-- تحذير للبالغين (اختياري) -->
-    <div class="bg-[#1a1a1a] text-center p-4 text-xs text-gray-400 border-b border-gray-800">
+    <div class="bg-[#1a1a1a] text-center p-3 text-xs text-gray-400 border-b border-gray-800">
         <span class="text-accent font-bold">هذا الموقع مخصص للبالغين فقط (+18).</span> إذا لم تكن بالغاً، يرجى المغادرة فوراً.
     </div>
 
     <!-- المحتوى الرئيسي -->
     <main class="max-w-4xl mx-auto px-4 py-6 space-y-8">
 
-        <!-- 2. قسم التحديثات الجديدة (الشبكة - Grid) -->
+        <!-- قسم التحديثات الجديدة -->
         <section>
             <h2 class="text-lg font-black uppercase mb-4 tracking-wider">التحديثات الجديدة <span class="text-accent">LATEST</span></h2>
-            
             <div id="latestUpdates" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <!-- هيكل التحميل -->
                 <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-sm">
                     <i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>جاري تحميل الأعمال...
                 </div>
@@ -77,10 +79,9 @@
 
         <div class="h-px w-full bg-gray-800 my-8"></div>
 
-        <!-- 3. قسم الأكثر شعبية (القائمة - List) -->
+        <!-- قسم الأكثر قراءة -->
         <section>
             <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر قراءة <span class="text-accent">TOP</span></h2>
-            
             <div id="topMangaList" class="flex flex-col gap-3">
                 <div class="text-center py-10 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i></div>
             </div>
@@ -88,7 +89,6 @@
 
     </main>
 
-    <!-- 4. الفوتر (Footer) -->
     <footer class="bg-card border-t border-gray-800 mt-10 py-8 px-4 text-center">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
             <div class="flex gap-4 text-sm font-bold text-gray-400">
@@ -98,18 +98,15 @@
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
                 جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع لأغراض القراءة المجانية. 
-                الموقع لا يستضيف أي ملفات على خوادمه الخاصة.
             </p>
             <p class="text-xs text-gray-600 mt-2">© 2026 Futa Arab. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- زر الصعود للأعلى -->
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- السكربت لجلب البيانات -->
     <script>
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
@@ -117,9 +114,32 @@
 
         window.onload = loadPublishedMangas;
 
+        // دالة المانغا العشوائية (خاصة بالنرد)
+        async function goToRandomManga() {
+            try {
+                // جلب الـ ID الخاص بجميع المانغات المقبولة فقط
+                const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    alert('لا توجد أعمال منشورة حالياً لقراءتها!');
+                    return;
+                }
+                
+                // اختيار رقم عشوائي من القائمة
+                const randomIndex = Math.floor(Math.random() * data.length);
+                const randomId = data[randomIndex].id;
+                
+                // الانتقال لصفحة قراءة المانغا العشوائية
+                // (ملاحظة: سنقوم بإنشاء ملف manga.html في الخطوة القادمة)
+                window.location.href = `manga.html?id=${randomId}`;
+                
+            } catch (err) {
+                console.error("خطأ في جلب عمل عشوائي: ", err);
+            }
+        }
+
         async function loadPublishedMangas() {
             try {
-                // جلب المانغات التي حالتها approved فقط، مرتبة من الأحدث للأقدم
                 const { data: mangas, error } = await sbClient.from('mangas')
                     .select('*')
                     .eq('status', 'approved')
@@ -131,7 +151,7 @@
                 const listContainer = document.getElementById('topMangaList');
 
                 if (mangas.length === 0) {
-                    gridContainer.innerHTML = '<div class="col-span-2 text-center text-gray-500 py-10">لا توجد أعمال منشورة بعد.</div>';
+                    gridContainer.innerHTML = '<div class="col-span-2 md:col-span-4 text-center text-gray-500 py-10">لا توجد أعمال منشورة بعد.</div>';
                     listContainer.innerHTML = '';
                     return;
                 }
@@ -139,19 +159,17 @@
                 gridContainer.innerHTML = '';
                 listContainer.innerHTML = '';
 
-                // الدوران على المانغات لإنشاء تصميم الشبكة (Grid) وتصميم القائمة (List)
                 mangas.forEach((manga, index) => {
-                    // تحويل التاغات إلى مصفوفة (Array)
                     const tagsArray = manga.tags ? manga.tags.split(',') : [];
-                    
-                    // توليد أزرار التاغات الصغيرة للتصميم الطولي
                     const tagsHtml = tagsArray.map(tag => 
                         `<span class="bg-[#2a2a2a] text-gray-300 px-2 py-0.5 rounded text-[9px] border border-gray-700 whitespace-nowrap">${tag.trim()}</span>`
                     ).join('');
 
-                    // 1. تصميم الشبكة (Grid) للأحدث
+                    // ربط الغلاف بصفحة المانغا
+                    const mangaLink = `manga.html?id=${manga.id}`;
+
                     const gridCard = `
-                        <a href="#" class="card block bg-card rounded-lg overflow-hidden border border-gray-800 hover:border-gray-600 transition">
+                        <a href="${mangaLink}" class="card block bg-card rounded-lg overflow-hidden border border-gray-800 hover:border-gray-600 transition">
                             <div class="relative pb-[140%] overflow-hidden bg-black">
                                 <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
                                 <div class="absolute top-2 right-2 bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded">جديد</div>
@@ -167,10 +185,9 @@
                     `;
                     gridContainer.innerHTML += gridCard;
 
-                    // 2. تصميم القائمة (List) للأكثر قراءة (نعرض أول 5 فقط كمثال)
                     if (index < 5) {
                         const listCard = `
-                            <a href="#" class="flex gap-3 bg-card p-2 rounded-lg border border-gray-800 hover:bg-[#222] transition items-center">
+                            <a href="${mangaLink}" class="flex gap-3 bg-card p-2 rounded-lg border border-gray-800 hover:bg-[#222] transition items-center">
                                 <img src="${manga.cover_image_url}" class="w-16 h-24 object-cover rounded-md flex-shrink-0 bg-black">
                                 <div class="flex-1 overflow-hidden flex flex-col justify-center">
                                     <h3 class="font-bold text-sm text-white truncate mb-1">${manga.title}</h3>
