@@ -29,45 +29,78 @@
         }
 
         .tag-badge { background-color: #000000; border: 1px solid #262626; color: #d1d5db; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; }
+        
+        /* تنسيق خاص لأزرار القائمة الجانبية لتطابق المرجع (أيقونة يمين، نص يسار) */
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            color: #d1d5db;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
+        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+        .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
 
     <div class="body-glow"></div>
 
-    <!-- القائمة الجانبية (Sidebar) -->
+    <!-- القائمة الجانبية (Sidebar) المطابقة للمرجع -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
-    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-72 bg-[#0f0f11] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
-        <div class="p-5 border-b border-gray-800 flex justify-between items-center">
-            <div class="text-right">
+    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
+        
+        <!-- رأس القائمة -->
+        <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
+            <button onclick="closeSidebar()" class="absolute right-4 top-6 text-gray-500 hover:text-white text-lg active:scale-95 transition">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="w-full text-left pl-2">
                 <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
-                <p class="text-[10px] text-gray-400 mt-0.5">Manga • Manhwa • Doujinshi</p>
-            </div>
-            <button onclick="closeSidebar()" class="text-gray-500 hover:text-white text-xl p-2 active:scale-95 transition"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="flex-1 py-6 flex flex-col gap-8 px-5">
-            <div>
-                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">المكتبة (Library)</h3>
-                <ul class="space-y-1">
-                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الرئيسية</span><i class="fas fa-home text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">كل الأعمال</span><i class="fas fa-list text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="#topSection" onclick="closeSidebar()" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الأكثر شعبية</span><i class="fas fa-arrow-trend-up text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">التصنيفات</span><i class="fas fa-tags text-gray-500 text-sm w-5 text-center"></i></a></li>
-                </ul>
-            </div>
-            <div class="h-px w-full bg-gray-800"></div>
-            <div>
-                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">حسابي (My Account)</h3>
-                <ul class="space-y-1">
-                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">سجل القراءة</span><i class="fas fa-history text-gray-500 text-sm w-5 text-center"></i></a></li>
-                </ul>
+                <p class="text-[11px] text-gray-500 mt-0.5 font-semibold">Manga • Manhwa • Doujinshi</p>
             </div>
         </div>
-        <div class="p-5 border-t border-gray-800 bg-[#0f0f11]">
-            <a href="#" class="flex items-center justify-between text-accent hover:text-pink-400 p-2 transition font-bold active:scale-95">
-                <span class="text-sm">تسجيل الدخول / حساب جديد</span><i class="fas fa-sign-in-alt text-sm"></i>
+
+        <!-- روابط القائمة -->
+        <div class="flex-1 py-6 flex flex-col gap-8 px-6">
+            
+            <!-- قسم المكتبة -->
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
+                    <li><a href="#" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="#topSection" onclick="closeSidebar()" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
+                    <li><a href="#" class="sidebar-link"><i class="far fa-clock"></i><span>آخر التحديثات</span></a></li>
+                    <li><a href="#" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
+                </ul>
+            </div>
+            
+            <div class="h-[1px] w-full bg-gray-800/50"></div>
+            
+            <!-- قسم الحساب -->
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-users"></i><span>اشتراكاتي</span></a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- زر تسجيل الدخول -->
+        <div class="p-6 border-t border-gray-800/50 text-center">
+            <a href="#" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
             </a>
+            <p class="text-[10px] text-gray-500 mt-2 font-semibold">تظهر خيارات الحساب بعد تسجيل الدخول.</p>
         </div>
     </div>
 
@@ -76,7 +109,7 @@
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
-                <span class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
+                <span id="userBadge" class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
             </div>
             
             <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
@@ -140,8 +173,30 @@
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
-        window.onload = loadPublishedMangas;
+        window.onload = () => {
+            updateAuthUI();
+            loadPublishedMangas();
+        };
+
+        function updateAuthUI() {
+            const badge = document.getElementById('userBadge');
+            const menuText = document.getElementById('authMenuText');
+            if (currentUser) {
+                badge.innerText = currentUser.username;
+                badge.className = "bg-purple-900 text-purple-200 text-[10px] font-bold px-2 py-1 rounded-md border border-purple-500";
+                menuText.innerText = "تسجيل الخروج";
+            } else {
+                badge.innerText = "مجاني";
+                menuText.innerText = "تسجيل الدخول / حساب جديد";
+            }
+        }
+
+        function checkAuthForFavorites() {
+            if (!currentUser) return alert('⚠️ عذراً، يجب تسجيل الدخول لفتح هذه القائمة.');
+        }
 
         function openSidebar() {
             document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100');
@@ -157,7 +212,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        // دالة الانتقال الآمن لصفحة المانغا (تحفظ الرقم في الذاكرة وفي الرابط معاً)
         function openMangaPage(id) {
             localStorage.setItem('selectedMangaId', id);
             window.location.href = `manga.html?id=${id}`;
