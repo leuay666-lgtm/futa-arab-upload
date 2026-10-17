@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Futa Arab - أفضل منصة مانغا</title>
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #1a1a1a; }
+        .text-accent { color: #f472b6; }
+        .bg-accent { background-color: #f472b6; }
+        .cover-image { transition: transform 0.3s ease; }
+        .card:hover .cover-image { transform: scale(1.05); }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        
+        /* تأثيرات القائمة الجانبية */
+        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
+        #sidebarMenu { transition: transform 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="relative pb-16">
+
+    <!-- القائمة الجانبية المنسدلة (Sidebar) -->
+    <!-- 1. الخلفية المظللة -->
+    <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
+    
+    <!-- 2. محتوى القائمة الجانبية -->
+    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-72 bg-[#0f0f11] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
+        <!-- الهيدر الخاص بالقائمة -->
+        <div class="p-5 border-b border-gray-800 flex justify-between items-center">
+            <div class="text-right">
+                <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
+                <p class="text-[10px] text-gray-400 mt-0.5">Manga • Manhwa • Doujinshi</p>
+            </div>
+            <button onclick="closeSidebar()" class="text-gray-500 hover:text-white text-xl p-2 active:scale-95 transition"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- روابط القائمة -->
+        <div class="flex-1 py-6 flex flex-col gap-8 px-5">
+            
+            <!-- قسم المكتبة -->
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">المكتبة (Library)</h3>
+                <ul class="space-y-1">
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الرئيسية</span><i class="fas fa-home text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">كل الأعمال</span><i class="fas fa-list text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الأكثر شعبية</span><i class="fas fa-arrow-trend-up text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">آخر التحديثات</span><i class="far fa-clock text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">التصنيفات</span><i class="fas fa-tags text-gray-500 text-sm w-5 text-center"></i></a></li>
+                </ul>
+            </div>
+
+            <div class="h-px w-full bg-gray-800"></div>
+
+            <!-- قسم حسابي -->
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">حسابي (My Account)</h3>
+                <ul class="space-y-1">
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">سجل القراءة</span><i class="fas fa-history text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">أعمال أعجبتني</span><i class="far fa-thumbs-up text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">اشتراكاتي</span><i class="fas fa-users text-gray-500 text-sm w-5 text-center"></i></a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- زر تسجيل الدخول -->
+        <div class="p-5 border-t border-gray-800 bg-[#0f0f11]">
+            <a href="#" class="flex items-center justify-between text-accent hover:text-pink-400 p-2 transition font-bold active:scale-95">
+                <span class="text-sm">تسجيل الدخول / إنشاء حساب</span>
+                <i class="fas fa-sign-in-alt text-sm"></i>
+            </a>
+            <p class="text-[9px] text-gray-500 mt-2 text-center">تظهر خيارات الحساب بعد تسجيل الدخول.</p>
+        </div>
+    </div>
+
+
+    <!-- شريط التنقل العلوي -->
+    <nav class="sticky top-0 z-50 bg-[#151515] border-b border-gray-800 shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            
+            <!-- اليمين: القائمة وحالة الاشتراك -->
+            <div class="flex items-center gap-3">
+                <!-- تم ربط هذا الزر بفتح القائمة الجانبية -->
+                <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
+                <span class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">
+                    مجاني
+                </span>
+            </div>
+            
+            <!-- الوسط: الشعار -->
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">
+                Futa Arab
+            </a>
+            
+            <!-- اليسار: النرد والبحث -->
+            <div class="flex items-center gap-4">
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي">
+                    <i class="fas fa-dice"></i>
+                </button>
+                <button class="text-gray-300 hover:text-white text-lg"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <!-- الشريط الفرعي -->
+        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
+            <a href="#" class="text-white border-b-2 border-accent pb-1">الأحدث</a>
+            <a href="#" class="hover:text-white transition">تصنيفات</a>
+            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+            <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+            <a href="#" class="hover:text-white transition">الأكثر قراءة</a>
+        </div>
+    </nav>
+
+    <div class="bg-[#1a1a1a] text-center p-3 text-xs text-gray-400 border-b border-gray-800">
+        <span class="text-accent font-bold">هذا الموقع مخصص للبالغين فقط (+18).</span> إذا لم تكن بالغاً، يرجى المغادرة فوراً.
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="max-w-4xl mx-auto px-4 py-6 space-y-8">
+        <section>
+            <h2 class="text-lg font-black uppercase mb-4 tracking-wider">التحديثات الجديدة <span class="text-accent">LATEST</span></h2>
+            <div id="latestUpdates" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-sm">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>جاري تحميل الأعمال...
+                </div>
+            </div>
+        </section>
+
+        <div class="h-px w-full bg-gray-800 my-8"></div>
+
+        <section>
+            <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر قراءة <span class="text-accent">TOP</span></h2>
+            <div id="topMangaList" class="flex flex-col gap-3">
+                <div class="text-center py-10 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-card border-t border-gray-800 mt-10 py-8 px-4 text-center">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
+            <div class="flex gap-4 text-sm font-bold text-gray-400">
+                <a href="#" class="hover:text-white">الرئيسية</a>
+                <a href="#" class="hover:text-white">شروط الاستخدام</a>
+                <a href="#" class="hover:text-white">DMCA</a>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
+                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع لأغراض القراءة المجانية. 
+            </p>
+            <p class="text-xs text-gray-600 mt-2">© 2026 Futa Arab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        window.onload = loadPublishedMangas;
+
+        // دوال القائمة الجانبية (Sidebar)
+        function openSidebar() {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            // إظهار التظليل
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100');
+            
+            // سحب القائمة من اليمين
+            sidebar.classList.remove('translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            
+            // منع الصفحة الخلفية من التمرير
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            // إخفاء التظليل
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            
+            // إرجاع القائمة لليمين
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('translate-x-full');
+            
+            // إعادة تفعيل التمرير للصفحة
+            document.body.style.overflow = 'auto';
+        }
+
+        async function goToRandomManga() {
+            try {
+                const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
+                if (error) throw error;
+                if (!data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
+                
+                const randomIndex = Math.floor(Math.random() * data.length);
+                window.location.href = `manga.html?id=${data[randomIndex].id}`;
+            } catch (err) { console.error("خطأ: ", err); }
+        }
+
+        async function loadPublishedMangas() {
+            try {
+                const { data: mangas, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
+                if (error) throw error;
+
+                const gridContainer = document.getElementById('latestUpdates');
+                const listContainer = document.getElementById('topMangaList');
+
+                if (mangas.length === 0) {
+                    gridContainer.innerHTML = '<div class="col-span-2 md:col-span-4 text-center text-gray-500 py-10">لا توجد أعمال منشورة بعد.</div>';
+                    listContainer.innerHTML = '';
+                    return;
+                }
+
+                gridContainer.innerHTML = ''; listContainer.innerHTML = '';
+
+                mangas.forEach((manga, index) => {
+                    const tagsArray = manga.tags ? manga.tags.split(',') : [];
+                    const tagsHtml = tagsArray.map(tag => `<span class="bg-[#2a2a2a] text-gray-300 px-2 py-0.5 rounded text-[9px] border border-gray-700 whitespace-nowrap">${tag.trim()}</span>`).join('');
+                    const mangaLink = `manga.html?id=${manga.id}`;
+
+                    gridContainer.innerHTML += `
+                        <a href="${mangaLink}" class="card block bg-card rounded-lg overflow-hidden border border-gray-800 hover:border-gray-600 transition shadow-lg">
+                            <div class="relative pb-[140%] overflow-hidden bg-black">
+                                <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
+                                <div class="absolute top-2 right-2 bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow">جديد</div>
+                            </div>
+                            <div class="p-2.5">
+                                <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
+                                    <span class="text-yellow-500"><i class="fas fa-star"></i> 4.5</span>
+                                    <span class="truncate max-w-[60%]">${manga.uploader_name || 'مجهول'}</span>
+                                </div>
+                                <h3 class="font-bold text-xs text-white line-clamp-2 leading-tight">${manga.title}</h3>
+                            </div>
+                        </a>
+                    `;
+
+                    if (index < 5) {
+                        listContainer.innerHTML += `
+                            <a href="${mangaLink}" class="flex gap-3 bg-card p-2 rounded-lg border border-gray-800 hover:bg-[#222] transition items-center shadow-md">
+                                <img src="${manga.cover_image_url}" class="w-16 h-24 object-cover rounded-md flex-shrink-0 bg-black">
+                                <div class="flex-1 overflow-hidden flex flex-col justify-center">
+                                    <h3 class="font-bold text-sm text-white truncate mb-1.5">${manga.title}</h3>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        ${tagsHtml}
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                    }
+                });
+            } catch (err) {
+                document.getElementById('latestUpdates').innerHTML = `<div class="col-span-2 text-red-500 text-center text-sm py-10">خطأ في الاتصال: ${err.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
