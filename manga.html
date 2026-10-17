@@ -9,19 +9,24 @@
     <title>تفاصيل العمل - Futa Arab</title>
     <style>
         body { background-color: #111113; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #18181b; }
         .text-accent { color: #f472b6; }
         .bg-accent { background-color: #f472b6; }
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #121214; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         
-        /* هذا هو كود البلور الذي تم إصلاحه ليكون واضحاً وجميلاً مثل المرجع */
+        /* تأثيرات القائمة الجانبية */
+        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
+        #sidebarMenu { transition: transform 0.3s ease-in-out; }
+
+        /* الخلفية الضبابية للغلاف */
         .page-blur-bg {
             position: fixed;
-            top: -10%; left: -10%; right: -10%; bottom: -10%; /* تمديد لتجنب الحواف البيضاء */
+            top: -10%; left: -10%; right: -10%; bottom: -10%;
             background-size: cover;
-            background-position: center top; /* التركيز على أعلى الصورة */
-            filter: blur(40px) brightness(0.3); /* بلور واضح وإضاءة مناسبة */
+            background-position: center top;
+            filter: blur(40px) brightness(0.3);
             transform: scale(1.1);
             z-index: -1;
         }
@@ -30,29 +35,94 @@
             background-color: #000000; border: 1px solid #262626; color: #d1d5db;
             padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
         }
+
+        .tag-badge-sm {
+            background-color: #000000; border: 1px solid #262626; color: #d1d5db;
+            padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600;
+        }
     </style>
 </head>
-<body class="relative min-h-screen pb-16">
+<body class="relative min-h-screen flex flex-col">
 
-    <!-- الخلفية الضبابية (البلور) الواضحة -->
+    <!-- الخلفية الضبابية (البلور) -->
     <div id="pageBlurBg" class="page-blur-bg"></div>
 
-    <nav class="sticky top-0 z-40 bg-[#121214]/80 backdrop-blur-md border-b border-gray-800/60 px-4 py-3 flex justify-between items-center max-w-lg mx-auto">
-        <button onclick="window.location.href='index.html'" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-arrow-right"></i></button>
-        <a href="index.html" class="text-xl font-black text-accent tracking-wider">Futa Arab</a>
-        <a href="index.html" class="text-gray-300 hover:text-white text-lg"><i class="fas fa-home"></i></a>
+    <!-- القائمة الجانبية المنسدلة (Sidebar) -->
+    <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
+    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-72 bg-[#0f0f11] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
+        <div class="p-5 border-b border-gray-800 flex justify-between items-center">
+            <div class="text-right">
+                <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
+                <p class="text-[10px] text-gray-400 mt-0.5">Manga • Manhwa • Doujinshi</p>
+            </div>
+            <button onclick="closeSidebar()" class="text-gray-500 hover:text-white text-xl p-2 active:scale-95 transition"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="flex-1 py-6 flex flex-col gap-8 px-5">
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">المكتبة (Library)</h3>
+                <ul class="space-y-1">
+                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الرئيسية</span><i class="fas fa-home text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">كل الأعمال</span><i class="fas fa-list text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#topSection" onclick="closeSidebar()" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الأكثر شعبية</span><i class="fas fa-arrow-trend-up text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">آخر التحديثات</span><i class="far fa-clock text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">التصنيفات</span><i class="fas fa-tags text-gray-500 text-sm w-5 text-center"></i></a></li>
+                </ul>
+            </div>
+            <div class="h-px w-full bg-gray-800"></div>
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">حسابي (My Account)</h3>
+                <ul class="space-y-1">
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">سجل القراءة</span><i class="fas fa-history text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">أعمال أعجبتني</span><i class="far fa-thumbs-up text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">اشتراكاتي</span><i class="fas fa-users text-gray-500 text-sm w-5 text-center"></i></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="p-5 border-t border-gray-800 bg-[#0f0f11]">
+            <a href="#" class="flex items-center justify-between text-accent hover:text-pink-400 p-2 transition font-bold active:scale-95">
+                <span class="text-sm">تسجيل الدخول / حساب جديد</span><i class="fas fa-sign-in-alt text-sm"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- شريط التنقل العلوي الكامل (مطابق للصفحة الرئيسية) -->
+    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
+                <span class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
+            </div>
+            
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
+                <a href="index.html" class="text-gray-300 hover:text-white text-lg"><i class="fas fa-search"></i></a>
+            </div>
+        </div>
+        
+        <!-- الشريط الفرعي للأقسام -->
+        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
+            <a href="index.html" class="hover:text-white transition">الأحدث</a>
+            <a href="index.html" class="hover:text-white transition">تصنيفات</a>
+            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+            <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+            <a href="#topSection" class="hover:text-white transition">الأكثر قراءة</a>
+        </div>
     </nav>
 
+    <!-- شاشة التحميل -->
     <div id="loadingScreen" class="fixed inset-0 bg-[#111113] z-50 flex flex-col justify-center items-center">
         <i class="fas fa-spinner fa-spin text-3xl text-accent mb-3"></i>
         <p class="text-xs text-gray-400">جاري تحميل بيانات العمل...</p>
     </div>
 
-    <main id="mainContainer" class="hidden max-w-md mx-auto px-4 pt-8 space-y-6">
+    <!-- المحتوى الرئيسي -->
+    <main id="mainContainer" class="hidden flex-1 max-w-md mx-auto px-4 pt-8 pb-10 space-y-6 w-full">
 
-        <!-- القسم العلوي: الغلاف والأزرار (مصمم ليتطابق مع المرجع) -->
+        <!-- 1. الغلاف والتقييم والأزرار -->
         <div class="flex flex-col items-center text-center space-y-5">
-            <!-- تكبير حجم الغلاف قليلاً ليكون أبرز -->
             <div class="w-64 h-[24rem] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-black flex-shrink-0">
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
             </div>
@@ -65,7 +135,6 @@
                 <p class="text-[11px] text-gray-400">التقييم: 4.5 / 5 من 1 صوت</p>
             </div>
 
-            <!-- أزرار القراءة والمفضلة متطابقة مع تصميمك -->
             <div class="flex gap-3 w-full pt-2">
                 <button onclick="openReader()" class="flex-1 bg-[#e11d48] hover:bg-pink-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
                     <i class="fas fa-thumbs-up"></i> قراءة الآن
@@ -76,6 +145,7 @@
             </div>
         </div>
 
+        <!-- 2. العناوين والتفاصيل -->
         <div class="space-y-4 pt-4">
             <div>
                 <h1 id="mangaTitle" class="text-3xl font-black text-white leading-tight">...</h1>
@@ -97,7 +167,7 @@
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">المشاهدات:</span>
-                    <span class="text-gray-300">N/A, it has 10 views</span>
+                    <span class="text-gray-300">10 مشاهدات</span>
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">الرافع:</span>
@@ -106,6 +176,7 @@
             </div>
         </div>
 
+        <!-- 3. القصة والوصف -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-3 mt-6">
             <h3 class="text-sm font-black uppercase text-white tracking-wider">ملخص القصة والتفاصيل</h3>
             <p id="mangaDesc" class="text-sm text-gray-300 leading-relaxed font-semibold">
@@ -113,6 +184,7 @@
             </p>
         </div>
 
+        <!-- 4. قائمة الفصول -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4">
             <h3 class="text-sm font-black uppercase text-white tracking-wider">قائمة الفصول المتاحة</h3>
             <div class="relative mb-2">
@@ -129,12 +201,13 @@
             </div>
         </div>
 
+        <!-- 5. أعمال مشابهة -->
         <div class="space-y-4 pt-4">
             <h3 class="text-sm font-black uppercase text-white tracking-wider">أعمال مشابهة</h3>
             <div id="similarGrid" class="grid grid-cols-2 gap-4"></div>
         </div>
 
-        <!-- قسم التعليقات -->
+        <!-- 6. قسم التعليقات والمناقشة -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4 mt-6">
             <h3 class="text-sm font-black uppercase text-accent tracking-wider flex items-center gap-2">
                 <i class="far fa-comments"></i> التعليقات والمناقشة
@@ -151,9 +224,34 @@
             </div>
         </div>
 
+        <div class="h-px w-full bg-gray-800/80 my-6"></div>
+
+        <!-- 7. قسم الأكثر قراءة TOP (مطابق للصفحة الرئيسية) -->
+        <section id="topSection" class="pt-2">
+            <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر قراءة <span class="text-accent">TOP</span></h2>
+            <div id="topMangaList" class="flex flex-col gap-3">
+                <div class="text-center py-6 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin"></i></div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- نافذة القراءة -->
+    <!-- 8. الفوتر الكامل (مطابق للصفحة الرئيسية) -->
+    <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
+            <div class="flex gap-4 text-sm font-bold text-gray-400">
+                <a href="index.html" class="hover:text-white transition">الرئيسية</a>
+                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="#" class="hover:text-white transition">DMCA</a>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
+                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع لأغراض القراءة المجانية. الموقع لا يستضيف أي ملفات على خوادمه.
+            </p>
+            <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- نافذة القراءة المدمجة -->
     <div id="readerModal" class="fixed inset-0 bg-[#0a0a0c] z-50 hidden overflow-y-auto">
         <div class="sticky top-0 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800 p-3 flex justify-between items-center z-10">
             <span id="readerTitle" class="text-xs font-black text-gray-300 truncate max-w-[200px]">...</span>
@@ -164,8 +262,8 @@
         <div id="readerContent" class="max-w-xl mx-auto flex flex-col items-center pb-20"></div>
     </div>
 
-    <!-- زر الصعود -->
-    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded-lg shadow-lg flex items-center justify-center active:scale-95 z-40 text-sm">
+    <!-- زر الصعود للأعلى -->
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-40">
         <i class="fas fa-arrow-up"></i>
     </button>
 
@@ -173,6 +271,30 @@
         const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
         let currentMangaId = null;
         let chapterPages = [];
+
+        // دوال القائمة الجانبية (Sidebar)
+        function openSidebar() {
+            document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100');
+            document.getElementById('sidebarOverlay').classList.remove('pointer-events-none');
+            document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0');
+            document.getElementById('sidebarOverlay').classList.add('pointer-events-none');
+            document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full');
+            document.body.style.overflow = 'auto';
+        }
+
+        // دالة النرد العشوائي
+        async function goToRandomManga() {
+            try {
+                const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
+                if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
+                window.location.href = `manga.html?id=${data[Math.floor(Math.random() * data.length)].id}`;
+            } catch (err) { console.error("خطأ: ", err); }
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             const urlString = window.location.href;
@@ -183,7 +305,7 @@
             }
 
             if (!currentMangaId) {
-                document.getElementById('loadingScreen').innerHTML = '<div class="text-center"><p class="text-white font-bold mb-4">لم يتم العثور على العمل المطلوب!</p><a href="index.html" class="bg-accent text-white px-4 py-2 rounded-lg font-bold">العودة</a></div>';
+                document.getElementById('loadingScreen').innerHTML = '<div class="text-center"><p class="text-white font-bold mb-4">لم يتم العثور على العمل المطلوب!</p><a href="index.html" class="bg-accent text-white px-4 py-2 rounded-lg font-bold">العودة للرئيسية</a></div>';
                 return;
             }
 
@@ -191,7 +313,6 @@
                 const { data: manga, error } = await sbClient.from('mangas').select('*').eq('id', currentMangaId).single();
                 if (error || !manga) throw new Error('العمل غير موجود.');
 
-                // تطبيق الغلاف والخلفية الضبابية (Blur)
                 document.getElementById('mangaCover').src = manga.cover_image_url;
                 document.getElementById('pageBlurBg').style.backgroundImage = `url('${manga.cover_image_url}')`;
 
@@ -213,11 +334,11 @@
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('mainContainer').classList.remove('hidden');
 
-                loadSimilarWorks();
+                loadSimilarAndTopWorks();
                 loadComments();
 
             } catch (err) {
-                document.getElementById('loadingScreen').innerHTML = `<div class="text-center"><p class="text-white font-bold mb-4">${err.message}</p><a href="index.html" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold">العودة</a></div>`;
+                document.getElementById('loadingScreen').innerHTML = `<div class="text-center"><p class="text-white font-bold mb-4">${err.message}</p><a href="index.html" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold">العودة للرئيسية</a></div>`;
             }
         });
 
@@ -244,22 +365,48 @@
             btn.innerHTML = btn.classList.contains('bg-gray-700') ? '<i class="fas fa-check"></i> تم الحفظ' : '<i class="fas fa-bookmark"></i> المفضلة';
         }
 
-        async function loadSimilarWorks() {
-            const { data } = await sbClient.from('mangas').select('id, title, cover_image_url').eq('status', 'approved').neq('id', currentMangaId).limit(2);
-            if (data && data.length > 0) {
-                document.getElementById('similarGrid').innerHTML = data.map(m => `
+        // جلب الأعمال المشابهة + قائمة الأكثر قراءة (TOP)
+        async function loadSimilarAndTopWorks() {
+            const { data } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
+            if (!data) return;
+
+            // 1. الأعمال المشابهة
+            const similar = data.filter(m => m.id != currentMangaId).slice(0, 2);
+            if (similar.length > 0) {
+                document.getElementById('similarGrid').innerHTML = similar.map(m => `
                     <a href="manga.html?id=${m.id}" class="bg-[#111113] rounded-xl overflow-hidden border border-gray-800 block shadow-md">
                         <img src="${m.cover_image_url}" class="w-full h-44 object-cover">
                         <span class="text-xs font-bold text-white p-2.5 truncate block">${m.title}</span>
                     </a>
                 `).join('');
             }
+
+            // 2. قائمة الأكثر قراءة TOP (مطابقة للصفحة الرئيسية)
+            const topList = data.slice(0, 5);
+            const listContainer = document.getElementById('topMangaList');
+            listContainer.innerHTML = topList.map(manga => {
+                const tagsArray = manga.tags ? manga.tags.split(',') : [];
+                const tagsHtml = tagsArray.map(tag => `<span class="tag-badge-sm whitespace-nowrap">${tag.trim()}</span>`).join('');
+                return `
+                    <a href="manga.html?id=${manga.id}" class="flex gap-3 bg-[#18181b]/90 p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-start shadow-md relative cursor-pointer">
+                        <img src="${manga.cover_image_url}" class="w-20 h-28 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm border border-gray-700/50 pointer-events-none">
+                        <div class="flex-1 overflow-hidden pointer-events-none">
+                            <h3 class="font-bold text-sm text-white mb-2 leading-tight">${manga.title}</h3>
+                            <div class="flex flex-wrap gap-1.5 mt-1">
+                                <span class="tag-badge-sm text-gray-400">Hentai</span>
+                                <span class="tag-badge-sm text-gray-400">Manhwa</span>
+                                ${tagsHtml}
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
         }
 
         async function loadComments() {
             const box = document.getElementById('commentsList');
             const { data, error } = await sbClient.from('comments').select('*').eq('manga_id', currentMangaId).order('created_at', { ascending: false });
-            if (error && error.code === '42P01') return box.innerHTML = ''; // تجاهل الخطأ بصمت
+            if (error && error.code === '42P01') return box.innerHTML = '';
             if (!data || data.length === 0) return;
 
             box.innerHTML = data.map(c => `
