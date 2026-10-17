@@ -44,7 +44,7 @@
                 <textarea id="mangaDesc" maxlength="500" rows="3" placeholder="نبذة مختصرة عن القصة (حد أقصى 500 حرف)..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm resize-none"></textarea>
             </div>
 
-            <!-- 4. التصنيفات (Tags) - يتم جلبها تلقائياً -->
+            <!-- 4. التصنيفات (Tags) -->
             <div>
                 <label class="text-sm text-gray-400 mb-2 block flex justify-between items-center">
                     <span>التصنيفات والفئة</span>
@@ -149,7 +149,7 @@
             uploadFullManga();
         }
 
-        // --- المحرك الشامل ---
+        // --- المحرك الشامل المحدث ---
         const naturalSort = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
         function compressImage(fileOrBlob, quality = 0.75, maxWidth = 1200) {
@@ -194,7 +194,12 @@
                 if (['zip', 'cbz', 'epub'].includes(ext)) {
                     updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> قراءة الملف المضغوط...`);
                     const zip = await JSZip.loadAsync(file), zipEntries = [];
-                    zip.forEach((path, entry) => { if (!entry.dir && !path.includes('__MACOSX') && /\.(jpe?g|png|webp|gif|avif)\$/i.test(entry.name)) zipEntries.push(entry); });
+                    // تحديث هام للبحث في العمق داخل المجلدات في ZIP
+                    zip.forEach((path, entry) => { 
+                        if (!entry.dir && !path.includes('__MACOSX') && !path.startsWith('.') && /\.(jpe?g|png|webp|gif|avif)\$/i.test(entry.name)) {
+                            zipEntries.push(entry); 
+                        }
+                    });
                     zipEntries.sort((a, b) => naturalSort.compare(a.name, b.name));
                     zipEntries.forEach(entry => tasks.push({ getWebP: async () => compressImage(await entry.async('blob'), 0.70) }));
                 } else if (ext === 'pdf') {
@@ -221,8 +226,8 @@
 
         async function uploadFullManga() {
             const title = document.getElementById('mangaTitle').value.trim();
-            const titleEn = document.getElementById('mangaTitleEn').value.trim();
-            const desc = document.getElementById('mangaDesc').value.trim();
+            const titleEn = document.getElementById('mangaTitleEn').value.trim() || null;
+            const desc = document.getElementById('mangaDesc').value.trim() || null;
             const uploader = document.getElementById('uploaderName').value.trim() || 'مجهول';
             const coverFile = document.getElementById('mangaCover').files[0];
             const pageFiles = document.getElementById('mangaPages').files;
@@ -251,7 +256,7 @@
                     title_en: titleEn,
                     description: desc,
                     uploader_name: uploader,
-                    tags: Array.from(selectedTags).join(','), // حفظ التاغات المختارة
+                    tags: Array.from(selectedTags).join(','),
                     cover_image_url: coverUrl, 
                     status: 'pending' 
                 };
