@@ -38,7 +38,7 @@
 
     <div id="pageBlurBg" class="page-blur-bg"></div>
 
-    <!-- نافذة البحث الذكية (مخفية افتراضياً) -->
+    <!-- نافذة البحث الذكية -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
@@ -100,7 +100,6 @@
             
             <div class="flex items-center gap-4">
                 <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
-                <!-- تفعيل زر البحث هنا أيضاً -->
                 <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
             </div>
         </div>
@@ -128,7 +127,7 @@
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
             </div>
 
-            <!-- النجوم التفاعلية -->
+            <!-- النجوم التفاعلية المحسوبة بدقة -->
             <div class="space-y-1">
                 <div id="starContainer" class="flex justify-center items-center gap-1 text-yellow-400 text-xl"></div>
                 <p class="text-[11px] text-gray-400 mt-1">
@@ -136,6 +135,7 @@
                 </p>
             </div>
 
+            <!-- أزرار التفاعل -->
             <div class="flex gap-2 w-full pt-2">
                 <button onclick="toggleBookmark()" id="bookmarkBtn" class="bg-[#18181b] border border-gray-700 text-gray-400 hover:text-emerald-400 font-bold py-3.5 px-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center text-sm">
                     <i id="bookmarkIcon" class="far fa-bookmark text-lg"></i>
@@ -211,6 +211,7 @@
                 <div class="text-center py-6 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin"></i></div>
             </div>
         </section>
+
     </main>
 
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
@@ -320,7 +321,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const params = newSearchParams(window.location.search);
+            // تم تصحيح الخطأ الإملائي هنا
+            const params = new URLSearchParams(window.location.search);
             currentMangaId = params.get('id') || localStorage.getItem('selectedMangaId');
             updateAuthUI();
             
