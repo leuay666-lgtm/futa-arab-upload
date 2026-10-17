@@ -69,7 +69,6 @@
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="#topSection" onclick="closeSidebar()" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
-                    <!-- ربط صفحة التصنيفات هنا -->
                     <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
             </div>
@@ -83,7 +82,8 @@
             </div>
         </div>
         <div class="p-6 border-t border-gray-800/50 text-center">
-            <a href="#" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+            <!-- ربط الزر هنا أيضاً -->
+            <a href="auth.html" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
                 <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
             </a>
         </div>
@@ -107,7 +107,6 @@
         
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="hover:text-white transition">الأحدث</a>
-            <!-- ربط صفحة التصنيفات هنا -->
             <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
@@ -115,14 +114,14 @@
         </div>
     </nav>
 
-    <!-- شاشة التحميل مجهزة بزر عودة -->
+    <!-- شاشة التحميل -->
     <div id="loadingScreen" class="fixed inset-0 bg-[#111113] z-50 flex flex-col justify-center items-center">
         <i class="fas fa-spinner fa-spin text-3xl text-accent mb-3" id="loadingIcon"></i>
         <p class="text-xs text-gray-400" id="loadingText">جاري تحميل بيانات العمل...</p>
         <button id="errorReturnBtn" onclick="window.location.href='index.html'" class="hidden mt-4 bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-bold">العودة للرئيسية</button>
     </div>
 
-    <!-- المحتوى الرئيسي للمانغا -->
+    <!-- المحتوى الرئيسي -->
     <main id="mainContainer" class="hidden flex-1 max-w-md mx-auto px-4 pt-8 pb-10 space-y-6 w-full">
 
         <div class="flex flex-col items-center text-center space-y-4">
@@ -130,7 +129,6 @@
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
             </div>
 
-            <!-- النجوم التفاعلية المحسوبة بدقة -->
             <div class="space-y-1">
                 <div id="starContainer" class="flex justify-center items-center gap-1 text-yellow-400 text-xl"></div>
                 <p class="text-[11px] text-gray-400 mt-1">
@@ -230,7 +228,6 @@
         </div>
     </footer>
 
-    <!-- نافذة القراءة -->
     <div id="readerModal" class="fixed inset-0 bg-[#0a0a0c] z-50 hidden overflow-y-auto">
         <div class="sticky top-0 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800 p-3 flex justify-between items-center z-10">
             <span id="readerTitle" class="text-xs font-black text-gray-300 truncate max-w-[200px]">...</span>
@@ -299,7 +296,6 @@
 
                 if (manga.tags) {
                     const tags = manga.tags.split(',');
-                    // ربط كل تاغ منفرد بصفحة tags.html بشكل ديناميكي!
                     document.getElementById('tagsList').innerHTML = tags.map(t => `<a href="tags.html" class="tag-badge hover:bg-gray-800 transition">${t.trim()}</a>`).join('');
                 }
 
