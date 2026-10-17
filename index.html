@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) كاملة -->
+    <!-- القائمة الجانبية (Sidebar) -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -64,26 +64,22 @@
             </div>
         </div>
         <div class="flex-1 py-6 flex flex-col gap-8 px-6">
-            <!-- المكتبة -->
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
                 <ul class="space-y-1.5">
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="#topSection" onclick="closeSidebar()" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
-                    <li><a href="index.html" class="sidebar-link"><i class="far fa-clock"></i><span>آخر التحديثات</span></a></li>
-                    <li><button onclick="openSearch(); closeSidebar()" class="w-full sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></button></li>
+                    <!-- ربط صفحة التصنيفات هنا -->
+                    <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
             </div>
             <div class="h-[1px] w-full bg-gray-800/50"></div>
-            <!-- حسابي -->
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
                 <ul class="space-y-1.5">
                     <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
                     <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
-                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
-                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-users"></i><span>اشتراكاتي</span></a></li>
                 </ul>
             </div>
         </div>
@@ -95,7 +91,7 @@
     </div>
 
     <!-- شريط التنقل العلوي -->
-    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md">
+    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
@@ -112,9 +108,11 @@
         
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="text-white border-b-2 border-accent pb-1">الأحدث</a>
-            <button onclick="openSearch()" class="hover:text-white transition">تصنيفات</button>
+            <!-- ربط صفحة التصنيفات هنا -->
+            <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+            <a href="#topSection" class="hover:text-white transition">الأكثر قراءة</a>
         </div>
     </nav>
 
@@ -155,7 +153,9 @@
     </button>
 
     <script>
-        const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
         
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
@@ -200,7 +200,6 @@
             window.location.href = `manga.html?id=${id}`;
         }
 
-        // --- دوال محرك البحث ---
         function openSearch() {
             const modal = document.getElementById('searchModal');
             modal.classList.remove('hidden');
@@ -235,38 +234,23 @@
 
             searchTimeout = setTimeout(async () => {
                 try {
-                    const { data, error } = await sbClient.from('mangas')
-                        .select('*')
-                        .eq('status', 'approved')
-                        .or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`)
-                        .limit(15);
-                    
+                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
                     if (error) throw error;
-
-                    if (data.length === 0) {
-                        resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>';
-                        return;
-                    }
+                    if (data.length === 0) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>'; return; }
 
                     resultsContainer.innerHTML = data.map(manga => {
-                        const tagsArray = manga.tags ? manga.tags.split(',').slice(0, 3) : [];
-                        const tagsHtml = tagsArray.map(tag => `<span class="bg-black border border-gray-700 text-gray-300 px-2 py-0.5 rounded text-[9px] font-bold">${tag.trim()}</span>`).join('');
+                        const tagsHtml = (manga.tags ? manga.tags.split(',').slice(0, 3) : []).map(tag => `<span class="bg-black border border-gray-700 text-gray-300 px-2 py-0.5 rounded text-[9px] font-bold">${tag.trim()}</span>`).join('');
                         return `
                             <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
                                 <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
                                 <div class="flex-1 overflow-hidden">
                                     <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
-                                    <p class="text-[10px] text-gray-500 mb-2 line-clamp-1" dir="ltr">${manga.title_en || ''}</p>
-                                    <div class="flex flex-wrap gap-1">
-                                        ${tagsHtml}
-                                    </div>
+                                    <div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div>
                                 </div>
                             </a>
                         `;
                     }).join('');
-                } catch (err) {
-                    resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>';
-                }
+                } catch (err) { resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>'; }
             }, 600);
         });
 
