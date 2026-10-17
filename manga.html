@@ -45,7 +45,7 @@
     <!-- الخلفية الضبابية (البلور) -->
     <div id="pageBlurBg" class="page-blur-bg"></div>
 
-    <!-- القائمة الجانبية المنسدلة (Sidebar) -->
+    <!-- القائمة الجانبية -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-72 bg-[#0f0f11] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-5 border-b border-gray-800 flex justify-between items-center">
@@ -68,7 +68,7 @@
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">حسابي (My Account)</h3>
                 <ul class="space-y-1">
-                    <li><a href="#" onclick="checkAuthForFavorites()" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></a></li>
                     <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">سجل القراءة</span><i class="fas fa-history text-gray-500 text-sm w-5 text-center"></i></a></li>
                 </ul>
             </div>
@@ -110,54 +110,54 @@
     <!-- المحتوى الرئيسي -->
     <main id="mainContainer" class="hidden flex-1 max-w-md mx-auto px-4 pt-8 pb-10 space-y-6 w-full">
 
-        <!-- 1. الغلاف والأزرار (تم فصل زر الإعجاب عن زر المفضلة تماماً) -->
-        <div class="flex flex-col items-center text-center space-y-4">
-            <div class="w-64 h-[24rem] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-black flex-shrink-0">
+        <!-- 1. الغلاف والتقييم والإعجابات -->
+        <div class="flex flex-col items-center text-center space-y-5">
+            <div class="w-64 h-[24rem] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-black flex-shrink-0 relative">
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
             </div>
 
-            <!-- التقييم -->
+            <!-- النجوم وعدد الإعجابات -->
             <div class="space-y-1">
                 <div class="flex justify-center items-center gap-1 text-yellow-400 text-xl">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
                     <span class="text-white font-black text-lg mr-2">4.5</span>
                 </div>
-                <p class="text-[11px] text-gray-400">التقييم: 4.5 / 5</p>
+                <div class="flex items-center justify-center gap-2 text-[11px] text-gray-400 font-bold">
+                    <span>التقييم: 4.5 / 5</span>
+                    <span>•</span>
+                    <span class="text-pink-400"><i class="fas fa-heart text-[10px]"></i> <span id="likesCountText">15</span> إعجاب</span>
+                </div>
             </div>
 
-            <!-- زر قراءة الآن -->
-            <button onclick="openReader()" class="w-full bg-[#e11d48] hover:bg-pink-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
-                <i class="fas fa-thumbs-up"></i> قراءة الآن
-            </button>
-
-            <!-- الأزرار الثانوية المنفصلة: (إعجاب مستقل + المفضلة للأعضاء فقط) -->
-            <div class="flex gap-3 w-full">
-                <!-- زر الإعجاب المنفصل (يتغير لون وتفعيل بصمت بدون تنبيهات) -->
-                <button onclick="toggleLike()" id="likeBtn" class="flex-1 bg-[#1f2937] hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-2 text-xs border border-gray-700">
-                    <i id="likeIcon" class="far fa-heart"></i> <span id="likeText">إعجاب</span> (<span id="likeCount">12</span>)
+            <!-- أزرار التفاعل الجديدة (القراءة، المفضلة، الإعجاب) -->
+            <div class="flex gap-2 w-full pt-1">
+                <!-- زر المفضلة (أخضر للحفظ الشخصي) -->
+                <button onclick="toggleBookmark()" id="bookmarkBtn" class="bg-[#18181b] border border-gray-700 text-gray-300 hover:text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
+                    <i id="bookmarkIcon" class="far fa-bookmark"></i>
                 </button>
-
-                <!-- زر المفضلة (متاح للمسجلين فقط، وللمجهولين يظهر تنبيه) -->
-                <button onclick="toggleBookmark()" id="bookmarkBtn" class="flex-1 bg-[#059669] hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-2 text-xs">
-                    <i class="far fa-bookmark"></i> المفضلة
+                
+                <!-- زر قراءة الآن (أكبر وأوضح) -->
+                <button onclick="openReader()" class="flex-1 bg-[#e11d48] hover:bg-pink-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-book-open"></i> قراءة الآن
+                </button>
+                
+                <!-- زر الإعجاب (قلب للتفاعل السريع) -->
+                <button onclick="toggleLike()" id="likeBtn" class="bg-[#18181b] border border-gray-700 text-gray-300 hover:text-pink-400 font-bold py-3.5 px-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
+                    <i id="likeIcon" class="far fa-heart"></i>
                 </button>
             </div>
         </div>
 
         <!-- 2. التفاصيل -->
-        <div class="space-y-4 pt-2">
+        <div class="space-y-4 pt-4">
             <div>
                 <h1 id="mangaTitle" class="text-3xl font-black text-white leading-tight">...</h1>
                 <h2 id="mangaTitleEn" class="text-sm text-gray-400 font-bold mt-1" dir="ltr">...</h2>
             </div>
-            <div class="space-y-3 text-sm text-gray-300 pt-3 border-t border-gray-800/80">
+            <div class="space-y-3 text-sm text-gray-300 pt-4 border-t border-gray-800/80">
                 <div class="flex items-start gap-4">
                     <span class="text-gray-400 w-20 font-bold mt-1">التاغات:</span>
                     <div id="tagsList" class="flex flex-wrap gap-2 flex-1"></div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="text-gray-400 w-20 font-bold">الحالة:</span>
-                    <span class="text-gray-300">مكتمل</span>
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">الرافع:</span>
@@ -167,7 +167,7 @@
         </div>
 
         <!-- 3. القصة والوصف -->
-        <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-3 mt-4">
+        <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-3 mt-6">
             <h3 class="text-sm font-black uppercase text-white tracking-wider">ملخص القصة والتفاصيل</h3>
             <p id="mangaDesc" class="text-sm text-gray-300 leading-relaxed font-semibold">لا يوجد وصف متاح.</p>
         </div>
@@ -190,7 +190,7 @@
             <div id="similarGrid" class="grid grid-cols-2 gap-4"></div>
         </div>
 
-        <!-- 6. التعليقات مع مهلة الانتظار (دقيقتين للمجهول، دقيقة للمسجل) -->
+        <!-- 6. التعليقات مع نظام Cooldown -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4 mt-6">
             <h3 class="text-sm font-black uppercase text-accent tracking-wider flex items-center gap-2">
                 <i class="far fa-comments"></i> التعليقات والمناقشة
@@ -228,7 +228,7 @@
                 <a href="#" class="hover:text-white transition">DMCA</a>
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
-                جميع القصص والصور مساهمات مجتمعية. الموقع لا يستضيف ملفات على خوادمه.
+                جميع القصص والصور المعروضة مساهمات مجتمعية. الموقع لا يستضيف ملفات على خوادمه.
             </p>
             <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
         </div>
@@ -253,8 +253,13 @@
         const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
         let currentMangaId = null;
         let chapterPages = [];
+        
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
-        let baseLikeCount = 12; // عدد إعجابات ابتدائي افتراضي
+
+        // حالة الأزرار
+        let isLiked = false;
+        let isBookmarked = false;
+        let likesCount = 15; // رقم افتراضي سيتم تبديله برقم الداتابيز لاحقاً
 
         function openSidebar() {
             document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100');
@@ -275,7 +280,6 @@
             currentMangaId = params.get('id') || localStorage.getItem('selectedMangaId');
 
             updateAuthUI();
-            checkInitialLikeState();
 
             try {
                 let manga = null;
@@ -311,6 +315,9 @@
                 const { data: pages } = await sbClient.from('manga_pages').select('image_url').eq('manga_id', currentMangaId).order('page_number', { ascending: true });
                 if (pages) chapterPages = pages;
 
+                // التحقق من حالة الإعجاب والمفضلة المحلية عند تحميل الصفحة
+                checkLocalInteractions();
+
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('mainContainer').classList.remove('hidden');
 
@@ -335,57 +342,65 @@
             }
         }
 
-        // --- نظام الإعجاب المنفصل والسلس (Toggle Like بدون تنبيهات) ---
-        function checkInitialLikeState() {
-            if (!currentMangaId) return;
-            const isLiked = localStorage.getItem(`liked_${currentMangaId}`) === 'true';
-            const countSpan = document.getElementById('likeCount');
-            const icon = document.getElementById('likeIcon');
-            const btn = document.getElementById('likeBtn');
-
-            if (isLiked) {
-                icon.className = "fas fa-heart text-pink-500";
-                btn.className = "flex-1 bg-pink-950/40 text-pink-400 font-bold py-3 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-2 text-xs border border-pink-500/50";
-                countSpan.innerText = baseLikeCount + 1;
-            } else {
-                icon.className = "far fa-heart";
-                btn.className = "flex-1 bg-[#1f2937] hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-2 text-xs border border-gray-700";
-                countSpan.innerText = baseLikeCount;
-            }
+        function checkLocalInteractions() {
+            isLiked = localStorage.getItem(`liked_${currentMangaId}`) === 'true';
+            isBookmarked = localStorage.getItem(`bookmark_${currentMangaId}`) === 'true';
+            
+            updateLikeUI();
+            updateBookmarkUI();
         }
 
+        // --- نظام الإعجاب (سلس وبدون Popups) ---
         function toggleLike() {
-            if (!currentMangaId) return;
-            const isLiked = localStorage.getItem(`liked_${currentMangaId}`) === 'true';
+            isLiked = !isLiked;
+            localStorage.setItem(`liked_${currentMangaId}`, isLiked);
+            
+            // تحديث الرقم شكلياً (حتى نربطه بالداتابيز)
+            likesCount = isLiked ? likesCount + 1 : likesCount - 1;
+            document.getElementById('likesCountText').innerText = likesCount;
+
+            updateLikeUI();
+        }
+
+        function updateLikeUI() {
+            const btn = document.getElementById('likeBtn');
+            const icon = document.getElementById('likeIcon');
             
             if (isLiked) {
-                localStorage.setItem(`liked_${currentMangaId}`, 'false');
+                btn.className = "bg-pink-600 border border-pink-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-pink-900/50 transition active:scale-95 flex items-center justify-center gap-2 text-sm";
+                icon.className = "fas fa-heart";
             } else {
-                localStorage.setItem(`liked_${currentMangaId}`, 'true');
+                btn.className = "bg-[#18181b] border border-gray-700 text-gray-300 hover:text-pink-400 font-bold py-3.5 px-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm";
+                icon.className = "far fa-heart";
             }
-            checkInitialLikeState();
         }
 
-        // --- زر المفضلة (غير متاح للزوار غير المسجلين) ---
+        // --- نظام المفضلة (للمسجلين فقط وبدون Popups) ---
         function toggleBookmark() {
             if (!currentUser) {
-                alert('⚠️ عذراً، خاصية الحفظ في المفضلة غير متاحة للزوار غير المسجلين. يرجى إنشاء حساب أولاً.');
+                alert('⚠️ عذراً، خاصية الحفظ في المفضلة متاحة للأعضاء المسجلين فقط. يرجى إنشاء حساب لإنشاء مكتبتك الخاصة!');
                 return;
             }
+
+            isBookmarked = !isBookmarked;
+            localStorage.setItem(`bookmark_${currentMangaId}`, isBookmarked);
+            updateBookmarkUI();
+        }
+
+        function updateBookmarkUI() {
             const btn = document.getElementById('bookmarkBtn');
-            btn.classList.toggle('bg-[#059669]');
-            btn.classList.toggle('bg-purple-700');
-            btn.innerHTML = btn.classList.contains('bg-purple-700') ? '<i class="fas fa-check"></i> تم الحفظ في مفضلتك' : '<i class="far fa-bookmark"></i> المفضلة';
-        }
-
-        function checkAuthForFavorites() {
-            if (!currentUser) {
-                alert('⚠️ عذراً، هذه القائمة غير متاحة للمستخدمين غير المسجلين.');
-                return;
+            const icon = document.getElementById('bookmarkIcon');
+            
+            if (isBookmarked) {
+                btn.className = "bg-emerald-600 border border-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-900/50 transition active:scale-95 flex items-center justify-center gap-2 text-sm";
+                icon.className = "fas fa-bookmark";
+            } else {
+                btn.className = "bg-[#18181b] border border-gray-700 text-gray-300 hover:text-emerald-400 font-bold py-3.5 px-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm";
+                icon.className = "far fa-bookmark";
             }
-            alert('جاري فتح مفضلتك...');
         }
 
+        // --- باقي الأنظمة ---
         function openReader() {
             if (chapterPages.length === 0) return alert('لا توجد صفحات لهذا العمل.');
             document.body.style.overflow = 'hidden';
@@ -453,17 +468,16 @@
             `).join('');
         }
 
-        // --- نظام التعليقات مع مهلة الانتظار (دقيقتان للمجهول، دقيقة للمسجل) ---
         async function postComment() {
             const lastCommentTime = localStorage.getItem('last_comment_timestamp');
-            const cooldownDuration = currentUser ? 60 * 1000 : 120 * 1000; // 60 ثانية للمسجل، 120 ثانية للمجهول
+            const cooldownDuration = currentUser ? 60 * 1000 : 120 * 1000; 
             const now = Date.now();
 
             if (lastCommentTime && (now - lastCommentTime < cooldownDuration)) {
                 const remainingSecs = Math.ceil((cooldownDuration - (now - lastCommentTime)) / 1000);
                 const mins = Math.floor(remainingSecs / 60);
                 const secs = remainingSecs % 60;
-                alert(`⏳ يرجى الانتظار ${mins > 0 ? mins + ' دقيقة و ' : ''}${secs} ثانية قبل كتابة تعليق آخر.`);
+                alert(`⏳ يجدر بك الانتظار ${mins > 0 ? mins + ' دقيقة و ' : ''}${secs} ثانية قبل كتابة تعليق آخر.`);
                 return;
             }
 
