@@ -16,11 +16,9 @@
         ::-webkit-scrollbar-track { background: #121214; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         
-        /* تأثيرات القائمة الجانبية */
         #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
         #sidebarMenu { transition: transform 0.3s ease-in-out; }
 
-        /* الخلفية الضبابية للغلاف */
         .page-blur-bg {
             position: fixed;
             top: -10%; left: -10%; right: -10%; bottom: -10%;
@@ -64,7 +62,6 @@
                     <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الرئيسية</span><i class="fas fa-home text-gray-500 text-sm w-5 text-center"></i></a></li>
                     <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">كل الأعمال</span><i class="fas fa-list text-gray-500 text-sm w-5 text-center"></i></a></li>
                     <li><a href="#topSection" onclick="closeSidebar()" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الأكثر شعبية</span><i class="fas fa-arrow-trend-up text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">آخر التحديثات</span><i class="far fa-clock text-gray-500 text-sm w-5 text-center"></i></a></li>
                     <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">التصنيفات</span><i class="fas fa-tags text-gray-500 text-sm w-5 text-center"></i></a></li>
                 </ul>
             </div>
@@ -74,8 +71,6 @@
                 <ul class="space-y-1">
                     <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></a></li>
                     <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">سجل القراءة</span><i class="fas fa-history text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">أعمال أعجبتني</span><i class="far fa-thumbs-up text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">اشتراكاتي</span><i class="fas fa-users text-gray-500 text-sm w-5 text-center"></i></a></li>
                 </ul>
             </div>
         </div>
@@ -86,7 +81,7 @@
         </div>
     </div>
 
-    <!-- شريط التنقل العلوي الكامل (مطابق للصفحة الرئيسية) -->
+    <!-- شريط التنقل العلوي الكامل -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -102,7 +97,6 @@
             </div>
         </div>
         
-        <!-- الشريط الفرعي للأقسام -->
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="hover:text-white transition">الأحدث</a>
             <a href="index.html" class="hover:text-white transition">تصنيفات</a>
@@ -226,7 +220,7 @@
 
         <div class="h-px w-full bg-gray-800/80 my-6"></div>
 
-        <!-- 7. قسم الأكثر قراءة TOP (مطابق للصفحة الرئيسية) -->
+        <!-- 7. قسم الأكثر قراءة TOP -->
         <section id="topSection" class="pt-2">
             <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر قراءة <span class="text-accent">TOP</span></h2>
             <div id="topMangaList" class="flex flex-col gap-3">
@@ -236,7 +230,7 @@
 
     </main>
 
-    <!-- 8. الفوتر الكامل (مطابق للصفحة الرئيسية) -->
+    <!-- 8. الفوتر الكامل -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
             <div class="flex gap-4 text-sm font-bold text-gray-400">
@@ -272,7 +266,6 @@
         let currentMangaId = null;
         let chapterPages = [];
 
-        // دوال القائمة الجانبية (Sidebar)
         function openSidebar() {
             document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100');
             document.getElementById('sidebarOverlay').classList.remove('pointer-events-none');
@@ -287,31 +280,40 @@
             document.body.style.overflow = 'auto';
         }
 
-        // دالة النرد العشوائي
         async function goToRandomManga() {
             try {
                 const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
                 if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
-                window.location.href = `manga.html?id=${data[Math.floor(Math.random() * data.length)].id}`;
+                const randomId = data[Math.floor(Math.random() * data.length)].id;
+                localStorage.setItem('selectedMangaId', randomId);
+                window.location.href = `manga.html?id=${randomId}`;
             } catch (err) { console.error("خطأ: ", err); }
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const urlString = window.location.href;
-            const paramString = urlString.split('?')[1];
-            if (paramString) {
-                const params = new URLSearchParams(paramString);
-                currentMangaId = params.get('id');
-            }
-
-            if (!currentMangaId) {
-                document.getElementById('loadingScreen').innerHTML = '<div class="text-center"><p class="text-white font-bold mb-4">لم يتم العثور على العمل المطلوب!</p><a href="index.html" class="bg-accent text-white px-4 py-2 rounded-lg font-bold">العودة للرئيسية</a></div>';
-                return;
-            }
+            // 1. محاولة جلب الرقم من الرابط أولاً، ثم من ذاكرة المتصفح ثانياً
+            const params = new URLSearchParams(window.location.search);
+            currentMangaId = params.get('id') || localStorage.getItem('selectedMangaId');
 
             try {
-                const { data: manga, error } = await sbClient.from('mangas').select('*').eq('id', currentMangaId).single();
-                if (error || !manga) throw new Error('العمل غير موجود.');
+                let manga = null;
+
+                if (currentMangaId) {
+                    const { data } = await sbClient.from('mangas').select('*').eq('id', currentMangaId).single();
+                    manga = data;
+                }
+
+                // 2. إذا لم يُعثر على الرقم نهائياً، يتم جلب أحدث مانغا منشورة تلقائياً بدلاً من إيقاف الموقع
+                if (!manga) {
+                    const { data: fallbackList } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false }).limit(1);
+                    if (fallbackList && fallbackList.length > 0) {
+                        manga = fallbackList[0];
+                        currentMangaId = manga.id;
+                    } else {
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                }
 
                 document.getElementById('mangaCover').src = manga.cover_image_url;
                 document.getElementById('pageBlurBg').style.backgroundImage = `url('${manga.cover_image_url}')`;
@@ -338,7 +340,7 @@
                 loadComments();
 
             } catch (err) {
-                document.getElementById('loadingScreen').innerHTML = `<div class="text-center"><p class="text-white font-bold mb-4">${err.message}</p><a href="index.html" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold">العودة للرئيسية</a></div>`;
+                window.location.href = 'index.html';
             }
         });
 
@@ -365,30 +367,27 @@
             btn.innerHTML = btn.classList.contains('bg-gray-700') ? '<i class="fas fa-check"></i> تم الحفظ' : '<i class="fas fa-bookmark"></i> المفضلة';
         }
 
-        // جلب الأعمال المشابهة + قائمة الأكثر قراءة (TOP)
         async function loadSimilarAndTopWorks() {
             const { data } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
             if (!data) return;
 
-            // 1. الأعمال المشابهة
             const similar = data.filter(m => m.id != currentMangaId).slice(0, 2);
             if (similar.length > 0) {
                 document.getElementById('similarGrid').innerHTML = similar.map(m => `
-                    <a href="manga.html?id=${m.id}" class="bg-[#111113] rounded-xl overflow-hidden border border-gray-800 block shadow-md">
+                    <a href="manga.html?id=${m.id}" onclick="localStorage.setItem('selectedMangaId', '${m.id}')" class="bg-[#111113] rounded-xl overflow-hidden border border-gray-800 block shadow-md">
                         <img src="${m.cover_image_url}" class="w-full h-44 object-cover">
                         <span class="text-xs font-bold text-white p-2.5 truncate block">${m.title}</span>
                     </a>
                 `).join('');
             }
 
-            // 2. قائمة الأكثر قراءة TOP (مطابقة للصفحة الرئيسية)
             const topList = data.slice(0, 5);
             const listContainer = document.getElementById('topMangaList');
             listContainer.innerHTML = topList.map(manga => {
                 const tagsArray = manga.tags ? manga.tags.split(',') : [];
                 const tagsHtml = tagsArray.map(tag => `<span class="tag-badge-sm whitespace-nowrap">${tag.trim()}</span>`).join('');
                 return `
-                    <a href="manga.html?id=${manga.id}" class="flex gap-3 bg-[#18181b]/90 p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-start shadow-md relative cursor-pointer">
+                    <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b]/90 p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-start shadow-md relative cursor-pointer">
                         <img src="${manga.cover_image_url}" class="w-20 h-28 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm border border-gray-700/50 pointer-events-none">
                         <div class="flex-1 overflow-hidden pointer-events-none">
                             <h3 class="font-bold text-sm text-white mb-2 leading-tight">${manga.title}</h3>
