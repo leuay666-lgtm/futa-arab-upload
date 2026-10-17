@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>تسجيل الدخول - Futa Arab</title>
+    <style>
+        body { background-color: #0a0a0c; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+        .text-accent { color: #f472b6; }
+        .bg-accent { background-color: #f472b6; }
+        
+        .body-glow {
+            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
+            background: radial-gradient(circle, rgba(244,114,182,0.08) 0%, rgba(10,10,12,0) 70%);
+            z-index: -1; pointer-events: none;
+        }
+
+        .auth-container {
+            background: rgba(18, 18, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-field {
+            background-color: #111113;
+            border: 1px solid #262626;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #f472b6;
+            outline: none;
+            box-shadow: 0 0 0 1px #f472b6;
+        }
+        
+        /* تأثير التبويبات (Tabs) */
+        .tab-btn { color: #6b7280; border-bottom: 2px solid transparent; transition: all 0.3s ease; padding-bottom: 10px; font-weight: bold; }
+        .tab-btn.active { color: #f472b6; border-bottom-color: #f472b6; }
+    </style>
+</head>
+<body class="relative flex items-center justify-center p-4">
+
+    <div class="body-glow"></div>
+
+    <!-- زر العودة للرئيسية -->
+    <a href="index.html" class="absolute top-6 right-6 text-gray-400 hover:text-white transition flex items-center gap-2 font-bold text-sm">
+        <i class="fas fa-arrow-right"></i> العودة للموقع
+    </a>
+
+    <!-- صندوق تسجيل الدخول والتسجيل -->
+    <div class="auth-container w-full max-w-md rounded-3xl p-8 mt-10">
+        
+        <!-- اللوجو -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-black text-accent tracking-widest mb-1">Futa Arab</h1>
+            <p class="text-xs text-gray-500 font-semibold tracking-wider">Manga • Manhwa • Doujinshi</p>
+        </div>
+
+        <!-- التبويبات -->
+        <div class="flex border-b border-gray-800 mb-8">
+            <button onclick="switchTab('login')" id="tab-login" class="flex-1 tab-btn active">تسجيل الدخول</button>
+            <button onclick="switchTab('register')" id="tab-register" class="flex-1 tab-btn">حساب جديد</button>
+        </div>
+
+        <!-- رسائل الخطأ/النجاح -->
+        <div id="authMessage" class="hidden mb-4 p-3 rounded-xl text-sm font-bold text-center"></div>
+
+        <!-- فورم تسجيل الدخول -->
+        <div id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">البريد الإلكتروني</label>
+                <div class="relative">
+                    <i class="fas fa-envelope absolute left-4 top-3.5 text-gray-600"></i>
+                    <input type="email" id="loginEmail" placeholder="example@email.com" class="w-full input-field rounded-xl p-3 pl-10 text-sm" dir="ltr">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">كلمة المرور</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-3.5 text-gray-600"></i>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full input-field rounded-xl p-3 pl-10 text-sm" dir="ltr">
+                </div>
+            </div>
+            <div class="flex justify-between items-center text-xs mt-2">
+                <label class="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-white">
+                    <input type="checkbox" class="accent-pink-500 rounded bg-gray-800 border-gray-700"> تذكرني
+                </label>
+                <a href="#" class="text-accent hover:text-pink-400 font-bold">نسيت كلمة المرور؟</a>
+            </div>
+            <button onclick="handleLogin()" id="loginBtn" class="w-full bg-accent hover:bg-pink-600 text-white font-black py-3.5 rounded-xl shadow-lg shadow-pink-900/30 transition active:scale-95 mt-4 text-sm flex justify-center items-center gap-2">
+                دخول <i class="fas fa-sign-in-alt"></i>
+            </button>
+        </div>
+
+        <!-- فورم إنشاء حساب جديد -->
+        <div id="registerForm" class="hidden space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">اسم المستخدم (يظهر للآخرين)</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-4 top-3.5 text-gray-600"></i>
+                    <input type="text" id="regUsername" placeholder="مثال: Otaku_King" maxlength="20" class="w-full input-field rounded-xl p-3 pl-10 text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">البريد الإلكتروني</label>
+                <div class="relative">
+                    <i class="fas fa-envelope absolute left-4 top-3.5 text-gray-600"></i>
+                    <input type="email" id="regEmail" placeholder="example@email.com" class="w-full input-field rounded-xl p-3 pl-10 text-sm" dir="ltr">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">كلمة المرور (6 أحرف على الأقل)</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-3.5 text-gray-600"></i>
+                    <input type="password" id="regPassword" placeholder="••••••••" class="w-full input-field rounded-xl p-3 pl-10 text-sm" dir="ltr">
+                </div>
+            </div>
+            <button onclick="handleRegister()" id="registerBtn" class="w-full bg-[#18181b] hover:bg-[#222] border border-gray-700 hover:border-accent text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 mt-4 text-sm flex justify-center items-center gap-2">
+                إنشاء حساب <i class="fas fa-user-plus"></i>
+            </button>
+            <p class="text-[10px] text-gray-500 text-center mt-3">بتسجيلك، أنت توافق على شروط الاستخدام وسياسة الخصوصية.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // مفاتيح Supabase (تأكد من مطابقتها لمفاتيحك)
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // التحقق إذا كان المستخدم مسجلاً بالفعل
+        window.onload = async () => {
+            const { data: { session } } = await sbClient.auth.getSession();
+            if (session) {
+                window.location.href = 'index.html'; // إعادة توجيه للرئيسية إذا كان مسجلاً
+            }
+        };
+
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const msgBox = document.getElementById('authMessage');
+
+            msgBox.classList.add('hidden'); // إخفاء أي رسائل سابقة
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                tabLogin.classList.remove('active');
+                tabRegister.classList.add('active');
+            }
+        }
+
+        function showMessage(msg, isError = true) {
+            const msgBox = document.getElementById('authMessage');
+            msgBox.classList.remove('hidden', 'bg-red-900/50', 'text-red-400', 'border-red-500', 'bg-emerald-900/50', 'text-emerald-400', 'border-emerald-500');
+            
+            if (isError) {
+                msgBox.classList.add('bg-red-900/50', 'text-red-400', 'border', 'border-red-500/50');
+            } else {
+                msgBox.classList.add('bg-emerald-900/50', 'text-emerald-400', 'border', 'border-emerald-500/50');
+            }
+            msgBox.innerHTML = msg;
+        }
+
+        // --- وظيفة تسجيل الدخول ---
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+
+            if (!email || !password) return showMessage('<i class="fas fa-exclamation-circle"></i> يرجى ملء جميع الحقول.');
+
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الدخول...';
+
+            const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                btn.disabled = false; btn.innerHTML = 'دخول <i class="fas fa-sign-in-alt"></i>';
+                showMessage('<i class="fas fa-times-circle"></i> بيانات الدخول غير صحيحة.');
+            } else {
+                showMessage('<i class="fas fa-check-circle"></i> تم تسجيل الدخول بنجاح! جاري التحويل...', false);
+                
+                // حفظ بيانات المستخدم محلياً لسهولة استخدامها في القوائم الجانبية
+                const userObj = {
+                    id: data.user.id,
+                    email: data.user.email,
+                    username: data.user.user_metadata.username || 'مستخدم'
+                };
+                localStorage.setItem('futa_user_logged', JSON.stringify(userObj));
+                
+                setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+            }
+        }
+
+        // --- وظيفة إنشاء حساب جديد ---
+        async function handleRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const btn = document.getElementById('registerBtn');
+
+            if (!username || !email || !password) return showMessage('<i class="fas fa-exclamation-circle"></i> يرجى ملء جميع الحقول.');
+            if (password.length < 6) return showMessage('<i class="fas fa-exclamation-circle"></i> كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
+
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
+
+            // 1. التحقق من أن اسم المستخدم غير مكرر في جدول profiles
+            const { data: existingUser } = await sbClient.from('profiles').select('username').eq('username', username).single();
+            if (existingUser) {
+                btn.disabled = false; btn.innerHTML = 'إنشاء حساب <i class="fas fa-user-plus"></i>';
+                return showMessage('<i class="fas fa-times-circle"></i> اسم المستخدم محجوز مسبقاً، اختر اسماً آخر.');
+            }
+
+            // 2. تسجيل الحساب في نظام Auth في Supabase
+            const { data, error } = await sbClient.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { username: username } // هذا سيفعل الـ Trigger لإنشاء Profile تلقائياً
+                }
+            });
+
+            if (error) {
+                btn.disabled = false; btn.innerHTML = 'إنشاء حساب <i class="fas fa-user-plus"></i>';
+                showMessage(`<i class="fas fa-times-circle"></i> فشل التسجيل: ${error.message}`);
+            } else {
+                showMessage('<i class="fas fa-check-circle"></i> تم إنشاء حسابك بنجاح! جاري التحويل للرئيسية...', false);
+                
+                const userObj = {
+                    id: data.user.id,
+                    email: data.user.email,
+                    username: username
+                };
+                localStorage.setItem('futa_user_logged', JSON.stringify(userObj));
+                
+                setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
