@@ -27,7 +27,7 @@
 
             <div class="h-px w-full bg-gray-800 my-2"></div>
 
-            <!-- 2. العناوين (إجباري / اختياري) -->
+            <!-- 2. العناوين -->
             <div>
                 <label class="text-sm text-gray-400 mb-1 block">عنوان العمل (بالعربية) <span class="text-red-500">*</span></label>
                 <input id="mangaTitle" type="text" maxlength="100" placeholder="اكتب العنوان هنا..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
@@ -38,13 +38,13 @@
                 <input id="mangaTitleEn" type="text" maxlength="100" dir="ltr" placeholder="Manga Title..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
             </div>
 
-            <!-- 3. الوصف (اختياري) -->
+            <!-- 3. الوصف -->
             <div>
                 <label class="text-sm text-gray-400 mb-1 block">وصف القصة (اختياري)</label>
                 <textarea id="mangaDesc" maxlength="500" rows="3" placeholder="نبذة مختصرة عن القصة (حد أقصى 500 حرف)..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm resize-none"></textarea>
             </div>
 
-            <!-- 4. التصنيفات (Tags) -->
+            <!-- 4. التصنيفات -->
             <div>
                 <label class="text-sm text-gray-400 mb-2 block flex justify-between items-center">
                     <span>التصنيفات والفئة</span>
@@ -93,7 +93,6 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
 
-        // --- نظام التاغات الديناميكي ---
         const selectedTags = new Set();
         const tagsContainer = document.getElementById('tagsContainer');
 
@@ -103,7 +102,6 @@
                 if (error) throw error;
                 
                 tagsContainer.innerHTML = '';
-                
                 if (data.length === 0) {
                     tagsContainer.innerHTML = '<span class="text-xs text-gray-500">لا توجد تصنيفات حالياً.</span>';
                     return;
@@ -135,7 +133,6 @@
 
         window.onload = fetchTags;
 
-        // --- نظام حماية الهجمات (Cooldown) ---
         const COOLDOWN_MINUTES = 5;
         function checkCooldownAndUpload() {
             const lastUploadTime = localStorage.getItem('lastUploadTime');
@@ -143,13 +140,12 @@
                 const elapsedMinutes = (Date.now() - parseInt(lastUploadTime)) / (1000 * 60);
                 if (elapsedMinutes < COOLDOWN_MINUTES) {
                     const remaining = Math.ceil(COOLDOWN_MINUTES - elapsedMinutes);
-                    return alert(`⚠️ يرجى الانتظار ${remaining} دقيقة قبل رفع عمل جديد لتجنب الضغط على السيرفر.`);
+                    return alert(`⚠️ يرجى الانتظار ${remaining} دقيقة قبل رفع عمل جديد.`);
                 }
             }
             uploadFullManga();
         }
 
-        // --- المحرك الشامل المحدث ---
         const naturalSort = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
         function compressImage(fileOrBlob, quality = 0.75, maxWidth = 1200) {
@@ -169,7 +165,7 @@
                         resolve(new File([blob], `img_${Date.now()}.webp`, { type: 'image/webp' }));
                     }, 'image/webp', quality);
                 };
-                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذر قراءة صورة')); };
+                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذر قراءة صورة، قد تكون الصيغة غير مدعومة بالمتصفح')); };
                 img.src = url;
             });
         }
@@ -191,22 +187,41 @@
             const tasks = [], directImages = [], files = Array.from(fileList);
             for (const file of files) {
                 const ext = file.name.split('.').pop().toLowerCase();
+                
+                // تحديث جذري لمعالجة الـ ZIP وكشف الأخطاء
                 if (['zip', 'cbz', 'epub'].includes(ext)) {
-                    updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> قراءة الملف المضغوط...`);
-                    const zip = await JSZip.loadAsync(file), zipEntries = [];
-                    // تحديث هام للبحث في العمق داخل المجلدات في ZIP
+                    updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> جاري فحص محتويات الملف المضغوط...`);
+                    const zip = await JSZip.loadAsync(file);
+                    const zipEntries = [];
+                    const foundExtensions = new Set();
+                    
                     zip.forEach((path, entry) => { 
-                        if (!entry.dir && !path.includes('__MACOSX') && !path.startsWith('.') && /\.(jpe?g|png|webp|gif|avif)\$/i.test(entry.name)) {
-                            zipEntries.push(entry); 
+                        if (!entry.dir && !path.includes('__MACOSX') && !path.includes('.DS_Store')) {
+                            // تسجيل نوع الملف للتشخيص
+                            const match = entry.name.match(/\.([a-zA-Z0-9]+)\$/);
+                            if(match) foundExtensions.add(match[1].toLowerCase());
+
+                            // دعم صيغ الآيفون HEIC والصيغ العادية
+                            if (/\.(jpe?g|png|webp|gif|avif|bmp|heic|heif)\$/i.test(entry.name)) {
+                                zipEntries.push(entry); 
+                            }
                         }
                     });
+
+                    // نظام الرادار: يعطيك تقرير إذا لم يجد صور مدعومة
+                    if(zipEntries.length === 0) {
+                        const exts = Array.from(foundExtensions).join(', ');
+                        throw new Error(`الـ ZIP لا يحتوي على صور مدعومة! (الملفات التي وجدناها صيغتها: ${exts || 'مجلدات فارغة فقط'})`);
+                    }
+
                     zipEntries.sort((a, b) => naturalSort.compare(a.name, b.name));
                     zipEntries.forEach(entry => tasks.push({ getWebP: async () => compressImage(await entry.async('blob'), 0.70) }));
+                
                 } else if (ext === 'pdf') {
                     updateStatus(`<i class="fas fa-file-pdf fa-bounce"></i> تحليل صفحات PDF...`);
                     const pdfDoc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
                     for (let p = 1; p <= pdfDoc.numPages; p++) tasks.push({ getWebP: async () => renderPdfPageToWebP(pdfDoc, p, 0.70) });
-                } else if (file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|avif)\$/i.test(file.name)) {
+                } else if (file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|avif|heic|heif)\$/i.test(file.name)) {
                     directImages.push(file);
                 }
             }
@@ -286,7 +301,7 @@
                 
                 document.querySelectorAll('input, textarea').forEach(el => el.value = '');
                 selectedTags.clear();
-                fetchTags(); // إعادة تعيين الأزرار
+                fetchTags();
 
             } catch (error) {
                 statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-red-900 bg-red-900/20 text-red-400 space-y-2';
