@@ -39,7 +39,7 @@
 
     <div class="body-glow"></div>
 
-    <!-- نافذة البحث الذكية -->
+    <!-- نافذة البحث الذكية (مخفية افتراضياً) -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
@@ -70,7 +70,6 @@
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="#topSection" onclick="closeSidebar()" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
-                    <!-- ربط صفحة التصنيفات هنا -->
                     <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
             </div>
@@ -84,7 +83,8 @@
             </div>
         </div>
         <div class="p-6 border-t border-gray-800/50 text-center">
-            <a href="#" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+            <!-- التغيير الوحيد هنا: ربط الزر بـ auth.html -->
+            <a href="auth.html" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
                 <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
             </a>
         </div>
@@ -108,7 +108,6 @@
         
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="text-white border-b-2 border-accent pb-1">الأحدث</a>
-            <!-- ربط صفحة التصنيفات هنا -->
             <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
