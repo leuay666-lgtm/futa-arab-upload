@@ -110,23 +110,17 @@
     <!-- المحتوى الرئيسي -->
     <main id="mainContainer" class="hidden flex-1 max-w-md mx-auto px-4 pt-8 pb-10 space-y-6 w-full">
 
-        <!-- 1. الغلاف والتقييم والإعجابات -->
-        <div class="flex flex-col items-center text-center space-y-5">
+        <!-- 1. الغلاف والإعجابات -->
+        <div class="flex flex-col items-center text-center space-y-4">
             <div class="w-64 h-[24rem] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-black flex-shrink-0 relative">
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
             </div>
 
-            <!-- النجوم وعدد الإعجابات -->
-            <div class="space-y-1">
-                <div class="flex justify-center items-center gap-1 text-yellow-400 text-xl">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                    <span class="text-white font-black text-lg mr-2">4.5</span>
-                </div>
-                <div class="flex items-center justify-center gap-2 text-[11px] text-gray-400 font-bold">
-                    <span>التقييم: 4.5 / 5</span>
-                    <span>•</span>
-                    <span class="text-pink-400"><i class="fas fa-heart text-[10px]"></i> <span id="likesCountText">15</span> إعجاب</span>
-                </div>
+            <!-- عداد الإعجابات فقط (بدون نجوم وتقييمات) -->
+            <div class="flex items-center justify-center gap-2 font-bold mt-2">
+                <i class="fas fa-heart text-pink-500 text-xl"></i>
+                <span id="likesCountText" class="text-white text-xl font-black">15</span>
+                <span class="text-gray-400 text-xs">إعجاب</span>
             </div>
 
             <!-- أزرار التفاعل الجديدة (القراءة، المفضلة، الإعجاب) -->
@@ -136,12 +130,12 @@
                     <i id="bookmarkIcon" class="far fa-bookmark"></i>
                 </button>
                 
-                <!-- زر قراءة الآن (أكبر وأوضح) -->
+                <!-- زر قراءة الآن -->
                 <button onclick="openReader()" class="flex-1 bg-[#e11d48] hover:bg-pink-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
                     <i class="fas fa-book-open"></i> قراءة الآن
                 </button>
                 
-                <!-- زر الإعجاب (قلب للتفاعل السريع) -->
+                <!-- زر الإعجاب السلس -->
                 <button onclick="toggleLike()" id="likeBtn" class="bg-[#18181b] border border-gray-700 text-gray-300 hover:text-pink-400 font-bold py-3.5 px-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
                     <i id="likeIcon" class="far fa-heart"></i>
                 </button>
@@ -259,7 +253,7 @@
         // حالة الأزرار
         let isLiked = false;
         let isBookmarked = false;
-        let likesCount = 15; // رقم افتراضي سيتم تبديله برقم الداتابيز لاحقاً
+        let likesCount = 15; // رقم افتراضي للتيست
 
         function openSidebar() {
             document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100');
@@ -273,6 +267,17 @@
             document.getElementById('sidebarOverlay').classList.add('pointer-events-none');
             document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full');
             document.body.style.overflow = 'auto';
+        }
+
+        // دالة زر النرد العشوائي (تعمل الآن)
+        async function goToRandomManga() {
+            try {
+                const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
+                if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
+                const randomId = data[Math.floor(Math.random() * data.length)].id;
+                localStorage.setItem('selectedMangaId', randomId);
+                window.location.href = `manga.html?id=${randomId}`;
+            } catch (err) { console.error("خطأ: ", err); }
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -315,7 +320,7 @@
                 const { data: pages } = await sbClient.from('manga_pages').select('image_url').eq('manga_id', currentMangaId).order('page_number', { ascending: true });
                 if (pages) chapterPages = pages;
 
-                // التحقق من حالة الإعجاب والمفضلة المحلية عند تحميل الصفحة
+                // التحقق من الإعجاب والمفضلة للمستخدم
                 checkLocalInteractions();
 
                 document.getElementById('loadingScreen').classList.add('hidden');
@@ -346,16 +351,18 @@
             isLiked = localStorage.getItem(`liked_${currentMangaId}`) === 'true';
             isBookmarked = localStorage.getItem(`bookmark_${currentMangaId}`) === 'true';
             
+            if(isLiked) { likesCount++; } // لضبط الرقم شكلياً حسب حالة المستخدم الحالية
+            document.getElementById('likesCountText').innerText = likesCount;
+
             updateLikeUI();
             updateBookmarkUI();
         }
 
-        // --- نظام الإعجاب (سلس وبدون Popups) ---
+        // --- الإعجاب بصمت (تغيير لون وزيادة رقم فقط) ---
         function toggleLike() {
             isLiked = !isLiked;
             localStorage.setItem(`liked_${currentMangaId}`, isLiked);
             
-            // تحديث الرقم شكلياً (حتى نربطه بالداتابيز)
             likesCount = isLiked ? likesCount + 1 : likesCount - 1;
             document.getElementById('likesCountText').innerText = likesCount;
 
@@ -375,7 +382,7 @@
             }
         }
 
-        // --- نظام المفضلة (للمسجلين فقط وبدون Popups) ---
+        // --- المفضلة (يتغير اللون بصمت للمسجلين، ويرسل تنبيه لغير المسجلين) ---
         function toggleBookmark() {
             if (!currentUser) {
                 alert('⚠️ عذراً، خاصية الحفظ في المفضلة متاحة للأعضاء المسجلين فقط. يرجى إنشاء حساب لإنشاء مكتبتك الخاصة!');
