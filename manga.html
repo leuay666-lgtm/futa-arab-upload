@@ -29,53 +29,80 @@
             z-index: -1;
         }
 
-        .tag-badge {
-            background-color: #000000; border: 1px solid #262626; color: #d1d5db;
-            padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+        .tag-badge { background-color: #000000; border: 1px solid #262626; color: #d1d5db; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .tag-badge-sm { background-color: #000000; border: 1px solid #262626; color: #d1d5db; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; }
+        
+        /* تنسيق خاص لأزرار القائمة الجانبية لتطابق المرجع (أيقونة يمين، نص يسار) */
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            color: #d1d5db;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
-
-        .tag-badge-sm {
-            background-color: #000000; border: 1px solid #262626; color: #d1d5db;
-            padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600;
-        }
+        .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
+        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+        .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
 
     <div id="pageBlurBg" class="page-blur-bg"></div>
 
-    <!-- القائمة الجانبية -->
+    <!-- القائمة الجانبية (Sidebar) المطابقة للمرجع -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
-    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-72 bg-[#0f0f11] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
-        <div class="p-5 border-b border-gray-800 flex justify-between items-center">
-            <div class="text-right">
+    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
+        
+        <!-- رأس القائمة -->
+        <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
+            <button onclick="closeSidebar()" class="absolute right-4 top-6 text-gray-500 hover:text-white text-lg active:scale-95 transition">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="w-full text-left pl-2">
                 <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
-                <p class="text-[10px] text-gray-400 mt-0.5">Manga • Manhwa • Doujinshi</p>
-            </div>
-            <button onclick="closeSidebar()" class="text-gray-500 hover:text-white text-xl p-2 active:scale-95 transition"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="flex-1 py-6 flex flex-col gap-8 px-5">
-            <div>
-                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">المكتبة (Library)</h3>
-                <ul class="space-y-1">
-                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الرئيسية</span><i class="fas fa-home text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">كل الأعمال</span><i class="fas fa-list text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="#topSection" onclick="closeSidebar()" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الأكثر شعبية</span><i class="fas fa-arrow-trend-up text-gray-500 text-sm w-5 text-center"></i></a></li>
-                </ul>
-            </div>
-            <div class="h-px w-full bg-gray-800"></div>
-            <div>
-                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">حسابي (My Account)</h3>
-                <ul class="space-y-1">
-                    <li><button onclick="checkAuthForFavorites()" class="w-full flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></button></li>
-                    <li><button onclick="checkAuthForFavorites()" class="w-full flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">سجل القراءة</span><i class="fas fa-history text-gray-500 text-sm w-5 text-center"></i></button></li>
-                </ul>
+                <p class="text-[11px] text-gray-500 mt-0.5 font-semibold">Manga • Manhwa • Doujinshi</p>
             </div>
         </div>
-        <div class="p-5 border-t border-gray-800 bg-[#0f0f11]">
-            <a href="#" class="flex items-center justify-between text-accent hover:text-pink-400 p-2 transition font-bold active:scale-95">
-                <span class="text-sm" id="authMenuText">تسجيل الدخول / حساب جديد</span><i class="fas fa-sign-in-alt text-sm"></i>
+
+        <!-- روابط القائمة -->
+        <div class="flex-1 py-6 flex flex-col gap-8 px-6">
+            
+            <!-- قسم المكتبة -->
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="#topSection" onclick="closeSidebar()" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
+                    <li><a href="index.html" class="sidebar-link"><i class="far fa-clock"></i><span>آخر التحديثات</span></a></li>
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
+                </ul>
+            </div>
+            
+            <div class="h-[1px] w-full bg-gray-800/50"></div>
+            
+            <!-- قسم الحساب -->
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-users"></i><span>اشتراكاتي</span></a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- زر تسجيل الدخول -->
+        <div class="p-6 border-t border-gray-800/50 text-center">
+            <a href="#" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
             </a>
+            <p class="text-[10px] text-gray-500 mt-2 font-semibold">تظهر خيارات الحساب بعد تسجيل الدخول.</p>
         </div>
     </div>
 
@@ -111,9 +138,7 @@
 
             <!-- النجوم التفاعلية المحسوبة بدقة -->
             <div class="space-y-1">
-                <div id="starContainer" class="flex justify-center items-center gap-1 text-yellow-400 text-xl">
-                    <!-- سيتم حقن النجوم هنا برمجياً -->
-                </div>
+                <div id="starContainer" class="flex justify-center items-center gap-1 text-yellow-400 text-xl"></div>
                 <p class="text-[11px] text-gray-400 mt-1">
                     التقييم: <span id="ratingNumber">0.0</span>/5 • <span class="text-pink-400 font-bold"><i class="fas fa-heart text-[10px]"></i> <span id="likesCountText">0</span> إعجاب</span>
                 </p>
@@ -169,7 +194,13 @@
             </div>
         </div>
 
-        <!-- 5. التعليقات -->
+        <!-- 5. أعمال مشابهة -->
+        <div class="space-y-4 pt-4">
+            <h3 class="text-sm font-black uppercase text-white tracking-wider">أعمال مشابهة</h3>
+            <div id="similarGrid" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- 6. التعليقات مع نظام Cooldown -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4 mt-6">
             <h3 class="text-sm font-black uppercase text-accent tracking-wider flex items-center gap-2">
                 <i class="far fa-comments"></i> التعليقات والمناقشة
@@ -188,7 +219,7 @@
 
         <div class="h-px w-full bg-gray-800/80 my-6"></div>
 
-        <!-- 6. الأكثر قراءة TOP -->
+        <!-- 7. الأكثر قراءة TOP -->
         <section id="topSection" class="pt-2">
             <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر قراءة <span class="text-accent">TOP</span></h2>
             <div id="topMangaList" class="flex flex-col gap-3">
@@ -240,11 +271,8 @@
         let chapterPages = [];
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
-        // حالة الأزرار والتقييم
         let isLiked = false;
         let isBookmarked = false;
-        
-        // نجعل التقييم يبدأ من 0 حتى نقوم بتحديثه بناءً على الإعجابات الوهمية حالياً
         let likesCount = 0; 
 
         function openSidebar() {
@@ -311,7 +339,6 @@
                 const { data: pages } = await sbClient.from('manga_pages').select('image_url').eq('manga_id', currentMangaId).order('page_number', { ascending: true });
                 if (pages) chapterPages = pages;
 
-                // إعداد التفاعل والأرقام
                 checkLocalInteractions();
 
                 document.getElementById('loadingScreen').classList.add('hidden');
@@ -338,21 +365,17 @@
             }
         }
 
-        // ==========================================
-        // خوارزمية التقييم بناءً على الإعجابات التي طلبتها
-        // ==========================================
+        // --- خوارزمية التقييم ---
         function calculateRatingBasedOnLikes(likes) {
-            if (likes < 2) return 1.5; // أقل من 2 إعجاب = نجمة ونصف
-            if (likes >= 2 && likes < 5) return 2.0; // 2 إعجاب = نجمتين
-            if (likes >= 5 && likes < 10) return 4.5; // 5 إعجابات = 4.5 نجمة
-            if (likes >= 10) return 5.0; // 10 إعجابات فأكثر = 5 نجوم كاملة
+            if (likes < 2) return 1.5;
+            if (likes >= 2 && likes < 5) return 2.0;
+            if (likes >= 5 && likes < 10) return 4.5;
+            if (likes >= 10) return 5.0;
             return 1.0;
         }
 
         function renderStarsAndLikes() {
-            // حساب التقييم باستخدام الدالة التي طلبها الآدمن
             let rating = calculateRatingBasedOnLikes(likesCount);
-            
             const ratingStr = rating.toFixed(1);
             document.getElementById('ratingNumber').innerText = ratingStr;
             document.getElementById('likesCountText').innerText = likesCount;
@@ -374,7 +397,6 @@
             isLiked = localStorage.getItem(`liked_${currentMangaId}`) === 'true';
             isBookmarked = localStorage.getItem(`bookmark_${currentMangaId}`) === 'true';
             
-            // نجعل عدد الإعجابات الافتراضي للتيست 1، وإذا كان المستخدم معجباً يصبح 2 لتتغير النجوم
             likesCount = isLiked ? 2 : 1; 
 
             renderStarsAndLikes();
@@ -382,21 +404,17 @@
             updateBookmarkUI();
         }
 
-        // --- الإعجاب بصمت تام (تغيير لون وتحديث النجوم فقط) ---
         function toggleLike() {
             isLiked = !isLiked;
             localStorage.setItem(`liked_${currentMangaId}`, isLiked);
-            
             likesCount = isLiked ? likesCount + 1 : likesCount - 1;
-            
-            renderStarsAndLikes(); // تحديث النجوم فوراً
+            renderStarsAndLikes(); 
             updateLikeUI();
         }
 
         function updateLikeUI() {
             const btn = document.getElementById('likeBtn');
             const icon = document.getElementById('likeIcon');
-            
             if (isLiked) {
                 btn.className = "bg-pink-600 border border-pink-500 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-pink-900/50 transition active:scale-95 flex items-center justify-center text-sm";
                 icon.className = "fas fa-heart text-lg";
@@ -406,13 +424,11 @@
             }
         }
 
-        // --- المفضلة (يتغير اللون بصمت للمسجلين، تنبيه صريح لغير المسجلين) ---
         function toggleBookmark() {
             if (!currentUser) {
                 alert('⚠️ خاصية الحفظ في المفضلة متاحة للأعضاء المسجلين فقط. يرجى إنشاء حساب لإنشاء مكتبتك الخاصة!');
                 return;
             }
-
             isBookmarked = !isBookmarked;
             localStorage.setItem(`bookmark_${currentMangaId}`, isBookmarked);
             updateBookmarkUI();
@@ -421,7 +437,6 @@
         function updateBookmarkUI() {
             const btn = document.getElementById('bookmarkBtn');
             const icon = document.getElementById('bookmarkIcon');
-            
             if (isBookmarked) {
                 btn.className = "bg-emerald-600 border border-emerald-500 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-emerald-900/50 transition active:scale-95 flex items-center justify-center text-sm";
                 icon.className = "fas fa-bookmark text-lg";
@@ -435,7 +450,6 @@
             if (!currentUser) return alert('⚠️ عذراً، يجب تسجيل الدخول لفتح هذه القائمة.');
         }
 
-        // --- القارئ والتعليقات ---
         function openReader() {
             if (chapterPages.length === 0) return alert('لا توجد صفحات لهذا العمل.');
             document.body.style.overflow = 'hidden';
