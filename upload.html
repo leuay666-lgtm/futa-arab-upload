@@ -27,7 +27,7 @@
 
             <div class="h-px w-full bg-gray-800 my-2"></div>
 
-            <!-- 2. العناوين -->
+            <!-- 2. العناوين (إجباري / اختياري) -->
             <div>
                 <label class="text-sm text-gray-400 mb-1 block">عنوان العمل (بالعربية) <span class="text-red-500">*</span></label>
                 <input id="mangaTitle" type="text" maxlength="100" placeholder="اكتب العنوان هنا..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
@@ -38,13 +38,13 @@
                 <input id="mangaTitleEn" type="text" maxlength="100" dir="ltr" placeholder="Manga Title..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
             </div>
 
-            <!-- 3. الوصف -->
+            <!-- 3. الوصف (اختياري) -->
             <div>
                 <label class="text-sm text-gray-400 mb-1 block">وصف القصة (اختياري)</label>
                 <textarea id="mangaDesc" maxlength="500" rows="3" placeholder="نبذة مختصرة عن القصة (حد أقصى 500 حرف)..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm resize-none"></textarea>
             </div>
 
-            <!-- 4. التصنيفات -->
+            <!-- 4. التصنيفات (Tags) -->
             <div>
                 <label class="text-sm text-gray-400 mb-2 block flex justify-between items-center">
                     <span>التصنيفات والفئة</span>
@@ -183,39 +183,53 @@
             });
         }
 
+        // دالة فحص البصمة الرقمية لمعرفة هل الملف صورة حقيقية مهما كان اسمه أو امتداده
+        async function isImageFile(blob) {
+            try {
+                const buffer = await blob.slice(0, 12).arrayBuffer();
+                const bytes = new Uint8Array(buffer);
+                if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return true; // JPEG
+                if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return true; // PNG
+                if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) return true; // GIF
+                if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+                    bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return true; // WEBP
+                return false;
+            } catch (e) {
+                return false;
+            }
+        }
+
         async function prepareChapterTasks(fileList, updateStatus) {
             const tasks = [], directImages = [], files = Array.from(fileList);
             for (const file of files) {
                 const ext = file.name.split('.').pop().toLowerCase();
                 
-                // تحديث جذري لمعالجة الـ ZIP وكشف الأخطاء
                 if (['zip', 'cbz', 'epub'].includes(ext)) {
-                    updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> جاري فحص محتويات الملف المضغوط...`);
+                    updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> جاري فحص ملف الـ ZIP بالكامل...`);
                     const zip = await JSZip.loadAsync(file);
-                    const zipEntries = [];
-                    const foundExtensions = new Set();
+                    const validEntries = [];
                     
-                    zip.forEach((path, entry) => { 
-                        if (!entry.dir && !path.includes('__MACOSX') && !path.includes('.DS_Store')) {
-                            // تسجيل نوع الملف للتشخيص
-                            const match = entry.name.match(/\.([a-zA-Z0-9]+)\$/);
-                            if(match) foundExtensions.add(match[1].toLowerCase());
-
-                            // دعم صيغ الآيفون HEIC والصيغ العادية
-                            if (/\.(jpe?g|png|webp|gif|avif|bmp|heic|heif)\$/i.test(entry.name)) {
-                                zipEntries.push(entry); 
-                            }
+                    const entries = Object.values(zip.files).filter(entry => !entry.dir && !entry.name.includes('__MACOSX') && !entry.name.includes('.DS_Store'));
+                    
+                    for (let i = 0; i < entries.length; i++) {
+                        const entry = entries[i];
+                        const blob = await entry.async('blob');
+                        const hasImgExt = /\.(jpe?g|png|webp|gif|avif|bmp|heic|heif)\$/i.test(entry.name);
+                        
+                        // الفحص الذكي: يقبل الملف إذا كان اسمه صورة، أو إذا كانت بصمته الرقمية صورة
+                        if (hasImgExt || (await isImageFile(blob))) {
+                            validEntries.push({ name: entry.name, blob: blob });
                         }
-                    });
-
-                    // نظام الرادار: يعطيك تقرير إذا لم يجد صور مدعومة
-                    if(zipEntries.length === 0) {
-                        const exts = Array.from(foundExtensions).join(', ');
-                        throw new Error(`الـ ZIP لا يحتوي على صور مدعومة! (الملفات التي وجدناها صيغتها: ${exts || 'مجلدات فارغة فقط'})`);
                     }
 
-                    zipEntries.sort((a, b) => naturalSort.compare(a.name, b.name));
-                    zipEntries.forEach(entry => tasks.push({ getWebP: async () => compressImage(await entry.async('blob'), 0.70) }));
+                    if (validEntries.length === 0) {
+                        throw new Error('تعذر العثور على صور داخل الملف المضغوط! تأكد أن الملف ليس RAR تم تغيير امتداده فقط.');
+                    }
+
+                    validEntries.sort((a, b) => naturalSort.compare(a.name, b.name));
+                    validEntries.forEach(item => {
+                        tasks.push({ getWebP: async () => compressImage(item.blob, 0.70) });
+                    });
                 
                 } else if (ext === 'pdf') {
                     updateStatus(`<i class="fas fa-file-pdf fa-bounce"></i> تحليل صفحات PDF...`);
