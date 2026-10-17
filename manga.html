@@ -69,7 +69,8 @@
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="#topSection" onclick="closeSidebar()" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
-                    <li><button onclick="openSearch(); closeSidebar()" class="w-full sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></button></li>
+                    <!-- ربط صفحة التصنيفات هنا -->
+                    <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
             </div>
             <div class="h-[1px] w-full bg-gray-800/50"></div>
@@ -106,21 +107,22 @@
         
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="hover:text-white transition">الأحدث</a>
-            <button onclick="openSearch()" class="hover:text-white transition">تصنيفات</button>
+            <!-- ربط صفحة التصنيفات هنا -->
+            <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
             <a href="#topSection" class="hover:text-white transition">الأكثر قراءة</a>
         </div>
     </nav>
 
-    <!-- شاشة التحميل - تم إضافة زر عودة للرئيسية في حال الفشل -->
+    <!-- شاشة التحميل مجهزة بزر عودة -->
     <div id="loadingScreen" class="fixed inset-0 bg-[#111113] z-50 flex flex-col justify-center items-center">
         <i class="fas fa-spinner fa-spin text-3xl text-accent mb-3" id="loadingIcon"></i>
         <p class="text-xs text-gray-400" id="loadingText">جاري تحميل بيانات العمل...</p>
         <button id="errorReturnBtn" onclick="window.location.href='index.html'" class="hidden mt-4 bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-bold">العودة للرئيسية</button>
     </div>
 
-    <!-- المحتوى الرئيسي -->
+    <!-- المحتوى الرئيسي للمانغا -->
     <main id="mainContainer" class="hidden flex-1 max-w-md mx-auto px-4 pt-8 pb-10 space-y-6 w-full">
 
         <div class="flex flex-col items-center text-center space-y-4">
@@ -128,6 +130,7 @@
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
             </div>
 
+            <!-- النجوم التفاعلية المحسوبة بدقة -->
             <div class="space-y-1">
                 <div id="starContainer" class="flex justify-center items-center gap-1 text-yellow-400 text-xl"></div>
                 <p class="text-[11px] text-gray-400 mt-1">
@@ -227,6 +230,7 @@
         </div>
     </footer>
 
+    <!-- نافذة القراءة -->
     <div id="readerModal" class="fixed inset-0 bg-[#0a0a0c] z-50 hidden overflow-y-auto">
         <div class="sticky top-0 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800 p-3 flex justify-between items-center z-10">
             <span id="readerTitle" class="text-xs font-black text-gray-300 truncate max-w-[200px]">...</span>
@@ -242,10 +246,7 @@
     </button>
 
     <script>
-        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
-        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
-        
+        const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
         let currentMangaId = null;
         let chapterPages = [];
         let currentUser = null;
@@ -254,7 +255,6 @@
         let isBookmarked = false;
         let likesCount = 0; 
 
-        // معالجة حالة التحميل لتجنب توقف الصفحة
         function handleLoadError(message) {
             document.getElementById('loadingIcon').className = 'fas fa-exclamation-triangle text-red-500 text-3xl mb-3';
             document.getElementById('loadingText').innerText = message || 'تعذر تحميل بيانات العمل.';
@@ -263,12 +263,10 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // جلب بيانات المستخدم بآمان
                 const storedUser = localStorage.getItem('futa_user_logged');
                 if(storedUser) currentUser = JSON.parse(storedUser);
                 updateAuthUI();
 
-                // قراءة الـ ID بآمان
                 const urlParams = new URLSearchParams(window.location.search);
                 currentMangaId = urlParams.get('id');
 
@@ -281,7 +279,6 @@
                     return;
                 }
 
-                // جلب بيانات المانغا
                 const { data: manga, error: mangaError } = await sbClient.from('mangas').select('*').eq('id', currentMangaId).single();
                 
                 if (mangaError || !manga) {
@@ -289,7 +286,6 @@
                     return;
                 }
 
-                // تطبيق البيانات
                 document.getElementById('mangaCover').src = manga.cover_image_url || '';
                 document.getElementById('pageBlurBg').style.backgroundImage = `url('${manga.cover_image_url || ''}')`;
                 document.getElementById('mangaTitle').innerText = manga.title || 'بدون عنوان';
@@ -303,20 +299,18 @@
 
                 if (manga.tags) {
                     const tags = manga.tags.split(',');
-                    document.getElementById('tagsList').innerHTML = tags.map(t => `<span class="tag-badge">${t.trim()}</span>`).join('');
+                    // ربط كل تاغ منفرد بصفحة tags.html بشكل ديناميكي!
+                    document.getElementById('tagsList').innerHTML = tags.map(t => `<a href="tags.html" class="tag-badge hover:bg-gray-800 transition">${t.trim()}</a>`).join('');
                 }
 
-                // جلب الصفحات (لن نوقف الصفحة إن فشلت)
                 const { data: pages } = await sbClient.from('manga_pages').select('image_url').eq('manga_id', currentMangaId).order('page_number', { ascending: true });
                 if (pages) chapterPages = pages;
 
                 checkLocalInteractions();
 
-                // إخفاء شاشة التحميل بعد إتمام العمليات الأساسية بنجاح
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('mainContainer').classList.remove('hidden');
 
-                // تشغيل الدوال المكملة في الخلفية لتسريع عرض الصفحة
                 setTimeout(() => {
                     loadSimilarAndTopWorks();
                     loadComments();
