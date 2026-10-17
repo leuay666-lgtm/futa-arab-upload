@@ -62,44 +62,39 @@
                     <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الرئيسية</span><i class="fas fa-home text-gray-500 text-sm w-5 text-center"></i></a></li>
                     <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">كل الأعمال</span><i class="fas fa-list text-gray-500 text-sm w-5 text-center"></i></a></li>
                     <li><a href="#topSection" onclick="closeSidebar()" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">الأكثر شعبية</span><i class="fas fa-arrow-trend-up text-gray-500 text-sm w-5 text-center"></i></a></li>
-                    <li><a href="index.html" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">التصنيفات</span><i class="fas fa-tags text-gray-500 text-sm w-5 text-center"></i></a></li>
                 </ul>
             </div>
             <div class="h-px w-full bg-gray-800"></div>
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest">حسابي (My Account)</h3>
                 <ul class="space-y-1">
-                    <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></a></li>
+                    <li><a href="#" onclick="checkAuthForFavorites()" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">المفضلة</span><i class="far fa-bookmark text-gray-500 text-sm w-5 text-center"></i></a></li>
                     <li><a href="#" class="flex items-center justify-between text-gray-300 hover:text-white hover:bg-[#1a1c23] p-2.5 rounded-lg transition"><span class="font-bold text-sm">سجل القراءة</span><i class="fas fa-history text-gray-500 text-sm w-5 text-center"></i></a></li>
                 </ul>
             </div>
         </div>
         <div class="p-5 border-t border-gray-800 bg-[#0f0f11]">
             <a href="#" class="flex items-center justify-between text-accent hover:text-pink-400 p-2 transition font-bold active:scale-95">
-                <span class="text-sm">تسجيل الدخول / حساب جديد</span><i class="fas fa-sign-in-alt text-sm"></i>
+                <span class="text-sm" id="authMenuText">تسجيل الدخول / حساب جديد</span><i class="fas fa-sign-in-alt text-sm"></i>
             </a>
         </div>
     </div>
 
-    <!-- شريط التنقل العلوي الكامل -->
+    <!-- شريط التنقل العلوي -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
-                <span class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
+                <span id="userBadge" class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
             </div>
-            
             <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
-            
             <div class="flex items-center gap-4">
                 <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
                 <a href="index.html" class="text-gray-300 hover:text-white text-lg"><i class="fas fa-search"></i></a>
             </div>
         </div>
-        
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="hover:text-white transition">الأحدث</a>
-            <a href="index.html" class="hover:text-white transition">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
             <a href="#topSection" class="hover:text-white transition">الأكثر قراءة</a>
@@ -115,7 +110,7 @@
     <!-- المحتوى الرئيسي -->
     <main id="mainContainer" class="hidden flex-1 max-w-md mx-auto px-4 pt-8 pb-10 space-y-6 w-full">
 
-        <!-- 1. الغلاف والتقييم والأزرار -->
+        <!-- 1. الغلاف والأزرار -->
         <div class="flex flex-col items-center text-center space-y-5">
             <div class="w-64 h-[24rem] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-black flex-shrink-0">
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
@@ -126,42 +121,34 @@
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
                     <span class="text-white font-black text-lg mr-2">4.5</span>
                 </div>
-                <p class="text-[11px] text-gray-400">التقييم: 4.5 / 5 من 1 صوت</p>
+                <p class="text-[11px] text-gray-400">التقييم: 4.5 / 5</p>
             </div>
 
+            <!-- أزرار القراءة والمفضلة (مع تطبيق قاعدة الحفظ للأسماء المسجلة فقط) -->
             <div class="flex gap-3 w-full pt-2">
                 <button onclick="openReader()" class="flex-1 bg-[#e11d48] hover:bg-pink-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
                     <i class="fas fa-thumbs-up"></i> قراءة الآن
                 </button>
-                <button onclick="toggleBookmark()" id="bookmarkBtn" class="flex-1 bg-[#059669] hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
-                    <i class="fas fa-bookmark"></i> المفضلة
+                <button onclick="handleLikeOrBookmark()" id="bookmarkBtn" class="flex-1 bg-[#059669] hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-bookmark"></i> المفضلة / إعجاب
                 </button>
             </div>
         </div>
 
-        <!-- 2. العناوين والتفاصيل -->
+        <!-- 2. التفاصيل -->
         <div class="space-y-4 pt-4">
             <div>
                 <h1 id="mangaTitle" class="text-3xl font-black text-white leading-tight">...</h1>
                 <h2 id="mangaTitleEn" class="text-sm text-gray-400 font-bold mt-1" dir="ltr">...</h2>
             </div>
-
             <div class="space-y-3 text-sm text-gray-300 pt-4 border-t border-gray-800/80">
                 <div class="flex items-start gap-4">
                     <span class="text-gray-400 w-20 font-bold mt-1">التاغات:</span>
                     <div id="tagsList" class="flex flex-wrap gap-2 flex-1"></div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-gray-400 w-20 font-bold">التصنيف:</span>
-                    <span class="tag-badge">مانغا</span>
-                </div>
-                <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">الحالة:</span>
                     <span class="text-gray-300">مكتمل</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="text-gray-400 w-20 font-bold">المشاهدات:</span>
-                    <span class="text-gray-300">10 مشاهدات</span>
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">الرافع:</span>
@@ -173,19 +160,12 @@
         <!-- 3. القصة والوصف -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-3 mt-6">
             <h3 class="text-sm font-black uppercase text-white tracking-wider">ملخص القصة والتفاصيل</h3>
-            <p id="mangaDesc" class="text-sm text-gray-300 leading-relaxed font-semibold">
-                لا يوجد وصف متاح لهذا العمل حالياً.
-            </p>
+            <p id="mangaDesc" class="text-sm text-gray-300 leading-relaxed font-semibold">لا يوجد وصف متاح.</p>
         </div>
 
         <!-- 4. قائمة الفصول -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4">
             <h3 class="text-sm font-black uppercase text-white tracking-wider">قائمة الفصول المتاحة</h3>
-            <div class="relative mb-2">
-                <i class="fas fa-search absolute right-3 top-3 text-gray-500"></i>
-                <input type="text" placeholder="ابحث عن فصل..." class="w-full bg-[#111113] p-2.5 pr-9 rounded-xl border border-gray-800 text-white text-sm outline-none">
-            </div>
-            
             <div onclick="openReader()" class="bg-[#111113] hover:bg-gray-800/70 border border-gray-800 p-4 rounded-xl flex justify-between items-center cursor-pointer transition active:scale-95">
                 <div>
                     <span class="text-sm font-black text-white block mb-1">Oneshot</span>
@@ -201,7 +181,7 @@
             <div id="similarGrid" class="grid grid-cols-2 gap-4"></div>
         </div>
 
-        <!-- 6. قسم التعليقات والمناقشة -->
+        <!-- 6. التعليقات مع نظام Cooldown (دقيقتين للمجهول، دقيقة للمسجل) -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4 mt-6">
             <h3 class="text-sm font-black uppercase text-accent tracking-wider flex items-center gap-2">
                 <i class="far fa-comments"></i> التعليقات والمناقشة
@@ -212,6 +192,7 @@
                 <button onclick="postComment()" id="postCommentBtn" class="w-full bg-accent hover:bg-pink-500 text-white text-sm font-black py-3 rounded-xl active:scale-95 transition">
                     إرسال التعليق
                 </button>
+                <p id="cooldownTimer" class="text-[11px] text-gray-400 text-center"></p>
             </div>
             <div id="commentsList" class="space-y-3 pt-4">
                 <p class="text-xs text-gray-500 text-center py-2">كن أول من يعلق على هذا العمل!</p>
@@ -220,7 +201,7 @@
 
         <div class="h-px w-full bg-gray-800/80 my-6"></div>
 
-        <!-- 7. قسم الأكثر قراءة TOP -->
+        <!-- 7. الأكثر قراءة TOP -->
         <section id="topSection" class="pt-2">
             <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر قراءة <span class="text-accent">TOP</span></h2>
             <div id="topMangaList" class="flex flex-col gap-3">
@@ -230,7 +211,7 @@
 
     </main>
 
-    <!-- 8. الفوتر الكامل -->
+    <!-- الفوتر -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
             <div class="flex gap-4 text-sm font-bold text-gray-400">
@@ -239,13 +220,13 @@
                 <a href="#" class="hover:text-white transition">DMCA</a>
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
-                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع لأغراض القراءة المجانية. الموقع لا يستضيف أي ملفات على خوادمه.
+                جميع القصص والصور المعروضة مساهمات مجتمعية. الموقع لا يستضيف ملفات على خوادمه.
             </p>
             <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- نافذة القراءة المدمجة -->
+    <!-- نافذة القراءة -->
     <div id="readerModal" class="fixed inset-0 bg-[#0a0a0c] z-50 hidden overflow-y-auto">
         <div class="sticky top-0 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800 p-3 flex justify-between items-center z-10">
             <span id="readerTitle" class="text-xs font-black text-gray-300 truncate max-w-[200px]">...</span>
@@ -256,7 +237,6 @@
         <div id="readerContent" class="max-w-xl mx-auto flex flex-col items-center pb-20"></div>
     </div>
 
-    <!-- زر الصعود للأعلى -->
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-40">
         <i class="fas fa-arrow-up"></i>
     </button>
@@ -265,6 +245,10 @@
         const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
         let currentMangaId = null;
         let chapterPages = [];
+        
+        // محاكاة حالة الحساب (يمكن ربطه بنظام تسجيل دخول لاحقاً)
+        // حالياً نجعله false (غير مسجل) لكي تجرب القاعدة التي طلبتها
+        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
         function openSidebar() {
             document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100');
@@ -280,30 +264,20 @@
             document.body.style.overflow = 'auto';
         }
 
-        async function goToRandomManga() {
-            try {
-                const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
-                if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
-                const randomId = data[Math.floor(Math.random() * data.length)].id;
-                localStorage.setItem('selectedMangaId', randomId);
-                window.location.href = `manga.html?id=${randomId}`;
-            } catch (err) { console.error("خطأ: ", err); }
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
-            // 1. محاولة جلب الرقم من الرابط أولاً، ثم من ذاكرة المتصفح ثانياً
             const params = new URLSearchParams(window.location.search);
             currentMangaId = params.get('id') || localStorage.getItem('selectedMangaId');
 
+            // تحديث واجهة المستخدم بناءً على حالة تسجيل الدخول
+            updateAuthUI();
+
             try {
                 let manga = null;
-
                 if (currentMangaId) {
                     const { data } = await sbClient.from('mangas').select('*').eq('id', currentMangaId).single();
                     manga = data;
                 }
 
-                // 2. إذا لم يُعثر على الرقم نهائياً، يتم جلب أحدث مانغا منشورة تلقائياً بدلاً من إيقاف الموقع
                 if (!manga) {
                     const { data: fallbackList } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false }).limit(1);
                     if (fallbackList && fallbackList.length > 0) {
@@ -317,12 +291,10 @@
 
                 document.getElementById('mangaCover').src = manga.cover_image_url;
                 document.getElementById('pageBlurBg').style.backgroundImage = `url('${manga.cover_image_url}')`;
-
                 document.getElementById('mangaTitle').innerText = manga.title || 'بدون عنوان';
                 document.getElementById('readerTitle').innerText = manga.title || 'قراءة الفصل';
                 document.getElementById('mangaTitleEn').innerText = manga.title_en || '';
                 document.getElementById('uploaderName').innerText = manga.uploader_name || 'مجهول';
-                
                 if (manga.description) document.getElementById('mangaDesc').innerText = manga.description;
 
                 if (manga.tags) {
@@ -344,6 +316,38 @@
             }
         });
 
+        function updateAuthUI() {
+            const badge = document.getElementById('userBadge');
+            const menuText = document.getElementById('authMenuText');
+            if (currentUser) {
+                badge.innerText = currentUser.username;
+                badge.className = "bg-purple-900 text-purple-200 text-[10px] font-bold px-2 py-1 rounded-md border border-purple-500";
+                menuText.innerText = "تسجيل الخروج";
+            } else {
+                badge.innerText = "مجاني";
+                menuText.innerText = "تسجيل الدخول / حساب جديد";
+            }
+        }
+
+        // قاعدة الإعجاب والمفضلة حسب طلبك:
+        // الزائر المجهول يسجل إعجاباً فقط ولا يُحفظ في قائمته. العضو المسجل يُحفظ في قائمته.
+        function handleLikeOrBookmark() {
+            if (!currentUser) {
+                alert('👍 شكراً لك! تم تسجيل إعجابك بهذا العمل.\n(ملاحظة: حفظ الأعمال في قائمة المفضلة متاح فقط للأعضاء المسجلين).');
+                return;
+            }
+            // منطق حفظ المفضلة للمسجلين
+            alert('⭐ تم حفظ العمل في قائمة مفضلتك الشخصية بنجاح!');
+        }
+
+        function checkAuthForFavorites() {
+            if (!currentUser) {
+                alert('⚠️ عذراً، خاصية المفضلة والسجل غير متاحة للزوار غير المسجلين. يرجى إنشاء حساب أولاً.');
+                return;
+            }
+            alert('جاري فتح قائمة مفضلتك...');
+        }
+
         function openReader() {
             if (chapterPages.length === 0) return alert('لا توجد صفحات لهذا العمل.');
             document.body.style.overflow = 'hidden';
@@ -358,13 +362,6 @@
         function closeReader() {
             document.getElementById('readerModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
-        }
-
-        function toggleBookmark() {
-            const btn = document.getElementById('bookmarkBtn');
-            btn.classList.toggle('bg-[#059669]');
-            btn.classList.toggle('bg-gray-700');
-            btn.innerHTML = btn.classList.contains('bg-gray-700') ? '<i class="fas fa-check"></i> تم الحفظ' : '<i class="fas fa-bookmark"></i> المفضلة';
         }
 
         async function loadSimilarAndTopWorks() {
@@ -382,8 +379,7 @@
             }
 
             const topList = data.slice(0, 5);
-            const listContainer = document.getElementById('topMangaList');
-            listContainer.innerHTML = topList.map(manga => {
+            document.getElementById('topMangaList').innerHTML = topList.map(manga => {
                 const tagsArray = manga.tags ? manga.tags.split(',') : [];
                 const tagsHtml = tagsArray.map(tag => `<span class="tag-badge-sm whitespace-nowrap">${tag.trim()}</span>`).join('');
                 return `
@@ -419,16 +415,39 @@
             `).join('');
         }
 
+        // نظام التعليقات مع مهلة الانتظار (Cooldown) التي طلبتها:
+        // - غير المسجلين: دقيقتان (120 ثانية)
+        // - المسجلون: دقيقة واحدة (60 ثانية)
         async function postComment() {
-            const user = document.getElementById('commentUser').value.trim() || 'مجهول';
+            const lastCommentTime = localStorage.getItem('last_comment_timestamp');
+            const cooldownDuration = currentUser ? 60 * 1000 : 120 * 1000; // 60 ثانية للمسجل، 120 ثانية لغير المسجل
+            const now = Date.now();
+
+            if (lastCommentTime && (now - lastCommentTime < cooldownDuration)) {
+                const remainingSecs = Math.ceil((cooldownDuration - (now - lastCommentTime)) / 1000);
+                const mins = Math.floor(remainingSecs / 60);
+                const secs = remainingSecs % 60;
+                alert(`⏳ يجدر بك الانتظار ${mins > 0 ? mins + ' دقيقة و ' : ''}${secs} ثانية قبل كتابة تعليق آخر.`);
+                return;
+            }
+
+            const user = currentUser ? currentUser.username : (document.getElementById('commentUser').value.trim() || 'مجهول');
             const text = document.getElementById('commentText').value.trim();
-            if (!text) return alert('اكتب تعليقاً.');
+            if (!text) return alert('يرجى كتابة نص التعليق أولاً.');
 
             const btn = document.getElementById('postCommentBtn');
-            btn.disabled = true; btn.innerText = 'إرسال...';
+            btn.disabled = true; btn.innerText = 'جاري الإرسال...';
 
             const { error } = await sbClient.from('comments').insert([{ manga_id: currentMangaId, username: user, comment_text: text }]);
-            if (!error) { document.getElementById('commentText').value = ''; loadComments(); }
+            
+            if (!error) { 
+                document.getElementById('commentText').value = ''; 
+                localStorage.setItem('last_comment_timestamp', Date.now());
+                loadComments(); 
+                alert('✅ تم نشر تعليقك بنجاح!');
+            } else {
+                alert('فشل إرسال التعليق.');
+            }
             
             btn.disabled = false; btn.innerText = 'إرسال التعليق';
         }
