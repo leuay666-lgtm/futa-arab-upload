@@ -104,9 +104,14 @@
                 </ul>
             </div>
         </div>
+        <div class="p-6 border-t border-gray-800/50 text-center">
+            <a href="auth.html" id="sidebarAuthBtn" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
+            </a>
+        </div>
     </div>
 
-    <!-- النافبار -->
+    <!-- النافبار مع زر النرد العشوائي -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -117,12 +122,13 @@
             </div>
             <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
             <div class="flex items-center gap-4">
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
                 <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
             </div>
         </div>
     </nav>
 
-    <!-- رأس الملف الشخصي -->
+    <!-- رأس الملف الشخصي (البانر والصورة والاسم) -->
     <div class="w-full max-w-4xl mx-auto relative mt-4 px-4">
         <!-- البانر -->
         <div id="profileBanner" class="h-32 md:h-48 w-full rounded-2xl banner-bg bg-gradient-to-r from-[#18181b] to-[#2a1820] border border-gray-800 relative overflow-hidden shadow-lg">
@@ -136,14 +142,17 @@
         <div class="relative -mt-12 flex flex-col items-center justify-center">
             <div class="relative group">
                 <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=18181b&color=fff&size=150" class="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-[#111113] object-cover bg-black shadow-xl">
-                <button id="editAvatarBtn" onclick="openEditModal('avatar')" class="absolute bottom-0 right-0 bg-accent text-white p-2 rounded-full shadow-lg hidden hover:bg-pink-600 transition border-2 border-[#111113]">
+                <!-- زر تعديل الصورة عاد وظهر بقوة -->
+                <button id="editAvatarBtn" onclick="openEditModal('avatar')" class="absolute bottom-0 right-0 bg-accent text-white p-2 rounded-full shadow-lg hidden hover:bg-pink-600 transition border-2 border-[#111113] z-10">
                     <i class="fas fa-camera text-xs"></i>
                 </button>
             </div>
             
             <div class="flex items-center gap-2 mt-3">
                 <h1 id="profileNameDisplay" class="text-2xl md:text-3xl font-black text-glow-free">جاري التحميل...</h1>
+                <!-- الشارة الرئيسية -->
                 <span id="mainBadgeDisplay"></span>
+                <!-- زر تعديل الاسم عاد وظهر بقوة -->
                 <button id="editNameBtn" onclick="openEditModal('name')" class="text-gray-500 hover:text-white hidden"><i class="fas fa-pencil-alt text-sm"></i></button>
             </div>
 
@@ -170,10 +179,10 @@
             <div id="badgesCollectionGrid" class="flex flex-wrap gap-2 p-3 bg-card rounded-xl border border-gray-800">
                 <i class="fas fa-spinner fa-spin text-gray-500"></i>
             </div>
-            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك بناءً على اشتراكاتك.</p>
+            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك بناءً على اشتراكاتك المتتالية.</p>
         </div>
 
-        <!-- إعدادات الخصوصية (للمالك فقط) -->
+        <!-- إعدادات الخصوصية والملف الشخصي (للمالك فقط) -->
         <div id="ownerSettingsBox" class="bg-card border border-gray-700/50 rounded-2xl p-5 shadow-lg hidden relative overflow-hidden">
             <h3 class="text-sm font-black uppercase tracking-wider text-white mb-4 flex items-center gap-2">
                 <i class="fas fa-cog text-gray-400"></i> إعدادات الخصوصية والملف الشخصي
@@ -274,7 +283,7 @@
         let allUploads = [];
         let allFavorites = [];
         let currentEditMode = '';
-        let selectedFile = null; // سيحفظ الملف الحقيقي الذي اختاره المستخدم
+        let selectedFile = null;
 
         window.onload = async () => {
             updateAuthUI();
@@ -304,6 +313,19 @@
             window.location.href = `profile.html?user=${currentUser.username}`;
         }
 
+        async function goToRandomManga() {
+            try {
+                const { data } = await sbClient.from('mangas').select('id').eq('status', 'approved');
+                if (data && data.length > 0) {
+                    const randomId = data[Math.floor(Math.random() * data.length)].id;
+                    localStorage.setItem('selectedMangaId', randomId);
+                    window.location.href = `manga.html?id=${randomId}`;
+                } else {
+                    alert('لا توجد أعمال منشورة حالياً لقراءتها!');
+                }
+            } catch (err) { console.error("خطأ: ", err); }
+        }
+
         function getBadgeHTML(type) {
             if(type === 'vip_lite') return `<span class="text-[10px] px-2 py-1 rounded border border-cyan-500 bg-cyan-900/50 text-cyan-400 glow-cyan font-bold shadow-sm"><i class="fas fa-star ml-1"></i>LITE</span>`;
             if(type === 'vip') return `<span class="text-[10px] px-2 py-1 rounded border bg-yellow-900/50 badge-glow-vip font-bold shadow-sm"><i class="fas fa-crown ml-1"></i>VIP</span>`;
@@ -315,14 +337,18 @@
 
         async function loadUserProfile() {
             try {
-                // جلب بيانات الحساب من قاعدة البيانات مباشرة
-                const { data: profileData, error } = await sbClient.from('profiles').select('*').eq('username', viewedUsername).single();
+                let profileData = null;
+                const { data: profile, error } = await sbClient.from('profiles').select('*').eq('username', viewedUsername).single();
                 
-                if (error || !profileData) {
-                    document.getElementById('profileNameDisplay').innerText = viewedUsername;
-                    document.getElementById('userBadgesContainer').innerHTML = "";
-                    return;
-                }
+                if (error) {
+                    if (isOwner && currentUser) {
+                        profileData = currentUser;
+                    } else {
+                        document.getElementById('profileNameDisplay').innerText = viewedUsername;
+                        document.getElementById('userBadgesContainer').innerHTML = "";
+                        return;
+                    }
+                } else { profileData = profile; }
 
                 if (isOwner) {
                     document.getElementById('ownerSettingsBox').classList.remove('hidden');
@@ -335,9 +361,9 @@
                     document.getElementById('publicFavoritesToggle').checked = isPub;
                 }
 
-                const avatar = profileData.avatar_url || `https://ui-avatars.com/api/?name=${viewedUsername}&background=18181b&color=fff&size=150`;
-                const banner = profileData.banner_url || '';
-                const bio = profileData.bio || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
+                const avatar = profileData.avatar_url || (isOwner ? localStorage.getItem(`profile_avatar_${viewedUsername}`) : null) || `https://ui-avatars.com/api/?name=${viewedUsername}&background=18181b&color=fff&size=150`;
+                const banner = profileData.banner_url || (isOwner ? localStorage.getItem(`profile_banner_${viewedUsername}`) : null) || '';
+                const bio = profileData.bio || (isOwner ? localStorage.getItem(`profile_bio_${viewedUsername}`) : null) || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
                 
                 document.getElementById('profileAvatar').src = avatar;
                 if(banner) document.getElementById('profileBanner').style.backgroundImage = `url('${banner}')`;
@@ -365,15 +391,10 @@
             nameEl.className = `text-2xl md:text-3xl font-black ${textClass}`;
             document.getElementById('mainBadgeDisplay').innerHTML = mainBadgeHtml;
 
-            // جلب تاريخ الشارات من الداتابيز
             let earnedHistory = dbBadgesHistory || [];
-            
-            // تحديث الداتابيز إذا لم تكن الباقة الحالية مسجلة في التاريخ
             if (subType !== 'free' && !earnedHistory.includes(subType)) {
                 earnedHistory.push(subType);
-                if(isOwner) {
-                    await sbClient.from('profiles').update({ badges_history: earnedHistory }).eq('username', viewedUsername);
-                }
+                if(isOwner) { await sbClient.from('profiles').update({ badges_history: earnedHistory }).eq('username', viewedUsername); }
             }
 
             let allBadgesHtml = earnedHistory.map(type => getBadgeHTML(type)).join('');
@@ -382,7 +403,6 @@
             document.getElementById('badgesCount').innerText = earnedHistory.length;
         }
 
-        // --- نظام المودال ورفع الملفات لـ Supabase ---
         function openEditModal(type) {
             currentEditMode = type;
             selectedFile = null;
@@ -431,7 +451,7 @@
         function previewSelectedFile(event) {
             const file = event.target.files[0];
             if (file) {
-                selectedFile = file; // حفظ الملف الفعلي
+                selectedFile = file;
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('filePreviewImage').src = e.target.result;
@@ -470,12 +490,10 @@
                     const publicUrl = await uploadFileToSupabase(selectedFile, 'avatars');
                     await sbClient.from('profiles').update({ avatar_url: publicUrl }).eq('username', currentUser.username);
                     document.getElementById('profileAvatar').src = publicUrl;
-
                 } else if (currentEditMode === 'banner' && selectedFile) {
                     const publicUrl = await uploadFileToSupabase(selectedFile, 'banners');
                     await sbClient.from('profiles').update({ banner_url: publicUrl }).eq('username', currentUser.username);
                     document.getElementById('profileBanner').style.backgroundImage = `url('${publicUrl}')`;
-
                 } else if (currentEditMode === 'name') {
                     const val = document.getElementById('modalInput').value.trim().replace(/\s+/g, '_');
                     if(val && val !== viewedUsername) {
@@ -492,12 +510,11 @@
                 }
                 closeEditModal();
             } catch (error) {
-                alert('حدث خطأ أثناء الحفظ. تأكد من إعدادات Supabase Storage: ' + error.message);
+                alert('حدث خطأ. تأكد من إعدادات Supabase Storage: ' + error.message);
                 btn.disabled = false;
                 btn.innerText = 'حفظ التغييرات';
             }
         }
-        // ------------------------------------------------
 
         async function loadUserUploads() {
             try {
