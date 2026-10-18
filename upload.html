@@ -14,9 +14,9 @@
 
     <div class="bg-[#12141d] p-6 rounded-3xl border border-gray-800 shadow-2xl max-w-md w-full relative">
         
-        <!-- زر العودة للصفحة الرئيسية -->
+        <!-- زر العودة للصفحة الرئيسية المصحح -->
         <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-800/80">
-            <a href="index.html" onclick="goBackHome(event)" class="inline-flex items-center gap-2 bg-[#1a1c23] hover:bg-gray-800 text-gray-300 hover:text-white px-3.5 py-2 rounded-xl border border-gray-700 text-xs font-bold transition active:scale-95">
+            <a href="index.html" onclick="goBackHome(event)" class="inline-flex items-center gap-2 bg-[#1a1c23] hover:bg-gray-800 text-gray-300 hover:text-white px-3.5 py-2 rounded-xl border border-gray-700 text-xs font-bold transition active:scale-95 cursor-pointer">
                 <i class="fas fa-arrow-right text-purple-400"></i>
                 <span>العودة للرئيسية</span>
             </a>
@@ -130,12 +130,28 @@
         const selectedTags = new Set();
         const tagsContainer = document.getElementById('tagsContainer');
 
-        // دالة العودة الذكية للصفحة الرئيسية
-        function goBackHome(e) {
-            if (window.location.pathname.includes('/futa-arab-upload/')) {
-                e.preventDefault();
-                window.location.href = 'https://leuay666-lgtm.github.io/index.html';
+        // دالة العودة الذكية والمضمونة للصفحة الرئيسية
+        async function goBackHome(e) {
+            e.preventDefault();
+            try {
+                const res = await fetch('index.html', { method: 'HEAD' });
+                if (res.ok) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (err) {}
+
+            if (document.referrer && document.referrer.includes(window.location.hostname) && !document.referrer.includes('upload.html')) {
+                window.location.href = document.referrer;
+                return;
             }
+
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+
+            window.location.href = 'https://leuay666-lgtm.github.io/';
         }
 
         // دالة اختيار نوع العمل وتلوين الزر حسب الهوية البصرية
@@ -165,7 +181,6 @@
             const loggedBadge = document.getElementById('loggedAccountBadge');
             const uploaderHint = document.getElementById('uploaderHint');
             const statsBadge = document.getElementById('uploaderStatsBadge');
-            const counterEl = document.getElementById('userUploadsCounter');
 
             if (currentUser && currentUser.username) {
                 uploaderInput.value = currentUser.username;
@@ -389,7 +404,6 @@
 
                 updateProgressUI('<i class="fas fa-spinner fa-spin"></i> جاري تسجيل البيانات...', 15);
                 
-                // دمج نوع العمل مع التصنيفات لضمان ظهوره في الواجهة الرئيسية وحفظه في الداتابيز
                 const finalTagsArray = [selectedWorkType, ...Array.from(selectedTags)];
                 const baseMangaData = { 
                     title: title, 
@@ -401,7 +415,6 @@
                     status: 'pending' 
                 };
 
-                // محاولة الحفظ مع حقل work_type، وفي حال عدم وجود العمود في الداتابيز يتم الحفظ بدونه تلقائياً
                 let newManga = null;
                 const { data: tryManga, error: tryErr } = await sbClient.from('mangas').insert([{ ...baseMangaData, work_type: selectedWorkType }]).select();
                 if (tryErr) {
@@ -430,7 +443,6 @@
 
                 localStorage.setItem('lastUploadTime', Date.now().toString());
 
-                // تحديث وتخزين عدد تحميلات المستخدم المسجل
                 if (currentUser && currentUser.username) {
                     const currentCount = parseInt(localStorage.getItem(`uploads_count_${currentUser.username}`) || '0') + 1;
                     localStorage.setItem(`uploads_count_${currentUser.username}`, currentCount.toString());
