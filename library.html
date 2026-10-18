@@ -37,6 +37,20 @@
         .lib-content { display: none; }
         .lib-content.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* تأثيرات التوهج للشارات */
+        .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
+        .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+        .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
+        
+        .badge-glow-vip { animation: badgeGold 2s infinite alternate; border-color: #eab308; color: #eab308; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
+        @keyframes badgeGold { 0% { box-shadow: 0 0 5px rgba(234,179,8,0.5), inset 0 0 2px rgba(234,179,8,0.5); } 100% { box-shadow: 0 0 15px rgba(234,179,8,0.8), inset 0 0 6px rgba(234,179,8,0.8); } }
+        
+        .badge-glow-pro { animation: badgePro 2s infinite alternate; border-color: #f97316; color: #f97316; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6); }
+        @keyframes badgePro { 0% { box-shadow: 0 0 5px rgba(249,115,22,0.5), inset 0 0 2px rgba(249,115,22,0.5); } 100% { box-shadow: 0 0 15px rgba(239,68,68,0.8), inset 0 0 6px rgba(239,68,68,0.8); border-color:#ef4444; color:#ef4444;} }
+        
+        .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: transparent; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
+        @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -57,7 +71,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) المحدثة بالكامل -->
+    <!-- القائمة الجانبية (Sidebar) المحدثة -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -85,6 +99,8 @@
                     <li><a href="library.html?tab=history" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
                     <li><a href="library.html?tab=likes" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
                     <li><a href="library.html?tab=uploads" id="sidebarUploadsLink" class="sidebar-link hidden"><i class="fas fa-cloud-upload-alt text-accent"></i><span>منشوراتي</span></a></li>
+                    <!-- إضافة زر اشتراكي في القائمة الجانبية -->
+                    <li><a href="subscription.html" class="sidebar-link"><i class="fas fa-crown text-yellow-500"></i><span class="text-yellow-500">اشتراكي</span></a></li>
                 </ul>
             </div>
         </div>
@@ -100,7 +116,9 @@
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
-                <span id="userBadge" class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
+                <a href="subscription.html" class="active:scale-95 transition cursor-pointer" title="ترقية الاشتراك">
+                    <span id="userBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free">مجاني</span>
+                </a>
             </div>
             
             <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
@@ -114,7 +132,7 @@
             <a href="index.html" class="hover:text-white transition">الأحدث</a>
             <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
-            <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+            <a href="subscription.html" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
             <a href="index.html#topSection" class="hover:text-white transition">الأكثر قراءة</a>
         </div>
     </nav>
@@ -150,13 +168,12 @@
             <button onclick="switchLibTab('history')" id="tabBtn-history" class="lib-tab active"><i class="fas fa-history ml-1.5"></i>آخر مشاهدة</button>
             <button onclick="switchLibTab('bookmarks')" id="tabBtn-bookmarks" class="lib-tab"><i class="far fa-bookmark ml-1.5"></i>المفضلة</button>
             <button onclick="switchLibTab('likes')" id="tabBtn-likes" class="lib-tab"><i class="far fa-heart ml-1.5"></i>أعمال أعجبتني</button>
-            <!-- هذا التبويب يظهر فقط للرافعين والمدراء -->
             <button onclick="switchLibTab('uploads')" id="tabBtn-uploads" class="lib-tab hidden"><i class="fas fa-cloud-upload-alt ml-1.5 text-accent"></i>منشوراتي</button>
         </div>
 
         <!-- حاويات المحتوى للتبويبات -->
         
-        <!-- 1. محتوى سجل القراءة (آخر مشاهدة) -->
+        <!-- 1. محتوى سجل القراءة -->
         <div id="tabContent-history" class="lib-content active">
             <div id="historyGrid" class="flex flex-col gap-3">
                 <div class="text-center py-16 text-gray-500 text-sm">
@@ -183,7 +200,7 @@
             </div>
         </div>
 
-        <!-- 4. محتوى المنشورات (للرافعين فقط) -->
+        <!-- 4. محتوى المنشورات -->
         <div id="tabContent-uploads" class="lib-content">
             <div class="flex justify-between items-center mb-4 px-1">
                 <h3 class="text-sm font-black text-gray-300">أعمالك المرفوعة</h3>
@@ -198,7 +215,7 @@
 
     </main>
 
-    <!-- الفوتر الموحد -->
+    <!-- الفوتر -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
             <div class="flex gap-4 text-sm font-bold text-gray-400">
@@ -234,9 +251,7 @@
             }
 
             document.getElementById('profileName').innerText = currentUser.username || 'مستخدم';
-            document.getElementById('userBadge').innerText = currentUser.username;
-            document.getElementById('authMenuText').innerText = "تسجيل الخروج";
-            document.getElementById('sidebarAuthBtn').href = "#"; // سيتم تعديله لاحقاً لتسجيل الخروج
+            updateAuthUI();
             
             const urlParams = new URLSearchParams(window.location.search);
             const targetTab = urlParams.get('tab') || 'history';
@@ -244,6 +259,32 @@
 
             checkUserRoleAndFetchUploads();
         };
+
+        function updateAuthUI() {
+            const badge = document.getElementById('userBadge');
+            const menuText = document.getElementById('authMenuText');
+            if (currentUser) {
+                const subType = currentUser.subscription_type || 'free'; 
+                let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
+                let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
+                let badgeText = "مجاني";
+
+                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
+                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
+                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
+                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
+                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
+
+                badge.innerHTML = badgeIcon + badgeText;
+                badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
+                menuText.innerText = "تسجيل الخروج";
+                document.getElementById('sidebarAuthBtn').href = "#"; // سيتم تعديله لاحقاً لتسجيل الخروج
+            } else {
+                badge.innerHTML = "مجاني";
+                badge.className = "bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free";
+                menuText.innerText = "تسجيل الدخول / حساب جديد";
+            }
+        }
 
         function switchLibTab(tabName) {
             const tabs = ['history', 'bookmarks', 'likes', 'uploads'];
