@@ -32,6 +32,24 @@
         .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
         .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
         .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
+
+        /* تأثيرات التوهج للشارات والتعليقات */
+        .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
+        .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+        .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
+        
+        .badge-glow-vip { animation: badgeGold 2s infinite alternate; border-color: #eab308; color: #eab308; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
+        @keyframes badgeGold { 0% { box-shadow: 0 0 5px rgba(234,179,8,0.5), inset 0 0 2px rgba(234,179,8,0.5); } 100% { box-shadow: 0 0 15px rgba(234,179,8,0.8), inset 0 0 6px rgba(234,179,8,0.8); } }
+        
+        .badge-glow-pro { animation: badgePro 2s infinite alternate; border-color: #f97316; color: #f97316; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6); }
+        @keyframes badgePro { 0% { box-shadow: 0 0 5px rgba(249,115,22,0.5), inset 0 0 2px rgba(249,115,22,0.5); } 100% { box-shadow: 0 0 15px rgba(239,68,68,0.8), inset 0 0 6px rgba(239,68,68,0.8); border-color:#ef4444; color:#ef4444;} }
+        
+        .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: transparent; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
+        @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
+
+        /* ستايل التعليقات المخصصة */
+        .comment-box { transition: all 0.3s ease; }
+        .comment-owner-badge { background: linear-gradient(135deg, #f472b6, #e11d48); color: white; padding: 1px 6px; border-radius: 4px; font-size: 8px; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 0 8px rgba(244,114,182,0.5); border: 1px solid rgba(255,255,255,0.2); }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -51,7 +69,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) המحدثة -->
+    <!-- القائمة الجانبية (Sidebar) المحدثة -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -78,6 +96,7 @@
                     <li><a href="library.html?tab=bookmarks" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح المفضلة.'); return false; }" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
                     <li><a href="library.html?tab=history" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح السجل.'); return false; }" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
                     <li><a href="library.html?tab=likes" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح هذه القائمة.'); return false; }" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="subscription.html" class="sidebar-link"><i class="fas fa-crown text-yellow-500"></i><span class="text-yellow-500">اشتراكي</span></a></li>
                 </ul>
             </div>
         </div>
@@ -88,12 +107,14 @@
         </div>
     </div>
 
-    <!-- شريط التنقل العلوي -->
+    <!-- شريط التنقل العلوي المحدث -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
-                <span id="userBadge" class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
+                <a href="subscription.html" class="active:scale-95 transition cursor-pointer" title="ترقية الاشتراك">
+                    <span id="userBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free">مجاني</span>
+                </a>
             </div>
             
             <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
@@ -108,7 +129,7 @@
             <a href="index.html" class="hover:text-white transition">الأحدث</a>
             <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
-            <a href="#" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+            <a href="subscription.html" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
             <a href="index.html#topSection" class="hover:text-white transition">الأكثر قراءة</a>
         </div>
     </nav>
@@ -128,7 +149,7 @@
                 <img id="mangaCover" src="" class="w-full h-full object-cover">
             </div>
 
-            <!-- النجوم التفاعلية المحسوبة بدقة -->
+            <!-- النجوم التفاعلية -->
             <div class="space-y-1">
                 <div id="starContainer" class="flex justify-center items-center gap-1 text-yellow-400 text-xl"></div>
                 <p class="text-[11px] text-gray-400 mt-1">
@@ -161,7 +182,10 @@
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-gray-400 w-20 font-bold">الرافع:</span>
-                    <span id="uploaderName" class="text-gray-300">مجهول</span>
+                    <span id="uploaderNameDisplay" class="flex items-center gap-2">
+                        <!-- سيتم تعبئة اسم الرافع بشارته المتوهجة عبر الجافاسكريبت -->
+                        <span class="text-gray-300">مجهول</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -187,6 +211,7 @@
             <div id="similarGrid" class="grid grid-cols-2 gap-4"></div>
         </div>
 
+        <!-- قسم التعليقات -->
         <div class="bg-[#18181b]/90 border border-gray-800/90 rounded-2xl p-5 space-y-4 mt-6">
             <h3 class="text-sm font-black uppercase text-accent tracking-wider flex items-center gap-2">
                 <i class="far fa-comments"></i> التعليقات والمناقشة
@@ -198,7 +223,8 @@
                     إرسال التعليق
                 </button>
             </div>
-            <div id="commentsList" class="space-y-3 pt-4">
+            <!-- قائمة التعليقات -->
+            <div id="commentsList" class="space-y-4 pt-4">
                 <p class="text-xs text-gray-500 text-center py-2">كن أول من يعلق على هذا العمل!</p>
             </div>
         </div>
@@ -248,6 +274,7 @@
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
         
         let currentMangaId = null;
+        let currentMangaData = null; // سيتم حفظ بيانات المانغا هنا لمقارنة الرافع
         let chapterPages = [];
         let currentUser = null;
 
@@ -261,6 +288,16 @@
             document.getElementById('errorReturnBtn').classList.remove('hidden');
         }
 
+        // دالة لتوليد تفاصيل الشارة المتوهجة بناءً على نوع الباقة
+        function getBadgeDetails(subType) {
+            if(subType === 'vip_lite') return { class: 'bg-cyan-900/10 border-cyan-500 glow-cyan', textClass: 'text-cyan-400 font-bold', badgeClass: 'border-cyan-500 glow-cyan', icon: '<i class="fas fa-star text-[8px] ml-1"></i>', text: 'LITE' };
+            if(subType === 'vip') return { class: 'bg-yellow-900/10 border-yellow-500 badge-glow-vip', textClass: 'text-yellow-400 font-bold', badgeClass: 'border-yellow-500 badge-glow-vip', icon: '<i class="fas fa-crown text-[8px] ml-1"></i>', text: 'VIP' };
+            if(subType === 'vip_pro') return { class: 'bg-orange-900/10 border-orange-500 badge-glow-pro', textClass: 'text-orange-400 font-bold', badgeClass: 'border-orange-500 badge-glow-pro', icon: '<i class="fas fa-crown text-[8px] ml-1"></i>', text: 'PRO' };
+            if(subType === 'vip_ultra') return { class: 'bg-purple-900/10 border-purple-500 badge-glow-ultra', textClass: 'text-purple-400 font-bold', badgeClass: 'border-purple-500 badge-glow-ultra', icon: '<i class="fas fa-crown text-[8px] ml-1"></i>', text: 'ULTRA' };
+            if(subType === 'uploader') return { class: 'bg-red-900/10 border-red-500 glow-uploader', textClass: 'text-red-400 font-bold', badgeClass: 'border-red-500 glow-uploader', icon: '<i class="fas fa-upload text-[8px] ml-1"></i>', text: 'الرافع' };
+            return { class: 'border-gray-800 bg-[#111113]', textClass: 'text-gray-300 font-semibold', badgeClass: 'border-gray-600 bg-gray-800 text-gray-400 glow-free', icon: '', text: 'مجاني' };
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const storedUser = localStorage.getItem('futa_user_logged');
@@ -270,37 +307,49 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 currentMangaId = urlParams.get('id');
 
-                if (!currentMangaId) {
-                    currentMangaId = localStorage.getItem('selectedMangaId');
-                }
+                if (!currentMangaId) currentMangaId = localStorage.getItem('selectedMangaId');
 
-                if (!currentMangaId) {
-                    handleLoadError('لم يتم العثور على العمل المطلوب.');
-                    return;
-                }
+                if (!currentMangaId) return handleLoadError('لم يتم العثور على العمل المطلوب.');
 
+                // جلب بيانات المانغا
                 const { data: manga, error: mangaError } = await sbClient.from('mangas').select('*').eq('id', currentMangaId).single();
                 
-                if (mangaError || !manga) {
-                    handleLoadError('العمل غير موجود أو تم حذفه.');
-                    return;
-                }
+                if (mangaError || !manga) return handleLoadError('العمل غير موجود أو تم حذفه.');
+                
+                currentMangaData = manga; // حفظ البيانات للمقارنة لاحقاً
 
                 document.getElementById('mangaCover').src = manga.cover_image_url || '';
                 document.getElementById('pageBlurBg').style.backgroundImage = `url('${manga.cover_image_url || ''}')`;
                 document.getElementById('mangaTitle').innerText = manga.title || 'بدون عنوان';
                 document.getElementById('readerTitle').innerText = manga.title || 'قراءة الفصل';
                 document.getElementById('mangaTitleEn').innerText = manga.title_en || '';
-                document.getElementById('uploaderName').innerText = manga.uploader_name || 'مجهول';
                 
-                if (manga.description) {
-                    document.getElementById('mangaDesc').innerText = manga.description;
-                }
+                if (manga.description) document.getElementById('mangaDesc').innerText = manga.description;
 
                 if (manga.tags) {
                     const tags = manga.tags.split(',');
-                    // تم الإبقاء على ارتباط التاغات بصفحة tags.html
                     document.getElementById('tagsList').innerHTML = tags.map(t => `<a href="tags.html" class="tag-badge hover:bg-gray-800 transition">${t.trim()}</a>`).join('');
+                }
+
+                // --- تحديث خانة الرافع لتظهر متوهجة ---
+                const uploaderNameDisplay = document.getElementById('uploaderNameDisplay');
+                if (manga.uploader_name) {
+                    // سحب بيانات الرافع من Profiles لمعرفة باقته الحالية
+                    const { data: uploaderProfile } = await sbClient.from('profiles').select('subscription_type').eq('username', manga.uploader_name).single();
+                    const subType = uploaderProfile ? uploaderProfile.subscription_type : 'free';
+                    const bdg = getBadgeDetails(subType);
+                    
+                    // إذا لم تكن الباقة مجانية، أظهر الشارة واسم متوهج
+                    if (subType !== 'free') {
+                        uploaderNameDisplay.innerHTML = `
+                            <span class="${bdg.textClass} text-sm">${manga.uploader_name}</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded border ${bdg.badgeClass}">${bdg.icon}${bdg.text}</span>
+                        `;
+                    } else {
+                        uploaderNameDisplay.innerHTML = `<span class="text-gray-300 font-bold">${manga.uploader_name}</span>`;
+                    }
+                } else {
+                    uploaderNameDisplay.innerHTML = `<span class="text-gray-500 font-bold">مجهول</span>`;
                 }
 
                 const { data: pages } = await sbClient.from('manga_pages').select('image_url').eq('manga_id', currentMangaId).order('page_number', { ascending: true });
@@ -313,7 +362,7 @@
 
                 setTimeout(() => {
                     loadSimilarAndTopWorks();
-                    loadComments();
+                    loadComments(); // تحميل التعليقات بالستايل الجديد
                 }, 100);
 
             } catch (err) {
@@ -326,21 +375,29 @@
             const badge = document.getElementById('userBadge');
             const menuText = document.getElementById('authMenuText');
             if (currentUser) {
-                badge.innerText = currentUser.username;
-                badge.className = "bg-purple-900 text-purple-200 text-[10px] font-bold px-2 py-1 rounded-md border border-purple-500";
+                const subType = currentUser.subscription_type || 'free'; 
+                let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
+                let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
+                let badgeText = "مجاني";
+
+                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
+                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
+                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
+                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
+                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
+
+                badge.innerHTML = badgeIcon + badgeText;
+                badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
                 menuText.innerText = "تسجيل الخروج";
             } else {
-                badge.innerText = "مجاني";
+                badge.innerHTML = "مجاني";
+                badge.className = "bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free";
                 menuText.innerText = "تسجيل الدخول / حساب جديد";
             }
         }
 
         function calculateRatingBasedOnLikes(likes) {
-            if (likes < 2) return 1.5;
-            if (likes >= 2 && likes < 5) return 2.0;
-            if (likes >= 5 && likes < 10) return 4.5;
-            if (likes >= 10) return 5.0;
-            return 1.0;
+            if (likes < 2) return 1.5; if (likes >= 2 && likes < 5) return 2.0; if (likes >= 5 && likes < 10) return 4.5; if (likes >= 10) return 5.0; return 1.0;
         }
 
         function renderStarsAndLikes() {
@@ -349,15 +406,11 @@
             document.getElementById('ratingNumber').innerText = ratingStr;
             document.getElementById('likesCountText').innerText = likesCount;
 
-            const fullStars = Math.floor(rating);
-            const halfStar = (rating % 1) >= 0.5 ? 1 : 0;
-            const emptyStars = 5 - fullStars - halfStar;
-
+            const fullStars = Math.floor(rating); const halfStar = (rating % 1) >= 0.5 ? 1 : 0; const emptyStars = 5 - fullStars - halfStar;
             let starsHtml = '';
             for(let i=0; i<fullStars; i++) starsHtml += '<i class="fas fa-star"></i>';
             if(halfStar) starsHtml += '<i class="fas fa-star-half-alt"></i>';
             for(let i=0; i<emptyStars; i++) starsHtml += '<i class="far fa-star text-gray-600"></i>';
-            
             starsHtml += `<span class="text-white font-black text-2xl mr-2">${ratingStr}</span>`;
             document.getElementById('starContainer').innerHTML = starsHtml;
         }
@@ -367,9 +420,7 @@
             isLiked = localStorage.getItem(`liked_${currentMangaId}`) === 'true';
             isBookmarked = localStorage.getItem(`bookmark_${currentMangaId}`) === 'true';
             likesCount = isLiked ? 2 : 1; 
-            renderStarsAndLikes(); 
-            updateLikeUI(); 
-            updateBookmarkUI();
+            renderStarsAndLikes(); updateLikeUI(); updateBookmarkUI();
         }
 
         function toggleLike() {
@@ -377,127 +428,55 @@
             isLiked = !isLiked;
             localStorage.setItem(`liked_${currentMangaId}`, isLiked);
             likesCount = isLiked ? likesCount + 1 : likesCount - 1;
-            renderStarsAndLikes(); 
-            updateLikeUI();
+            renderStarsAndLikes(); updateLikeUI();
         }
 
         function updateLikeUI() {
-            const btn = document.getElementById('likeBtn'); 
-            const icon = document.getElementById('likeIcon');
+            const btn = document.getElementById('likeBtn'); const icon = document.getElementById('likeIcon');
             if (!btn || !icon) return;
-            
-            if (isLiked) { 
-                btn.className = "bg-pink-600 border border-pink-500 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-pink-900/50 transition active:scale-95 flex items-center justify-center text-sm"; 
-                icon.className = "fas fa-heart text-lg"; 
-            } else { 
-                btn.className = "bg-[#18181b] border border-gray-700 text-gray-400 hover:text-pink-400 font-bold py-3.5 px-5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center text-sm"; 
-                icon.className = "far fa-heart text-lg"; 
-            }
+            if (isLiked) { btn.className = "bg-pink-600 border border-pink-500 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-pink-900/50 transition active:scale-95 flex items-center justify-center text-sm"; icon.className = "fas fa-heart text-lg"; } 
+            else { btn.className = "bg-[#18181b] border border-gray-700 text-gray-400 hover:text-pink-400 font-bold py-3.5 px-5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center text-sm"; icon.className = "far fa-heart text-lg"; }
         }
 
         function toggleBookmark() {
             if (!currentUser) return alert('⚠️ خاصية الحفظ في المفضلة متاحة للأعضاء المسجلين فقط.');
             if(!currentMangaId) return;
-            
             isBookmarked = !isBookmarked;
             localStorage.setItem(`bookmark_${currentMangaId}`, isBookmarked);
             updateBookmarkUI();
         }
 
         function updateBookmarkUI() {
-            const btn = document.getElementById('bookmarkBtn'); 
-            const icon = document.getElementById('bookmarkIcon');
+            const btn = document.getElementById('bookmarkBtn'); const icon = document.getElementById('bookmarkIcon');
             if (!btn || !icon) return;
-
-            if (isBookmarked) { 
-                btn.className = "bg-emerald-600 border border-emerald-500 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-emerald-900/50 transition active:scale-95 flex items-center justify-center text-sm"; 
-                icon.className = "fas fa-bookmark text-lg"; 
-            } else { 
-                btn.className = "bg-[#18181b] border border-gray-700 text-gray-400 hover:text-emerald-400 font-bold py-3.5 px-5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center text-sm"; 
-                icon.className = "far fa-bookmark text-lg"; 
-            }
+            if (isBookmarked) { btn.className = "bg-emerald-600 border border-emerald-500 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-emerald-900/50 transition active:scale-95 flex items-center justify-center text-sm"; icon.className = "fas fa-bookmark text-lg"; } 
+            else { btn.className = "bg-[#18181b] border border-gray-700 text-gray-400 hover:text-emerald-400 font-bold py-3.5 px-5 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center text-sm"; icon.className = "far fa-bookmark text-lg"; }
         }
 
-        function checkAuthForFavorites() { 
-            if (!currentUser) return alert('⚠️ عذراً، يجب تسجيل الدخول لفتح هذه القائمة.'); 
-        }
-
-        function openSidebar() { 
-            document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); 
-            document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); 
-            document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); 
-            document.body.style.overflow = 'hidden'; 
-        }
-        function closeSidebar() { 
-            document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); 
-            document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); 
-            document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); 
-            document.body.style.overflow = 'auto'; 
-        }
-
-        function openSearch() {
-            const modal = document.getElementById('searchModal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10);
-            document.getElementById('searchInput').focus();
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSearch() {
-            const modal = document.getElementById('searchModal');
-            modal.classList.replace('opacity-100', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                document.getElementById('searchInput').value = '';
-                document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
-            }, 300);
-        }
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
+        function openSearch() { const modal = document.getElementById('searchModal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
+        function closeSearch() { const modal = document.getElementById('searchModal'); modal.classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>'; }, 300); }
 
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const query = e.target.value.trim();
-            const resultsContainer = document.getElementById('searchResults');
-            
-            if (query.length < 2) {
-                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
-                return;
-            }
-
+            clearTimeout(searchTimeout); const query = e.target.value.trim(); const resultsContainer = document.getElementById('searchResults');
+            if (query.length < 2) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>'; return; }
             resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i><p class="mt-3 text-xs font-bold text-gray-400">جاري البحث...</p></div>';
-
             searchTimeout = setTimeout(async () => {
                 try {
                     const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
                     if (error) throw error;
                     if (data.length === 0) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>'; return; }
-
                     resultsContainer.innerHTML = data.map(manga => {
                         const tagsHtml = (manga.tags ? manga.tags.split(',').slice(0, 3) : []).map(tag => `<span class="bg-black border border-gray-700 text-gray-300 px-2 py-0.5 rounded text-[9px] font-bold">${tag.trim()}</span>`).join('');
-                        return `
-                            <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
-                                <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
-                                <div class="flex-1 overflow-hidden">
-                                    <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
-                                    <div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div>
-                                </div>
-                            </a>
-                        `;
+                        return `<a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer"><img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm"><div class="flex-1 overflow-hidden"><h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3><div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div></div></a>`;
                     }).join('');
                 } catch (err) { resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>'; }
             }, 600);
         });
 
-        async function goToRandomManga() {
-            try {
-                const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
-                if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
-                const randomId = data[Math.floor(Math.random() * data.length)].id;
-                localStorage.setItem('selectedMangaId', randomId);
-                window.location.href = `manga.html?id=${randomId}`;
-            } catch (err) { console.error("خطأ: ", err); }
-        }
+        async function goToRandomManga() { try { const { data } = await sbClient.from('mangas').select('id').eq('status', 'approved'); if (data.length > 0) window.location.href = `manga.html?id=${data[Math.floor(Math.random() * data.length)].id}`; } catch (e) {} }
 
         function openReader() {
             if (chapterPages.length === 0) return alert('لا توجد صفحات لهذا العمل.');
@@ -507,71 +486,83 @@
             box.innerHTML = '';
             chapterPages.forEach(p => { box.innerHTML += `<img src="${p.image_url}" class="w-full h-auto mb-[-1px]" loading="lazy">`; });
         }
-        
-        function closeReader() { 
-            document.getElementById('readerModal').classList.add('hidden'); 
-            document.body.style.overflow = 'auto'; 
-        }
+        function closeReader() { document.getElementById('readerModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
 
         async function loadSimilarAndTopWorks() {
             if(!currentMangaId) return;
             const { data } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
             if (!data) return;
-            
             const similar = data.filter(m => m.id != currentMangaId).slice(0, 2);
-            if (similar.length > 0) {
-                document.getElementById('similarGrid').innerHTML = similar.map(m => `
-                    <a href="manga.html?id=${m.id}" onclick="localStorage.setItem('selectedMangaId', '${m.id}')" class="bg-[#111113] rounded-xl overflow-hidden border border-gray-800 block shadow-md">
-                        <img src="${m.cover_image_url}" class="w-full h-44 object-cover">
-                        <span class="text-xs font-bold text-white p-2.5 truncate block">${m.title}</span>
-                    </a>
-                `).join('');
-            }
-            
+            if (similar.length > 0) { document.getElementById('similarGrid').innerHTML = similar.map(m => `<a href="manga.html?id=${m.id}" class="bg-[#111113] rounded-xl overflow-hidden border border-gray-800 block shadow-md"><img src="${m.cover_image_url}" class="w-full h-44 object-cover"><span class="text-xs font-bold text-white p-2.5 truncate block">${m.title}</span></a>`).join(''); }
             const topList = data.slice(0, 5);
             document.getElementById('topMangaList').innerHTML = topList.map(manga => {
                 const tagsHtml = (manga.tags ? manga.tags.split(',') : []).map(tag => `<span class="tag-badge-sm whitespace-nowrap">${tag.trim()}</span>`).join('');
-                return `
-                    <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b]/90 p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-start shadow-md relative cursor-pointer">
-                        <img src="${manga.cover_image_url}" class="w-20 h-28 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm border border-gray-700/50 pointer-events-none">
-                        <div class="flex-1 overflow-hidden pointer-events-none">
-                            <h3 class="font-bold text-sm text-white mb-2 leading-tight">${manga.title}</h3>
-                            <div class="flex flex-wrap gap-1.5 mt-1">${tagsHtml}</div>
-                        </div>
-                    </a>
-                `;
+                return `<a href="manga.html?id=${manga.id}" class="flex gap-3 bg-[#18181b]/90 p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-start shadow-md relative cursor-pointer"><img src="${manga.cover_image_url}" class="w-20 h-28 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm border border-gray-700/50 pointer-events-none"><div class="flex-1 overflow-hidden pointer-events-none"><h3 class="font-bold text-sm text-white mb-2 leading-tight">${manga.title}</h3><div class="flex flex-wrap gap-1.5 mt-1">${tagsHtml}</div></div></a>`;
             }).join('');
         }
 
         async function loadComments() {
             if(!currentMangaId) return;
             const box = document.getElementById('commentsList');
-            const { data, error } = await sbClient.from('comments').select('*').eq('manga_id', currentMangaId).order('created_at', { ascending: false });
+            const { data: comments, error } = await sbClient.from('comments').select('*').eq('manga_id', currentMangaId).order('created_at', { ascending: false });
             
             if (error && error.code === '42P01') return box.innerHTML = '';
-            if (!data || data.length === 0) return;
+            if (!comments || comments.length === 0) return;
+
+            // جلب باقات المعلقين لتحسين التوهج
+            const usernames = [...new Set(comments.map(c => c.username))];
+            const { data: profiles } = await sbClient.from('profiles').select('username, subscription_type').in('username', usernames);
             
-            box.innerHTML = data.map(c => `
-                <div class="bg-[#111113] p-3 rounded-xl border border-gray-800 text-sm space-y-1.5 shadow-sm">
-                    <div class="flex justify-between items-center text-xs text-gray-500">
-                        <span class="font-bold text-accent">${c.username || 'مجهول'}</span>
-                        <span>${new Date(c.created_at).toLocaleDateString('ar-EG')}</span>
+            const profileMap = {};
+            if (profiles) {
+                profiles.forEach(p => { profileMap[p.username] = p.subscription_type; });
+            }
+
+            box.innerHTML = comments.map(c => {
+                const uName = c.username || 'مجهول';
+                const subType = profileMap[uName] || 'free';
+                const bdg = getBadgeDetails(subType);
+                
+                // التحقق إذا كان المعلق هو نفسه صاحب المانغا
+                let ownerBadgeHtml = '';
+                if (currentMangaData && uName === currentMangaData.uploader_name && uName !== 'مجهول') {
+                    ownerBadgeHtml = `<span class="comment-owner-badge mr-2" title="رافع هذا العمل"><i class="fas fa-pencil-alt ml-0.5"></i>صاحب العمل</span>`;
+                }
+
+                // عرض الشارة فقط إذا لم تكن مجانية
+                let userBadgeHtml = subType !== 'free' ? `<span class="text-[9px] px-1.5 py-0.5 rounded border ${bdg.badgeClass} ml-2">${bdg.icon}${bdg.text}</span>` : '';
+
+                return `
+                    <div class="comment-box p-3 rounded-xl border border-gray-800 shadow-sm ${bdg.class}">
+                        <div class="flex justify-between items-center text-xs text-gray-500 mb-2">
+                            <span class="font-bold flex items-center">
+                                <span class="${bdg.textClass}">${uName}</span>
+                                ${userBadgeHtml}
+                                ${ownerBadgeHtml}
+                            </span>
+                            <span>${new Date(c.created_at).toLocaleDateString('ar-EG')}</span>
+                        </div>
+                        <p class="${bdg.textClass ? bdg.textClass.replace('font-bold', 'font-semibold text-opacity-90') : 'text-gray-300 font-semibold'} leading-relaxed">${c.comment_text}</p>
                     </div>
-                    <p class="text-gray-300 font-semibold">${c.comment_text}</p>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         async function postComment() {
             if(!currentMangaId) return;
             const lastCommentTime = localStorage.getItem('last_comment_timestamp');
-            const cooldownDuration = currentUser ? 60 * 1000 : 120 * 1000; 
+            
+            // إلغاء الـ Cooldown تماماً لاصحاب الـ VIP وما فوق
+            let cooldownDuration = currentUser ? 60 * 1000 : 120 * 1000;
+            if(currentUser && ['vip', 'vip_pro', 'vip_ultra'].includes(currentUser.subscription_type)) {
+                cooldownDuration = 0; // لا يوجد انتظار للفي آي بي
+            }
+
             const now = Date.now();
             
             if (lastCommentTime && (now - lastCommentTime < cooldownDuration)) {
                 const remainingSecs = Math.ceil((cooldownDuration - (now - lastCommentTime)) / 1000);
-                const mins = Math.floor(remainingSecs / 60); 
-                const secs = remainingSecs % 60;
+                const mins = Math.floor(remainingSecs / 60); const secs = remainingSecs % 60;
                 alert(`⏳ يجدر بك الانتظار ${mins > 0 ? mins + ' دقيقة و ' : ''}${secs} ثانية قبل كتابة تعليق آخر.`);
                 return;
             }
@@ -581,8 +572,7 @@
             if (!text) return alert('يرجى كتابة نص التعليق أولاً.');
             
             const btn = document.getElementById('postCommentBtn');
-            btn.disabled = true; 
-            btn.innerText = 'جاري الإرسال...';
+            btn.disabled = true; btn.innerText = 'جاري الإرسال...';
             
             const { error } = await sbClient.from('comments').insert([{ manga_id: currentMangaId, username: user, comment_text: text }]);
             
@@ -593,9 +583,7 @@
             } else { 
                 alert('فشل إرسال التعليق.'); 
             }
-            
-            btn.disabled = false; 
-            btn.innerText = 'إرسال التعليق';
+            btn.disabled = false; btn.innerText = 'إرسال التعليق';
         }
     </script>
 </body>
