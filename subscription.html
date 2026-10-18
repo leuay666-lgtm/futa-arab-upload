@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>الاشتراكات والتميز - Futa Arab</title>
+    <style>
+        body { background-color: #111113; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #18181b; }
+        .text-accent { color: #f472b6; }
+        .bg-accent { background-color: #f472b6; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        .body-glow {
+            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
+            background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(17,17,19,0) 70%);
+            z-index: -1; pointer-events: none;
+        }
+
+        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
+        #sidebarMenu { transition: transform 0.3s ease-in-out; }
+        .sidebar-link { display: flex; align-items: center; justify-content: flex-start; gap: 12px; color: #d1d5db; padding: 10px; border-radius: 8px; transition: all 0.3s ease; }
+        .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
+        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+        .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
+
+        /* تأثيرات التوهج للشارات والبطاقات */
+        .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
+        
+        .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+        .bg-glow-uploader { background: linear-gradient(145deg, #18181b, #2a1111); border: 1px solid #ef4444; }
+
+        .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
+        .bg-glow-cyan { background: linear-gradient(145deg, #18181b, #0c2025); border: 1px solid #06b6d4; }
+
+        .glow-gold { box-shadow: 0 0 20px rgba(234, 179, 8, 0.5); border-color: #eab308; color: #eab308; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
+        .bg-glow-gold { background: linear-gradient(145deg, #18181b, #2a2208); border: 1px solid #eab308; }
+
+        .glow-pro { box-shadow: 0 0 20px rgba(249, 115, 22, 0.6); border: 2px solid transparent; background-clip: padding-box; position: relative; color: #f97316; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6); }
+        .glow-pro::before { content: ''; position: absolute; inset: -2px; border-radius: inherit; background: linear-gradient(to right, #ef4444, #eab308); z-index: -1; }
+        .bg-glow-pro { background: linear-gradient(145deg, #18181b, #2a180a); }
+
+        .glow-ultra { box-shadow: 0 0 25px rgba(217, 70, 239, 0.7); border: 2px solid transparent; background-clip: padding-box; position: relative; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
+        .glow-ultra::before { content: ''; position: absolute; inset: -2px; border-radius: inherit; background: linear-gradient(to right, #eab308, #ef4444, #d946ef); z-index: -1; animation: ultraGlow 3s linear infinite; }
+        .bg-glow-ultra { background: linear-gradient(145deg, #18181b, #230d2a); }
+
+        @keyframes ultraGlow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+
+        /* تصميم معاينة التعليق المتوهج */
+        .comment-preview { background-color: #111113; border: 1px solid #262626; border-radius: 12px; padding: 12px; transition: all 0.4s ease; margin-bottom: 20px; }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col">
+
+    <div class="body-glow"></div>
+
+    <!-- نافذة البحث الذكية -->
+    <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
+        <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
+            <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
+            <div class="relative flex-1">
+                <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
+                <input type="text" id="searchInput" placeholder="ابحث عن مانغا..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
+            </div>
+        </div>
+        <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>
+        </div>
+    </div>
+
+    <!-- القائمة الجانبية -->
+    <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
+    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
+            <button onclick="closeSidebar()" class="absolute right-4 top-6 text-gray-500 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-times"></i></button>
+            <div class="w-full text-left pl-2">
+                <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
+                <p class="text-[11px] text-gray-500 mt-0.5 font-semibold">Manga • Manhwa • Doujinshi</p>
+            </div>
+        </div>
+        <div class="flex-1 py-6 flex flex-col gap-8 px-6">
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
+                    <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
+                </ul>
+            </div>
+            <div class="h-[1px] w-full bg-gray-800/50"></div>
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="library.html?tab=bookmarks" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول.'); return false; }" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="library.html?tab=history" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول.'); return false; }" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="library.html?tab=likes" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول.'); return false; }" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="p-6 border-t border-gray-800/50 text-center">
+            <a href="auth.html" id="sidebarAuthBtn" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- شريط التنقل العلوي -->
+    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
+                <span id="userBadge" class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
+            </div>
+            
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
+            <a href="index.html" class="hover:text-white transition">الأحدث</a>
+            <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
+            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+            <a href="subscription.html" class="text-yellow-500 border-b-2 border-yellow-500 pb-1">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي (الباقات) -->
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-8 space-y-10 w-full">
+        
+        <div class="text-center space-y-2">
+            <h1 class="text-3xl font-black text-white">ترقية <span class="text-accent">الاشتراك</span></h1>
+            <p class="text-sm text-gray-400 font-bold max-w-md mx-auto">تخلص من الإعلانات، وسّع مكتبتك الخاصة، واحصل على شارات متوهجة تميزك في التعليقات!</p>
+        </div>
+
+        <!-- معاينة التعليق المتوهج -->
+        <div class="bg-[#18181b]/50 border border-gray-800 rounded-2xl p-5 text-center">
+            <h3 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-wider">معاينة حية لتعليقاتك حسب باقتك</h3>
+            
+            <div id="commentPreviewBox" class="comment-preview text-right">
+                <div class="flex justify-between items-center text-xs mb-2">
+                    <span class="font-bold flex items-center gap-2">
+                        <span id="previewName" class="text-white">الزائر الكريم</span>
+                        <span id="previewBadge" class="text-[9px] px-1.5 py-0.5 rounded border glow-free text-gray-400 bg-gray-800 border-gray-600">مجاني</span>
+                    </span>
+                    <span class="text-gray-600">الآن</span>
+                </div>
+                <p id="previewText" class="text-gray-300 font-semibold text-sm">هكذا سيبدو تعليقك في الموقع...</p>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-2 mt-4" dir="ltr">
+                <button onmouseenter="previewComment('ultra')" class="w-8 h-8 rounded-full border border-purple-500 bg-purple-900/50 text-purple-400 glow-ultra"><i class="fas fa-crown text-[10px]"></i></button>
+                <button onmouseenter="previewComment('pro')" class="w-8 h-8 rounded-full border border-orange-500 bg-orange-900/50 text-orange-400 glow-pro"><i class="fas fa-crown text-[10px]"></i></button>
+                <button onmouseenter="previewComment('vip')" class="w-8 h-8 rounded-full border border-yellow-500 bg-yellow-900/50 text-yellow-400 glow-gold"><i class="fas fa-crown text-[10px]"></i></button>
+                <button onmouseenter="previewComment('lite')" class="w-8 h-8 rounded-full border border-cyan-500 bg-cyan-900/50 text-cyan-400 glow-cyan"><i class="fas fa-star text-[10px]"></i></button>
+                <button onmouseenter="previewComment('uploader')" class="w-8 h-8 rounded-full border border-red-500 bg-red-900/50 text-red-400 glow-uploader"><i class="fas fa-upload text-[10px]"></i></button>
+                <button onmouseenter="previewComment('free')" class="w-8 h-8 rounded-full border border-gray-600 bg-gray-800 text-gray-400"><i class="fas fa-user text-[10px]"></i></button>
+            </div>
+            <p class="text-[10px] text-gray-500 mt-2">مرر الماوس (أو اضغط) على الدوائر لترى التوهج.</p>
+        </div>
+
+        <!-- شبكة الباقات -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- 1. الباقة المجانية -->
+            <div class="bg-[#111113] border border-gray-800 rounded-2xl p-6 flex flex-col relative">
+                <div class="absolute top-0 right-0 bg-gray-800 text-gray-300 text-[10px] font-bold px-3 py-1 rounded-bl-lg rounded-tr-xl">الحالي</div>
+                <h3 class="text-xl font-black text-white mb-2">مجاني</h3>
+                <div class="text-2xl font-black text-gray-400 mb-4">$0 <span class="text-xs font-normal">/ للأبد</span></div>
+                <ul class="text-xs text-gray-400 space-y-3 mb-8 flex-1 font-bold">
+                    <li><i class="fas fa-check text-gray-600 ml-2"></i> سعة مفضلة وسجل قراءة (25 عمل)</li>
+                    <li><i class="fas fa-check text-gray-600 ml-2"></i> إمكانية التقييم والإعجاب</li>
+                    <li><i class="fas fa-times text-gray-600 ml-2"></i> إعلانات في الموقع</li>
+                    <li><i class="fas fa-times text-gray-600 ml-2"></i> انتظار قبل التعليق (Cooldown)</li>
+                </ul>
+                <button disabled class="w-full bg-gray-800 text-gray-500 py-3 rounded-xl font-black text-sm">أنت على هذه الباقة</button>
+            </div>
+
+            <!-- 2. باقة الرافع (مكافأة) -->
+            <div class="bg-glow-uploader rounded-2xl p-6 flex flex-col relative overflow-hidden">
+                <div class="absolute -right-10 top-6 bg-red-600 text-white text-[10px] font-black py-1 px-10 transform rotate-45">مكافأة!</div>
+                <div class="flex items-center gap-2 mb-2">
+                    <h3 class="text-xl font-black text-white">الرافع</h3>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded border glow-uploader font-bold"><i class="fas fa-upload ml-1"></i>UPLOADER</span>
+                </div>
+                <div class="text-sm font-black text-red-400 mb-4">رفع 25 مانغا <span class="text-xs font-normal text-gray-400">/ أسبوعياً</span></div>
+                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
+                    <li><i class="fas fa-check text-red-500 ml-2"></i> <span class="text-white">شعار أحمر متوهج</span> يثير الانتباه</li>
+                    <li><i class="fas fa-check text-red-500 ml-2"></i> <span class="text-white">بدون إعلانات</span> طوال الأسبوع</li>
+                    <li><i class="fas fa-check text-red-500 ml-2"></i> مساهمة في نمو المجتمع</li>
+                </ul>
+                <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="w-full text-center bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-black text-sm transition">ابدأ الرفع الآن</a>
+            </div>
+
+            <!-- 3. VIP Lite -->
+            <div class="bg-glow-cyan rounded-2xl p-6 flex flex-col">
+                <div class="flex items-center gap-2 mb-2">
+                    <h3 class="text-xl font-black text-white">VIP Lite</h3>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded border glow-cyan font-bold"><i class="fas fa-star ml-1"></i>LITE</span>
+                </div>
+                <div class="text-2xl font-black text-cyan-400 mb-4">$2 <span class="text-xs font-normal text-gray-400">/ أسبوع</span></div>
+                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
+                    <li><i class="fas fa-check text-cyan-500 ml-2"></i> <span class="text-white">بدون إعلانات</span> نهائياً</li>
+                    <li><i class="fas fa-check text-cyan-500 ml-2"></i> <span class="text-white">شعار نيون سماوي</span> لتعليقاتك</li>
+                    <li><i class="fas fa-check text-cyan-500 ml-2"></i> رفع سعة المكتبة والسجل (50 عمل)</li>
+                </ul>
+                <button class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-black text-sm transition">ترقية الآن</button>
+            </div>
+
+            <!-- 4. VIP الشهري -->
+            <div class="bg-glow-gold rounded-2xl p-6 flex flex-col transform md:-translate-y-2 relative shadow-2xl">
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black text-[10px] font-black px-4 py-1 rounded-full shadow-lg">الأكثر شعبية</div>
+                <div class="flex items-center gap-2 mb-2 mt-2">
+                    <h3 class="text-xl font-black text-white">VIP</h3>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded border glow-gold font-bold"><i class="fas fa-crown ml-1"></i>GOLD</span>
+                </div>
+                <div class="text-2xl font-black text-yellow-400 mb-4">$5 <span class="text-xs font-normal text-gray-400">/ شهر</span></div>
+                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
+                    <li><i class="fas fa-check text-yellow-500 ml-2"></i> <span class="text-white">بدون إعلانات</span> نهائياً</li>
+                    <li><i class="fas fa-check text-yellow-500 ml-2"></i> <span class="text-white">شعار ذهبي ملكي</span> لتعليقاتك</li>
+                    <li><i class="fas fa-check text-yellow-500 ml-2"></i> تعليقات بدون انتظار (No Cooldown)</li>
+                    <li><i class="fas fa-check text-yellow-500 ml-2"></i> تحميل الفصول بدون قيود</li>
+                </ul>
+                <button class="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-black text-sm transition">ترقية الآن</button>
+            </div>
+
+            <!-- 5. VIP Pro -->
+            <div class="bg-glow-pro rounded-2xl p-6 flex flex-col">
+                <div class="flex items-center gap-2 mb-2">
+                    <h3 class="text-xl font-black text-white">VIP Pro</h3>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded border glow-pro font-bold"><i class="fas fa-crown ml-1"></i>PRO</span>
+                </div>
+                <div class="text-2xl font-black text-orange-400 mb-4">$10 <span class="text-xs font-normal text-gray-400">/ 3 أشهر (توفير!)</span></div>
+                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
+                    <li><i class="fas fa-check text-orange-500 ml-2"></i> جميع ميزات VIP الشهري</li>
+                    <li><i class="fas fa-check text-orange-500 ml-2"></i> <span class="text-white">شعار أحمر مدمج بالذهبي</span> (نادر)</li>
+                    <li><i class="fas fa-check text-orange-500 ml-2"></i> سعة مكتبة عملاقة (100 عمل)</li>
+                </ul>
+                <button class="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white py-3 rounded-xl font-black text-sm transition">ترقية الآن</button>
+            </div>
+
+            <!-- 6. VIP Ultra (النخبة) -->
+            <div class="bg-glow-ultra rounded-2xl p-6 flex flex-col md:col-span-2 lg:col-span-1">
+                <div class="flex items-center gap-2 mb-2">
+                    <h3 class="text-xl font-black text-white">VIP Ultra</h3>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded border glow-ultra font-bold"><i class="fas fa-crown ml-1"></i>ULTRA</span>
+                </div>
+                <div class="text-2xl font-black text-purple-400 mb-4">$50 <span class="text-xs font-normal text-gray-400">/ مدى الحياة</span></div>
+                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
+                    <li><i class="fas fa-check text-purple-500 ml-2"></i> اشتراك مستمر بلا تجديد</li>
+                    <li><i class="fas fa-check text-purple-500 ml-2"></i> <span class="text-white">شعار أسطوري (ذهبي/أحمر/بنفسجي)</span></li>
+                    <li><i class="fas fa-check text-purple-500 ml-2"></i> <span class="text-white">تخزين مانغا لا نهائي</span> في المفضلة</li>
+                    <li><i class="fas fa-check text-purple-500 ml-2"></i> تتبع كامل لسجل المشاهدة للأبد</li>
+                </ul>
+                <button class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white py-3 rounded-xl font-black text-sm transition animate-pulse hover:animate-none opacity-90 hover:opacity-100">كن إمبراطوراً الآن</button>
+            </div>
+
+        </div>
+
+        <!-- قسم عرض الشارات (توضيحي) -->
+        <div class="border-t border-gray-800 pt-8 mt-10">
+            <h2 class="text-center text-lg font-black uppercase tracking-wider text-gray-300 mb-6">نظام الشارات <span class="text-accent">Badges</span></h2>
+            
+            <div class="flex justify-center flex-wrap gap-4 md:gap-8 items-center bg-[#111113] p-4 rounded-xl border border-gray-800">
+                <span class="text-[10px] px-2 py-1 rounded border glow-uploader font-bold"><i class="fas fa-upload ml-1"></i>الرافع</span>
+                <span class="text-gray-700 hidden sm:block">•</span>
+                <span class="text-[10px] px-2 py-1 rounded border glow-cyan font-bold"><i class="fas fa-star ml-1"></i>LITE</span>
+                <span class="text-gray-700 hidden sm:block">•</span>
+                <span class="text-[10px] px-2 py-1 rounded border glow-gold font-bold"><i class="fas fa-crown ml-1"></i>VIP</span>
+                <span class="text-gray-700 hidden sm:block">•</span>
+                <span class="text-[10px] px-2 py-1 rounded border glow-pro font-bold"><i class="fas fa-crown ml-1"></i>VIP PRO</span>
+                <span class="text-gray-700 hidden sm:block">•</span>
+                <span class="text-[10px] px-2 py-1 rounded border glow-ultra font-bold"><i class="fas fa-crown ml-1"></i>ULTRA</span>
+            </div>
+            
+            <p class="text-center text-[11px] text-gray-500 mt-4 font-bold max-w-lg mx-auto leading-relaxed">
+                <i class="fas fa-info-circle text-gray-400"></i> هذه الشارات تظهر بجانب اسمك في ملفك الشخصي وعند تعليقك على أي عمل. امتلاك باقة يجعلك تبرز في مجتمع Futa Arab.
+            </p>
+        </div>
+
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative w-full">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
+            <div class="flex gap-4 text-sm font-bold text-gray-400">
+                <a href="index.html" class="hover:text-white transition">الرئيسية</a>
+                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
+            </div>
+            <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
+
+        window.onload = () => { updateAuthUI(); };
+
+        function updateAuthUI() {
+            const badge = document.getElementById('userBadge');
+            const menuText = document.getElementById('authMenuText');
+            if (currentUser) {
+                badge.innerText = currentUser.username;
+                badge.className = "bg-purple-900 text-purple-200 text-[10px] font-bold px-2 py-1 rounded-md border border-purple-500";
+                menuText.innerText = "تسجيل الخروج";
+                document.getElementById('previewName').innerText = currentUser.username; // وضع اسمه في التعليق التجريبي
+            } else {
+                badge.innerText = "مجاني";
+                menuText.innerText = "تسجيل الدخول / حساب جديد";
+            }
+        }
+
+        // دالة عرض المعاينة المتوهجة للتعليق
+        function previewComment(type) {
+            const box = document.getElementById('commentPreviewBox');
+            const badge = document.getElementById('previewBadge');
+            const text = document.getElementById('previewText');
+            
+            // تصفير الكلاسات
+            box.className = 'comment-preview text-right border border-gray-800 bg-[#111113]';
+            badge.className = 'text-[9px] px-1.5 py-0.5 rounded font-bold border';
+            
+            if (type === 'ultra') {
+                box.classList.add('border-purple-500', 'bg-purple-900/10');
+                box.style.boxShadow = '0 0 20px rgba(217, 70, 239, 0.15) inset';
+                badge.classList.add('glow-ultra'); badge.innerHTML = '<i class="fas fa-crown ml-1"></i>ULTRA';
+                text.className = 'font-bold text-sm text-purple-200';
+            } 
+            else if (type === 'pro') {
+                box.classList.add('border-orange-500', 'bg-orange-900/10');
+                box.style.boxShadow = '0 0 15px rgba(249, 115, 22, 0.1) inset';
+                badge.classList.add('glow-pro'); badge.innerHTML = '<i class="fas fa-crown ml-1"></i>PRO';
+                text.className = 'font-bold text-sm text-orange-200';
+            }
+            else if (type === 'vip') {
+                box.classList.add('border-yellow-500', 'bg-yellow-900/10');
+                box.style.boxShadow = '0 0 15px rgba(234, 179, 8, 0.1) inset';
+                badge.classList.add('glow-gold'); badge.innerHTML = '<i class="fas fa-crown ml-1"></i>VIP';
+                text.className = 'font-bold text-sm text-yellow-200';
+            }
+            else if (type === 'lite') {
+                box.classList.add('border-cyan-500', 'bg-cyan-900/10');
+                box.style.boxShadow = '0 0 15px rgba(6, 182, 212, 0.1) inset';
+                badge.classList.add('glow-cyan'); badge.innerHTML = '<i class="fas fa-star ml-1"></i>LITE';
+                text.className = 'font-bold text-sm text-cyan-200';
+            }
+            else if (type === 'uploader') {
+                box.classList.add('border-red-500', 'bg-red-900/10');
+                box.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.1) inset';
+                badge.classList.add('glow-uploader'); badge.innerHTML = '<i class="fas fa-upload ml-1"></i>الرافع';
+                text.className = 'font-bold text-sm text-red-200';
+            }
+            else {
+                badge.classList.add('glow-free', 'text-gray-400', 'bg-gray-800', 'border-gray-600'); badge.innerHTML = 'مجاني';
+                text.className = 'font-semibold text-sm text-gray-300';
+                box.style.boxShadow = 'none';
+            }
+        }
+
+        // دوال القائمة والبحث السريعة
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
+        function openSearch() { document.getElementById('searchModal').classList.remove('hidden'); setTimeout(() => document.getElementById('searchModal').classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
+        function closeSearch() { document.getElementById('searchModal').classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { document.getElementById('searchModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300); }
+    </script>
+</body>
+</html>
