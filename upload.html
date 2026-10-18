@@ -12,22 +12,54 @@
 </head>
 <body class="bg-[#0b0c10] text-white min-h-screen p-4 py-10 flex flex-col items-center justify-center">
 
-    <div class="bg-[#12141d] p-6 rounded-3xl border border-gray-800 shadow-2xl max-w-md w-full">
+    <div class="bg-[#12141d] p-6 rounded-3xl border border-gray-800 shadow-2xl max-w-md w-full relative">
+        
+        <!-- زر العودة للصفحة الرئيسية -->
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-800/80">
+            <a href="index.html" onclick="goBackHome(event)" class="inline-flex items-center gap-2 bg-[#1a1c23] hover:bg-gray-800 text-gray-300 hover:text-white px-3.5 py-2 rounded-xl border border-gray-700 text-xs font-bold transition active:scale-95">
+                <i class="fas fa-arrow-right text-purple-400"></i>
+                <span>العودة للرئيسية</span>
+            </a>
+            <span id="uploaderStatsBadge" class="hidden text-[11px] font-bold bg-purple-900/30 text-purple-300 border border-purple-700/50 px-2.5 py-1 rounded-lg">
+                مرفوعاتك: <span id="userUploadsCounter">0</span>
+            </span>
+        </div>
+
         <h1 class="text-2xl font-black mb-6 text-center text-purple-400">
             <i class="fas fa-cloud-upload-alt mb-2 block text-3xl"></i>
             منصة رفع الأعمال والمساهمة
         </h1>
         
         <div class="space-y-4">
-            <!-- 1. اسم الرافع (اختياري) -->
+            <!-- 1. اسم الرافع (يُملأ تلقائياً ويُقفل إذا كان مسجلاً) -->
             <div>
-                <label class="text-sm text-gray-400 mb-1 block">اسم الرافع / المترجم (اختياري)</label>
-                <input id="uploaderName" type="text" maxlength="50" placeholder="إذا تُرك فارغاً سيتم تسجيلك كمجهول" class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
+                <label class="text-sm text-gray-400 mb-1 flex justify-between items-center">
+                    <span>اسم الرافع / المترجم</span>
+                    <span id="loggedAccountBadge" class="hidden text-[10px] text-emerald-400 font-bold"><i class="fas fa-check-circle ml-1"></i>حساب مسجل (تلقائي)</span>
+                </label>
+                <input id="uploaderName" type="text" maxlength="50" placeholder="إذا تُرك فارغاً سيتم تسجيلك كمجهول" class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm transition">
+                <p id="uploaderHint" class="text-[10px] text-gray-500 mt-1 font-bold">سجل دخولك لحفظ التحميلات في حسابك والاستفادة من عرض الرافع.</p>
             </div>
 
             <div class="h-px w-full bg-gray-800 my-2"></div>
 
-            <!-- 2. العناوين (إجباري / اختياري) -->
+            <!-- 2. تحديد نوع العمل (مانغا / مانها / كوميكس) -->
+            <div>
+                <label class="text-sm text-gray-400 mb-2 block">نوع العمل <span class="text-red-500">*</span></label>
+                <div class="grid grid-cols-3 gap-2" id="workTypeContainer">
+                    <button type="button" onclick="selectWorkType('مانغا')" id="typeBtn_مانغا" class="work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-white text-black border-white shadow-md">
+                        <i class="fas fa-book-open text-[10px]"></i> <span>مانغا</span>
+                    </button>
+                    <button type="button" onclick="selectWorkType('مانها')" id="typeBtn_مانها" class="work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-[#1a1c23] text-gray-400 border-gray-700 hover:border-yellow-400">
+                        <i class="fas fa-scroll text-[10px]"></i> <span>مانها</span>
+                    </button>
+                    <button type="button" onclick="selectWorkType('كوميكس')" id="typeBtn_كوميكس" class="work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-[#1a1c23] text-gray-400 border-gray-700 hover:border-red-500">
+                        <i class="fas fa-mask text-[10px]"></i> <span>كوميكس</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. العناوين (إجباري / اختياري) -->
             <div>
                 <label class="text-sm text-gray-400 mb-1 block">عنوان العمل (بالعربية) <span class="text-red-500">*</span></label>
                 <input id="mangaTitle" type="text" maxlength="100" placeholder="اكتب العنوان هنا..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
@@ -38,13 +70,13 @@
                 <input id="mangaTitleEn" type="text" maxlength="100" dir="ltr" placeholder="Manga Title..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
             </div>
 
-            <!-- 3. الوصف (اختياري) -->
+            <!-- 4. الوصف (اختياري) -->
             <div>
                 <label class="text-sm text-gray-400 mb-1 block">وصف القصة (اختياري)</label>
                 <textarea id="mangaDesc" maxlength="500" rows="3" placeholder="نبذة مختصرة عن القصة (حد أقصى 500 حرف)..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm resize-none"></textarea>
             </div>
 
-            <!-- 4. التصنيفات (Tags) -->
+            <!-- 5. التصنيفات (Tags) -->
             <div>
                 <label class="text-sm text-gray-400 mb-2 block flex justify-between items-center">
                     <span>التصنيفات والفئة</span>
@@ -56,13 +88,13 @@
 
             <div class="h-px w-full bg-gray-800 my-2"></div>
 
-            <!-- 5. الغلاف -->
+            <!-- 6. الغلاف -->
             <div>
                 <label class="text-sm text-gray-400 mb-1 block">الغلاف الرسمي (صورة واحدة) <span class="text-red-500">*</span></label>
                 <input id="mangaCover" type="file" accept="image/*" class="w-full bg-[#1a1c23] p-2 rounded-xl border-2 border-dashed border-gray-700 text-gray-400 text-sm">
             </div>
 
-            <!-- 6. صفحات الفصل -->
+            <!-- 7. صفحات الفصل -->
             <div class="bg-indigo-900/20 p-4 rounded-xl border border-indigo-900/50">
                 <label class="text-sm text-indigo-300 mb-1 block font-bold">
                     ملف الفصل (ZIP, CBZ, PDF, أو صور) <span class="text-red-500">*</span>
@@ -93,8 +125,80 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
 
+        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
+        let selectedWorkType = 'مانغا';
         const selectedTags = new Set();
         const tagsContainer = document.getElementById('tagsContainer');
+
+        // دالة العودة الذكية للصفحة الرئيسية
+        function goBackHome(e) {
+            if (window.location.pathname.includes('/futa-arab-upload/')) {
+                e.preventDefault();
+                window.location.href = 'https://leuay666-lgtm.github.io/index.html';
+            }
+        }
+
+        // دالة اختيار نوع العمل وتلوين الزر حسب الهوية البصرية
+        function selectWorkType(type) {
+            selectedWorkType = type;
+            const btnManga = document.getElementById('typeBtn_مانغا');
+            const btnManhwa = document.getElementById('typeBtn_مانها');
+            const btnComics = document.getElementById('typeBtn_كوميكس');
+
+            const defaultClass = 'work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-[#1a1c23] text-gray-400 border-gray-700';
+            btnManga.className = defaultClass + ' hover:border-white';
+            btnManhwa.className = defaultClass + ' hover:border-yellow-400';
+            btnComics.className = defaultClass + ' hover:border-red-500';
+
+            if (type === 'مانغا') {
+                btnManga.className = 'work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-white text-black border-white shadow-md';
+            } else if (type === 'مانها') {
+                btnManhwa.className = 'work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-yellow-400 text-black border-yellow-400 shadow-md';
+            } else if (type === 'كوميكس') {
+                btnComics.className = 'work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-red-600 text-white border-red-500 shadow-md';
+            }
+        }
+
+        // تهيئة حساب المستخدم المسجل وحساب عدد مرفوعاته
+        async function setupLoggedUploader() {
+            const uploaderInput = document.getElementById('uploaderName');
+            const loggedBadge = document.getElementById('loggedAccountBadge');
+            const uploaderHint = document.getElementById('uploaderHint');
+            const statsBadge = document.getElementById('uploaderStatsBadge');
+            const counterEl = document.getElementById('userUploadsCounter');
+
+            if (currentUser && currentUser.username) {
+                uploaderInput.value = currentUser.username;
+                uploaderInput.readOnly = true;
+                uploaderInput.classList.add('bg-[#14161f]', 'text-purple-300', 'font-black', 'border-purple-500/50', 'cursor-not-allowed');
+                loggedBadge.classList.remove('hidden');
+                statsBadge.classList.remove('hidden');
+                uploaderHint.innerText = 'يتم احتساب كافة أعمالك المرفوعة تلقائياً في ملفك الشخصي لترقية حسابك.';
+                uploaderHint.classList.replace('text-gray-500', 'text-purple-400/80');
+
+                await refreshUserUploadsCount();
+            }
+        }
+
+        async function refreshUserUploadsCount() {
+            if (!currentUser || !currentUser.username) return;
+            const counterEl = document.getElementById('userUploadsCounter');
+            const localCount = parseInt(localStorage.getItem(`uploads_count_${currentUser.username}`) || '0');
+            counterEl.innerText = localCount;
+
+            try {
+                const { count, error } = await sbClient
+                    .from('mangas')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('uploader_name', currentUser.username);
+
+                if (!error && count !== null) {
+                    const finalCount = Math.max(count, localCount);
+                    counterEl.innerText = finalCount;
+                    localStorage.setItem(`uploads_count_${currentUser.username}`, finalCount.toString());
+                }
+            } catch (e) {}
+        }
 
         async function fetchTags() {
             try {
@@ -109,6 +213,7 @@
 
                 data.forEach(tag => {
                     const btn = document.createElement('button');
+                    btn.type = 'button';
                     btn.innerText = tag.name;
                     btn.className = 'px-3 py-1 rounded-full text-xs font-bold border transition-colors bg-[#1a1c23] border-gray-700 text-gray-400 hover:bg-gray-800';
                     btn.onclick = () => {
@@ -131,7 +236,10 @@
             }
         }
 
-        window.onload = fetchTags;
+        window.onload = () => {
+            setupLoggedUploader();
+            fetchTags();
+        };
 
         const COOLDOWN_MINUTES = 5;
         function checkCooldownAndUpload() {
@@ -214,7 +322,7 @@
                     for (let i = 0; i < entries.length; i++) {
                         const entry = entries[i];
                         const blob = await entry.async('blob');
-                        const hasImgExt = /\.(jpe?g|png|webp|gif|avif|bmp|heic|heif)\$/i.test(entry.name);
+                        const hasImgExt = /\.(jpe?g|png|webp|gif|avif|bmp|heic|heif)$/i.test(entry.name);
                         
                         // الفحص الذكي: يقبل الملف إذا كان اسمه صورة، أو إذا كانت بصمته الرقمية صورة
                         if (hasImgExt || (await isImageFile(blob))) {
@@ -235,7 +343,7 @@
                     updateStatus(`<i class="fas fa-file-pdf fa-bounce"></i> تحليل صفحات PDF...`);
                     const pdfDoc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
                     for (let p = 1; p <= pdfDoc.numPages; p++) tasks.push({ getWebP: async () => renderPdfPageToWebP(pdfDoc, p, 0.70) });
-                } else if (file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|avif|heic|heif)\$/i.test(file.name)) {
+                } else if (file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i.test(file.name)) {
                     directImages.push(file);
                 }
             }
@@ -257,7 +365,7 @@
             const title = document.getElementById('mangaTitle').value.trim();
             const titleEn = document.getElementById('mangaTitleEn').value.trim() || null;
             const desc = document.getElementById('mangaDesc').value.trim() || null;
-            const uploader = document.getElementById('uploaderName').value.trim() || 'مجهول';
+            const uploader = (currentUser && currentUser.username) ? currentUser.username : (document.getElementById('uploaderName').value.trim() || 'مجهول');
             const coverFile = document.getElementById('mangaCover').files[0];
             const pageFiles = document.getElementById('mangaPages').files;
             const btn = document.getElementById('uploadBtn');
@@ -280,18 +388,30 @@
                 const coverUrl = sbClient.storage.from('manga-covers').getPublicUrl(coverName).data.publicUrl;
 
                 updateProgressUI('<i class="fas fa-spinner fa-spin"></i> جاري تسجيل البيانات...', 15);
-                const mangaData = { 
+                
+                // دمج نوع العمل مع التصنيفات لضمان ظهوره في الواجهة الرئيسية وحفظه في الداتابيز
+                const finalTagsArray = [selectedWorkType, ...Array.from(selectedTags)];
+                const baseMangaData = { 
                     title: title, 
                     title_en: titleEn,
                     description: desc,
                     uploader_name: uploader,
-                    tags: Array.from(selectedTags).join(','),
+                    tags: finalTagsArray.join(','),
                     cover_image_url: coverUrl, 
                     status: 'pending' 
                 };
 
-                const { data: newManga, error: mangaErr } = await sbClient.from('mangas').insert([mangaData]).select();
-                if (mangaErr) throw mangaErr;
+                // محاولة الحفظ مع حقل work_type، وفي حال عدم وجود العمود في الداتابيز يتم الحفظ بدونه تلقائياً
+                let newManga = null;
+                const { data: tryManga, error: tryErr } = await sbClient.from('mangas').insert([{ ...baseMangaData, work_type: selectedWorkType }]).select();
+                if (tryErr) {
+                    const { data: fallbackManga, error: mangaErr } = await sbClient.from('mangas').insert([baseMangaData]).select();
+                    if (mangaErr) throw mangaErr;
+                    newManga = fallbackManga;
+                } else {
+                    newManga = tryManga;
+                }
+
                 const mangaId = newManga[0].id;
 
                 const totalPages = pageTasks.length;
@@ -310,11 +430,22 @@
 
                 localStorage.setItem('lastUploadTime', Date.now().toString());
 
+                // تحديث وتخزين عدد تحميلات المستخدم المسجل
+                if (currentUser && currentUser.username) {
+                    const currentCount = parseInt(localStorage.getItem(`uploads_count_${currentUser.username}`) || '0') + 1;
+                    localStorage.setItem(`uploads_count_${currentUser.username}`, currentCount.toString());
+                    document.getElementById('userUploadsCounter').innerText = currentCount;
+                    try {
+                        await sbClient.from('profiles').update({ uploads_count: currentCount }).eq('username', currentUser.username);
+                    } catch (e) {}
+                }
+
                 statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-green-900 bg-green-900/20 text-green-400 space-y-2';
                 updateProgressUI(`<i class="fas fa-check-circle"></i> تم رفع العمل بنجاح! ننتظر موافقة الإدارة.`, 100);
                 
-                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                document.querySelectorAll('input:not([readonly]), textarea').forEach(el => el.value = '');
                 selectedTags.clear();
+                selectWorkType('مانغا');
                 fetchTags();
 
             } catch (error) {
