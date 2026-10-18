@@ -47,6 +47,17 @@
         @keyframes textUltra { 0% { filter: hue-rotate(0deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } 100% { filter: hue-rotate(360deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } }
 
         .banner-bg { background-size: cover; background-position: center; transition: all 0.3s ease; }
+
+        /* أزرار التشغيل والتبديل (Toggle Switch) */
+        .toggle-checkbox:checked { right: 0; border-color: #f472b6; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #f472b6; }
+        .toggle-checkbox { right: 0; z-index: 1; border-color: #4b5563; transition: all 0.3s; }
+        .toggle-label { background-color: #374151; transition: all 0.3s; }
+
+        /* ستايل المودال (النافذة المنبثقة للتعديل) */
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
+        .modal-content { transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
+        .modal-active .modal-content { transform: scale(1); opacity: 1; }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -62,7 +73,7 @@
         <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
-    <!-- القائمة الجانبية الموحدة -->
+    <!-- القائمة الجانبية -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -83,7 +94,7 @@
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
                 <ul class="space-y-1.5">
-                    <li><a href="#" onclick="goToMyProfile()" class="sidebar-link"><i class="fas fa-user"></i><span>الملف الشخصي</span></a></li>
+                    <li><a href="#" onclick="goToMyProfile()" class="sidebar-link bg-[#1a1c23] text-white"><i class="fas fa-user text-accent"></i><span>الملف الشخصي</span></a></li>
                     <li><a href="library.html?tab=bookmarks" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
                     <li><a href="library.html?tab=history" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
                     <li><a href="library.html?tab=likes" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
@@ -109,12 +120,12 @@
         </div>
     </nav>
 
-    <!-- رأس الملف الشخصي (البانر والصورة) -->
+    <!-- رأس الملف الشخصي -->
     <div class="w-full max-w-4xl mx-auto relative mt-4 px-4">
         <!-- البانر -->
         <div id="profileBanner" class="h-32 md:h-48 w-full rounded-2xl banner-bg bg-gradient-to-r from-[#18181b] to-[#2a1820] border border-gray-800 relative overflow-hidden shadow-lg">
             <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#f472b6 1px, transparent 1px); background-size: 20px 20px; z-index: 0;"></div>
-            <button id="editBannerBtn" onclick="editBanner()" class="absolute top-3 right-3 bg-[#111113]/80 hover:bg-accent text-white p-2 rounded-lg shadow-lg hidden z-10 transition backdrop-blur-sm border border-gray-700">
+            <button id="editBannerBtn" onclick="openEditModal('banner')" class="absolute top-3 right-3 bg-[#111113]/80 hover:bg-accent text-white p-2 rounded-lg shadow-lg hidden z-10 transition backdrop-blur-sm border border-gray-700">
                 <i class="fas fa-image text-xs mr-1"></i> تغيير الغلاف
             </button>
         </div>
@@ -123,16 +134,26 @@
         <div class="relative -mt-12 flex flex-col items-center justify-center">
             <div class="relative group">
                 <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=18181b&color=fff&size=150" class="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-[#111113] object-cover bg-black shadow-xl">
-                <button id="editAvatarBtn" onclick="editAvatar()" class="absolute bottom-0 right-0 bg-accent text-white p-2 rounded-full shadow-lg hidden hover:bg-pink-600 transition border-2 border-[#111113]">
+                <button id="editAvatarBtn" onclick="openEditModal('avatar')" class="absolute bottom-0 right-0 bg-accent text-white p-2 rounded-full shadow-lg hidden hover:bg-pink-600 transition border-2 border-[#111113]">
                     <i class="fas fa-camera text-xs"></i>
                 </button>
             </div>
             
             <div class="flex items-center gap-2 mt-3">
                 <h1 id="profileNameDisplay" class="text-2xl md:text-3xl font-black text-glow-free">جاري التحميل...</h1>
-                <!-- الشارة الرئيسية المرافقة للاسم -->
+                <!-- الشارة الرئيسية -->
                 <span id="mainBadgeDisplay"></span>
-                <button id="editNameBtn" onclick="editName()" class="text-gray-500 hover:text-white hidden"><i class="fas fa-pencil-alt text-sm"></i></button>
+                <button id="editNameBtn" onclick="openEditModal('name')" class="text-gray-500 hover:text-white hidden"><i class="fas fa-pencil-alt text-sm"></i></button>
+            </div>
+
+            <!-- خانة Bio -->
+            <div class="mt-2 text-center relative max-w-sm px-4">
+                <p id="profileBioDisplay" class="text-xs text-gray-400 font-semibold leading-relaxed break-words line-clamp-3">
+                    مرحباً بكم في ملفي الشخصي في Futa Arab.
+                </p>
+                <button id="editBioBtn" onclick="openEditModal('bio')" class="absolute -right-2 top-0 text-gray-500 hover:text-white hidden transition">
+                    <i class="fas fa-pencil-alt text-[10px]"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -143,13 +164,12 @@
         <div class="bg-[#111113] border border-gray-800/80 rounded-2xl p-5 shadow-lg relative overflow-hidden">
             <div class="absolute left-0 top-0 w-1 h-full bg-yellow-500"></div>
             <h3 class="text-sm font-black uppercase tracking-wider text-gray-300 mb-4 flex items-center gap-2">
-                <i class="fas fa-medal text-yellow-500"></i> مجموعة الشارات المكتسبة (<span id="badgesCount">0</span>)
+                <i class="fas fa-medal text-yellow-500"></i> الشارات المكتسبة (<span id="badgesCount">0</span>)
             </h3>
-            <!-- سيتم إضافة الشارات المتراكمة جنباً إلى جنب هنا -->
             <div id="badgesCollectionGrid" class="flex flex-wrap gap-2 p-3 bg-card rounded-xl border border-gray-800">
                 <i class="fas fa-spinner fa-spin text-gray-500"></i>
             </div>
-            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك مع كل اشتراك جديد.</p>
+            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> تحتفظ محفظتك بكل الشارات التي كسبتها بمرور الوقت.</p>
         </div>
 
         <!-- إعدادات الخصوصية والملف الشخصي (للمالك فقط) -->
@@ -162,7 +182,6 @@
                     <h4 class="text-sm font-bold text-gray-200">عرض أعمالي المفضلة للعامة</h4>
                     <p class="text-[10px] text-gray-500 mt-1">السماح لزوار ملفك برؤية ما تحفظه في مفضلتك.</p>
                 </div>
-                <!-- زر الـ Toggle (تعديل كامل ليتحرك بصرياً) -->
                 <label class="relative inline-flex items-center cursor-pointer mr-2">
                     <input type="checkbox" id="publicFavoritesToggle" class="sr-only peer" onchange="toggleFavoritesPrivacy(this)">
                     <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:-translate-x-5 after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f472b6]"></div>
@@ -200,6 +219,32 @@
 
     </main>
 
+    <!-- النافذة المنبثقة للتعديل الاحترافية (Modal) -->
+    <div id="editModal" class="fixed inset-0 modal-overlay z-[100] hidden flex items-center justify-center p-4">
+        <div class="modal-content bg-card border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl relative">
+            <button onclick="closeEditModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition"><i class="fas fa-times"></i></button>
+            
+            <h3 id="modalTitle" class="text-lg font-black text-white mb-4">تعديل البيانات</h3>
+            
+            <!-- حقل إدخال النص والروابط -->
+            <div id="modalInputContainer" class="mb-4">
+                <label id="modalInputLabel" class="block text-xs font-bold text-gray-400 mb-2">رابط الصورة الجديدة (URL):</label>
+                <input type="text" id="modalInput" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition" autocomplete="off" dir="ltr">
+            </div>
+
+            <!-- حقل نص كبير لـ Bio -->
+            <div id="modalTextareaContainer" class="mb-4 hidden">
+                <label class="block text-xs font-bold text-gray-400 mb-2">النبذة التعريفية (Bio) - بحد أقصى 200 حرف:</label>
+                <textarea id="modalTextarea" rows="3" maxlength="200" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition resize-none"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="saveEdit()" class="flex-1 bg-accent hover:bg-pink-600 text-white font-bold py-2.5 rounded-xl transition active:scale-95 text-sm">حفظ التغييرات</button>
+                <button onclick="closeEditModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-2.5 rounded-xl transition active:scale-95 text-sm">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
     </footer>
@@ -215,6 +260,7 @@
         
         let allUploads = [];
         let allFavorites = [];
+        let currentEditMode = ''; // لتحديد ما يتم تعديله في الـ Modal
 
         window.onload = async () => {
             updateAuthUI();
@@ -262,7 +308,6 @@
                 if (error) {
                     if (isOwner && currentUser) {
                         profileData = currentUser;
-                        profileData.created_at = new Date().toISOString(); 
                     } else {
                         document.getElementById('profileNameDisplay').innerText = viewedUsername;
                         document.getElementById('userBadgesContainer').innerHTML = "";
@@ -277,6 +322,7 @@
                     document.getElementById('editAvatarBtn').classList.remove('hidden');
                     document.getElementById('editBannerBtn').classList.remove('hidden');
                     document.getElementById('editNameBtn').classList.remove('hidden');
+                    document.getElementById('editBioBtn').classList.remove('hidden'); // إظهار زر تعديل Bio
                     
                     const isPub = localStorage.getItem(`fav_public_${currentUser.username}`) === 'true';
                     document.getElementById('publicFavoritesToggle').checked = isPub;
@@ -284,12 +330,14 @@
 
                 const avatar = (isOwner ? localStorage.getItem(`profile_avatar_${viewedUsername}`) : null) || profileData.avatar_url || `https://ui-avatars.com/api/?name=${viewedUsername}&background=18181b&color=fff&size=150`;
                 const banner = (isOwner ? localStorage.getItem(`profile_banner_${viewedUsername}`) : null) || profileData.banner_url || '';
+                const bio = (isOwner ? localStorage.getItem(`profile_bio_${viewedUsername}`) : null) || profileData.bio || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
                 
                 document.getElementById('profileAvatar').src = avatar;
                 if(banner) document.getElementById('profileBanner').style.backgroundImage = `url('${banner}')`;
                 
                 const nameEl = document.getElementById('profileNameDisplay');
                 nameEl.innerText = viewedUsername;
+                document.getElementById('profileBioDisplay').innerText = bio;
                 
                 const subType = profileData.subscription_type || 'free';
                 renderBadgesAndNameColor(subType, nameEl);
@@ -301,7 +349,6 @@
             let textClass = 'text-glow-free';
             let mainBadgeHtml = '';
 
-            // 1. تحديد التوهج والشارة الرئيسية الملاصقة للاسم
             if(subType === 'vip_lite') { textClass = 'text-glow-cyan'; mainBadgeHtml = `<span class="text-[10px] px-1.5 py-0.5 rounded border border-cyan-500 bg-cyan-900/10 text-cyan-400 glow-cyan"><i class="fas fa-star text-[8px] ml-1"></i>LITE</span>`; }
             else if(subType === 'vip') { textClass = 'text-glow-vip'; mainBadgeHtml = `<span class="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500 bg-yellow-900/10 text-yellow-400 badge-glow-vip"><i class="fas fa-crown text-[8px] ml-1"></i>VIP</span>`; }
             else if(subType === 'vip_pro') { textClass = 'text-glow-pro'; mainBadgeHtml = `<span class="text-[10px] px-1.5 py-0.5 rounded border border-orange-500 bg-orange-900/10 text-orange-400 badge-glow-pro"><i class="fas fa-crown text-[8px] ml-1"></i>PRO</span>`; }
@@ -311,13 +358,16 @@
             nameEl.className = `text-2xl md:text-3xl font-black ${textClass}`;
             document.getElementById('mainBadgeDisplay').innerHTML = mainBadgeHtml;
 
-            // 2. نظام صندوق الشارات المكتسبة (History)
             let historyKey = `badges_history_${viewedUsername}`;
             let earnedHistory = JSON.parse(localStorage.getItem(historyKey)) || [];
             
-            // لغرض التجربة وإبهارك: إذا كان حسابك Gg، سأضع لك الشارات لتراها متراكمة
+            if (subType !== 'free' && !earnedHistory.includes(subType)) {
+                earnedHistory.push(subType);
+                localStorage.setItem(historyKey, JSON.stringify(earnedHistory));
+            }
+            
             if (viewedUsername === 'Gg' && earnedHistory.length === 0) {
-                earnedHistory = ['vip', 'vip_pro', 'vip_lite', 'vip']; // تتراكم الشارات بنفس الترتيب الذي تم الحصول عليه
+                earnedHistory = ['vip', 'vip_pro', 'vip_lite', 'vip']; 
                 localStorage.setItem(historyKey, JSON.stringify(earnedHistory));
             }
 
@@ -327,30 +377,76 @@
             document.getElementById('badgesCount').innerText = earnedHistory.length;
         }
 
-        function editAvatar() {
-            const newUrl = prompt("أدخل رابط الصورة الشخصية الجديدة (URL):", document.getElementById('profileAvatar').src);
-            if (newUrl && newUrl.trim() !== "") {
-                document.getElementById('profileAvatar').src = newUrl;
-                localStorage.setItem(`profile_avatar_${viewedUsername}`, newUrl);
+        // --- نظام التعديل عبر النافذة المنبثقة (Modal) ---
+        function openEditModal(type) {
+            currentEditMode = type;
+            const modal = document.getElementById('editModal');
+            const inputContainer = document.getElementById('modalInputContainer');
+            const textareaContainer = document.getElementById('modalTextareaContainer');
+            const input = document.getElementById('modalInput');
+            const textarea = document.getElementById('modalTextarea');
+            const label = document.getElementById('modalInputLabel');
+            const title = document.getElementById('modalTitle');
+
+            inputContainer.classList.add('hidden');
+            textareaContainer.classList.add('hidden');
+            input.value = ''; textarea.value = '';
+
+            if (type === 'avatar') {
+                title.innerText = 'تعديل الصورة الشخصية';
+                label.innerText = 'رابط الصورة (URL):';
+                input.value = document.getElementById('profileAvatar').src;
+                inputContainer.classList.remove('hidden');
+                input.dir = 'ltr';
+            } else if (type === 'banner') {
+                title.innerText = 'تعديل صورة الغلاف';
+                label.innerText = 'رابط الغلاف (URL):';
+                inputContainer.classList.remove('hidden');
+                input.dir = 'ltr';
+            } else if (type === 'name') {
+                title.innerText = 'تغيير الاسم';
+                label.innerText = 'الاسم الجديد (بدون مسافات):';
+                input.value = viewedUsername;
+                inputContainer.classList.remove('hidden');
+                input.dir = 'rtl';
+            } else if (type === 'bio') {
+                title.innerText = 'تعديل النبذة (Bio)';
+                textarea.value = document.getElementById('profileBioDisplay').innerText;
+                textareaContainer.classList.remove('hidden');
             }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('modal-active'); }, 10);
         }
 
-        function editBanner() {
-            const newUrl = prompt("أدخل رابط صورة الغلاف الجديدة (URL):");
-            if (newUrl && newUrl.trim() !== "") {
-                document.getElementById('profileBanner').style.backgroundImage = `url('${newUrl}')`;
-                localStorage.setItem(`profile_banner_${viewedUsername}`, newUrl);
-            }
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            modal.classList.remove('modal-active');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
-        function editName() {
-            const newName = prompt("أدخل اسمك الجديد:", viewedUsername);
-            if (newName && newName.trim() !== "" && newName !== viewedUsername) {
-                currentUser.username = newName.trim();
-                localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
-                window.location.href = `profile.html?user=${currentUser.username}`;
+        function saveEdit() {
+            if (currentEditMode === 'avatar') {
+                const val = document.getElementById('modalInput').value.trim();
+                if(val) { document.getElementById('profileAvatar').src = val; localStorage.setItem(`profile_avatar_${viewedUsername}`, val); }
+            } else if (currentEditMode === 'banner') {
+                const val = document.getElementById('modalInput').value.trim();
+                if(val) { document.getElementById('profileBanner').style.backgroundImage = `url('${val}')`; localStorage.setItem(`profile_banner_${viewedUsername}`, val); }
+            } else if (currentEditMode === 'name') {
+                const val = document.getElementById('modalInput').value.trim().replace(/\s+/g, '_');
+                if(val && val !== viewedUsername) {
+                    currentUser.username = val;
+                    localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                    window.location.href = `profile.html?user=${val}`;
+                    return; 
+                }
+            } else if (currentEditMode === 'bio') {
+                const val = document.getElementById('modalTextarea').value.trim();
+                if(val) { document.getElementById('profileBioDisplay').innerText = val; localStorage.setItem(`profile_bio_${viewedUsername}`, val); }
             }
+            closeEditModal();
         }
+        // ------------------------------------------------
 
         async function loadUserUploads() {
             try {
@@ -392,7 +488,7 @@
             else if (containerId === 'profileFavoritesGrid') { renderMangaGrid(allFavorites, containerId); document.getElementById('favoritesSeeMoreBtn').classList.add('hidden'); }
         }
 
-        function toggleFavoritesPrivacy(checkbox) { if(isOwner) { localStorage.setItem(`fav_public_${currentUser.username}`, checkbox.checked); alert(checkbox.checked ? '✅ مفضلتك الآن مرئية للجميع!' : '🔒 مفضلتك الآن مخفية عن الزوار.'); } }
+        function toggleFavoritesPrivacy(checkbox) { if(isOwner) { localStorage.setItem(`fav_public_${currentUser.username}`, checkbox.checked); } }
 
         function updateAuthUI() {
             const badge = document.getElementById('userBadge');
