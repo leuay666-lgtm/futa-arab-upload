@@ -48,23 +48,26 @@
 
         .banner-bg { background-size: cover; background-position: center; transition: all 0.3s ease; }
 
-        /* أزرار التشغيل والتبديل (Toggle Switch) */
+        /* أزرار التبديل (Toggle Switch) */
         .toggle-checkbox:checked { right: 0; border-color: #f472b6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #f472b6; }
         .toggle-checkbox { right: 0; z-index: 1; border-color: #4b5563; transition: all 0.3s; }
         .toggle-label { background-color: #374151; transition: all 0.3s; }
 
-        /* ستايل المودال (النافذة المنبثقة للتعديل) */
+        /* ستايل المودال (النافذة المنبثقة) */
         .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
         .modal-content { transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
         .modal-active .modal-content { transform: scale(1); opacity: 1; }
+
+        .file-upload-label { cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; border: 2px dashed #4b5563; border-radius: 12px; padding: 20px; transition: all 0.3s ease; }
+        .file-upload-label:hover { border-color: #f472b6; background-color: rgba(244, 114, 182, 0.05); }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
 
     <div class="body-glow"></div>
 
-    <!-- نافذة البحث -->
+    <!-- نافذة البحث والسايدبار -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
@@ -73,7 +76,6 @@
         <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
-    <!-- القائمة الجانبية -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -141,7 +143,6 @@
             
             <div class="flex items-center gap-2 mt-3">
                 <h1 id="profileNameDisplay" class="text-2xl md:text-3xl font-black text-glow-free">جاري التحميل...</h1>
-                <!-- الشارة الرئيسية -->
                 <span id="mainBadgeDisplay"></span>
                 <button id="editNameBtn" onclick="openEditModal('name')" class="text-gray-500 hover:text-white hidden"><i class="fas fa-pencil-alt text-sm"></i></button>
             </div>
@@ -164,15 +165,15 @@
         <div class="bg-[#111113] border border-gray-800/80 rounded-2xl p-5 shadow-lg relative overflow-hidden">
             <div class="absolute left-0 top-0 w-1 h-full bg-yellow-500"></div>
             <h3 class="text-sm font-black uppercase tracking-wider text-gray-300 mb-4 flex items-center gap-2">
-                <i class="fas fa-medal text-yellow-500"></i> الشارات المكتسبة (<span id="badgesCount">0</span>)
+                <i class="fas fa-medal text-yellow-500"></i> مجموعة الشارات المكتسبة (<span id="badgesCount">0</span>)
             </h3>
             <div id="badgesCollectionGrid" class="flex flex-wrap gap-2 p-3 bg-card rounded-xl border border-gray-800">
                 <i class="fas fa-spinner fa-spin text-gray-500"></i>
             </div>
-            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> تحتفظ محفظتك بكل الشارات التي كسبتها بمرور الوقت.</p>
+            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك بناءً على اشتراكاتك.</p>
         </div>
 
-        <!-- إعدادات الخصوصية والملف الشخصي (للمالك فقط) -->
+        <!-- إعدادات الخصوصية (للمالك فقط) -->
         <div id="ownerSettingsBox" class="bg-card border border-gray-700/50 rounded-2xl p-5 shadow-lg hidden relative overflow-hidden">
             <h3 class="text-sm font-black uppercase tracking-wider text-white mb-4 flex items-center gap-2">
                 <i class="fas fa-cog text-gray-400"></i> إعدادات الخصوصية والملف الشخصي
@@ -219,27 +220,39 @@
 
     </main>
 
-    <!-- النافذة المنبثقة للتعديل الاحترافية (Modal) -->
+    <!-- النافذة المنبثقة للتعديل (Modal) -->
     <div id="editModal" class="fixed inset-0 modal-overlay z-[100] hidden flex items-center justify-center p-4">
         <div class="modal-content bg-card border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl relative">
             <button onclick="closeEditModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition"><i class="fas fa-times"></i></button>
             
             <h3 id="modalTitle" class="text-lg font-black text-white mb-4">تعديل البيانات</h3>
             
-            <!-- حقل إدخال النص والروابط -->
-            <div id="modalInputContainer" class="mb-4">
-                <label id="modalInputLabel" class="block text-xs font-bold text-gray-400 mb-2">رابط الصورة الجديدة (URL):</label>
-                <input type="text" id="modalInput" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition" autocomplete="off" dir="ltr">
+            <!-- حقل رفع الملفات الحقيقي -->
+            <div id="modalFileContainer" class="mb-4 hidden">
+                <label class="file-upload-label" for="modalFileInput">
+                    <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                    <span class="text-xs font-bold text-gray-300" id="fileInputText">اضغط لاختيار صورة من جهازك</span>
+                </label>
+                <input type="file" id="modalFileInput" class="hidden" accept="image/*" onchange="previewSelectedFile(event)">
+                <div id="filePreviewContainer" class="mt-3 hidden justify-center">
+                    <img id="filePreviewImage" class="h-24 w-auto rounded-lg border border-gray-700 object-cover shadow-md">
+                </div>
+            </div>
+
+            <!-- حقل إدخال النص (للاسم) -->
+            <div id="modalInputContainer" class="mb-4 hidden">
+                <label id="modalInputLabel" class="block text-xs font-bold text-gray-400 mb-2">الاسم الجديد:</label>
+                <input type="text" id="modalInput" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition" autocomplete="off">
             </div>
 
             <!-- حقل نص كبير لـ Bio -->
             <div id="modalTextareaContainer" class="mb-4 hidden">
-                <label class="block text-xs font-bold text-gray-400 mb-2">النبذة التعريفية (Bio) - بحد أقصى 200 حرف:</label>
-                <textarea id="modalTextarea" rows="3" maxlength="200" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition resize-none"></textarea>
+                <label class="block text-xs font-bold text-gray-400 mb-2">النبذة التعريفية (Bio):</label>
+                <textarea id="modalTextarea" rows="4" maxlength="200" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition resize-none"></textarea>
             </div>
 
             <div class="flex gap-3">
-                <button onclick="saveEdit()" class="flex-1 bg-accent hover:bg-pink-600 text-white font-bold py-2.5 rounded-xl transition active:scale-95 text-sm">حفظ التغييرات</button>
+                <button id="saveEditBtn" onclick="saveEdit()" class="flex-1 bg-accent hover:bg-pink-600 text-white font-bold py-2.5 rounded-xl transition active:scale-95 text-sm">حفظ التغييرات</button>
                 <button onclick="closeEditModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-2.5 rounded-xl transition active:scale-95 text-sm">إلغاء</button>
             </div>
         </div>
@@ -260,7 +273,8 @@
         
         let allUploads = [];
         let allFavorites = [];
-        let currentEditMode = ''; // لتحديد ما يتم تعديله في الـ Modal
+        let currentEditMode = '';
+        let selectedFile = null; // سيحفظ الملف الحقيقي الذي اختاره المستخدم
 
         window.onload = async () => {
             updateAuthUI();
@@ -290,7 +304,6 @@
             window.location.href = `profile.html?user=${currentUser.username}`;
         }
 
-        // دالة توليد كود الـ HTML لكل شارة منفصلة
         function getBadgeHTML(type) {
             if(type === 'vip_lite') return `<span class="text-[10px] px-2 py-1 rounded border border-cyan-500 bg-cyan-900/50 text-cyan-400 glow-cyan font-bold shadow-sm"><i class="fas fa-star ml-1"></i>LITE</span>`;
             if(type === 'vip') return `<span class="text-[10px] px-2 py-1 rounded border bg-yellow-900/50 badge-glow-vip font-bold shadow-sm"><i class="fas fa-crown ml-1"></i>VIP</span>`;
@@ -302,19 +315,13 @@
 
         async function loadUserProfile() {
             try {
-                let profileData = null;
-                const { data: profile, error } = await sbClient.from('profiles').select('*').eq('username', viewedUsername).single();
+                // جلب بيانات الحساب من قاعدة البيانات مباشرة
+                const { data: profileData, error } = await sbClient.from('profiles').select('*').eq('username', viewedUsername).single();
                 
-                if (error) {
-                    if (isOwner && currentUser) {
-                        profileData = currentUser;
-                    } else {
-                        document.getElementById('profileNameDisplay').innerText = viewedUsername;
-                        document.getElementById('userBadgesContainer').innerHTML = "";
-                        return;
-                    }
-                } else {
-                    profileData = profile;
+                if (error || !profileData) {
+                    document.getElementById('profileNameDisplay').innerText = viewedUsername;
+                    document.getElementById('userBadgesContainer').innerHTML = "";
+                    return;
                 }
 
                 if (isOwner) {
@@ -322,15 +329,15 @@
                     document.getElementById('editAvatarBtn').classList.remove('hidden');
                     document.getElementById('editBannerBtn').classList.remove('hidden');
                     document.getElementById('editNameBtn').classList.remove('hidden');
-                    document.getElementById('editBioBtn').classList.remove('hidden'); // إظهار زر تعديل Bio
+                    document.getElementById('editBioBtn').classList.remove('hidden');
                     
                     const isPub = localStorage.getItem(`fav_public_${currentUser.username}`) === 'true';
                     document.getElementById('publicFavoritesToggle').checked = isPub;
                 }
 
-                const avatar = (isOwner ? localStorage.getItem(`profile_avatar_${viewedUsername}`) : null) || profileData.avatar_url || `https://ui-avatars.com/api/?name=${viewedUsername}&background=18181b&color=fff&size=150`;
-                const banner = (isOwner ? localStorage.getItem(`profile_banner_${viewedUsername}`) : null) || profileData.banner_url || '';
-                const bio = (isOwner ? localStorage.getItem(`profile_bio_${viewedUsername}`) : null) || profileData.bio || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
+                const avatar = profileData.avatar_url || `https://ui-avatars.com/api/?name=${viewedUsername}&background=18181b&color=fff&size=150`;
+                const banner = profileData.banner_url || '';
+                const bio = profileData.bio || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
                 
                 document.getElementById('profileAvatar').src = avatar;
                 if(banner) document.getElementById('profileBanner').style.backgroundImage = `url('${banner}')`;
@@ -340,12 +347,12 @@
                 document.getElementById('profileBioDisplay').innerText = bio;
                 
                 const subType = profileData.subscription_type || 'free';
-                renderBadgesAndNameColor(subType, nameEl);
+                renderBadgesAndNameColor(subType, nameEl, profileData.badges_history);
 
             } catch (err) { console.error("Profile load error:", err); }
         }
 
-        function renderBadgesAndNameColor(subType, nameEl) {
+        async function renderBadgesAndNameColor(subType, nameEl, dbBadgesHistory) {
             let textClass = 'text-glow-free';
             let mainBadgeHtml = '';
 
@@ -358,17 +365,15 @@
             nameEl.className = `text-2xl md:text-3xl font-black ${textClass}`;
             document.getElementById('mainBadgeDisplay').innerHTML = mainBadgeHtml;
 
-            let historyKey = `badges_history_${viewedUsername}`;
-            let earnedHistory = JSON.parse(localStorage.getItem(historyKey)) || [];
+            // جلب تاريخ الشارات من الداتابيز
+            let earnedHistory = dbBadgesHistory || [];
             
+            // تحديث الداتابيز إذا لم تكن الباقة الحالية مسجلة في التاريخ
             if (subType !== 'free' && !earnedHistory.includes(subType)) {
                 earnedHistory.push(subType);
-                localStorage.setItem(historyKey, JSON.stringify(earnedHistory));
-            }
-            
-            if (viewedUsername === 'Gg' && earnedHistory.length === 0) {
-                earnedHistory = ['vip', 'vip_pro', 'vip_lite', 'vip']; 
-                localStorage.setItem(historyKey, JSON.stringify(earnedHistory));
+                if(isOwner) {
+                    await sbClient.from('profiles').update({ badges_history: earnedHistory }).eq('username', viewedUsername);
+                }
             }
 
             let allBadgesHtml = earnedHistory.map(type => getBadgeHTML(type)).join('');
@@ -377,46 +382,64 @@
             document.getElementById('badgesCount').innerText = earnedHistory.length;
         }
 
-        // --- نظام التعديل عبر النافذة المنبثقة (Modal) ---
+        // --- نظام المودال ورفع الملفات لـ Supabase ---
         function openEditModal(type) {
             currentEditMode = type;
+            selectedFile = null;
+            
             const modal = document.getElementById('editModal');
+            const fileContainer = document.getElementById('modalFileContainer');
             const inputContainer = document.getElementById('modalInputContainer');
             const textareaContainer = document.getElementById('modalTextareaContainer');
-            const input = document.getElementById('modalInput');
-            const textarea = document.getElementById('modalTextarea');
-            const label = document.getElementById('modalInputLabel');
-            const title = document.getElementById('modalTitle');
-
+            const filePreviewContainer = document.getElementById('filePreviewContainer');
+            
+            fileContainer.classList.add('hidden');
             inputContainer.classList.add('hidden');
             textareaContainer.classList.add('hidden');
-            input.value = ''; textarea.value = '';
+            filePreviewContainer.classList.add('hidden');
+            
+            document.getElementById('modalInput').value = ''; 
+            document.getElementById('modalTextarea').value = '';
+            document.getElementById('modalFileInput').value = '';
+            document.getElementById('saveEditBtn').innerText = 'حفظ التغييرات';
+            document.getElementById('saveEditBtn').disabled = false;
+
+            const title = document.getElementById('modalTitle');
 
             if (type === 'avatar') {
                 title.innerText = 'تعديل الصورة الشخصية';
-                label.innerText = 'رابط الصورة (URL):';
-                input.value = document.getElementById('profileAvatar').src;
-                inputContainer.classList.remove('hidden');
-                input.dir = 'ltr';
+                document.getElementById('fileInputText').innerText = 'اضغط لاختيار صورة من جهازك';
+                fileContainer.classList.remove('hidden');
             } else if (type === 'banner') {
                 title.innerText = 'تعديل صورة الغلاف';
-                label.innerText = 'رابط الغلاف (URL):';
-                inputContainer.classList.remove('hidden');
-                input.dir = 'ltr';
+                document.getElementById('fileInputText').innerText = 'اضغط لاختيار غلاف من جهازك';
+                fileContainer.classList.remove('hidden');
             } else if (type === 'name') {
                 title.innerText = 'تغيير الاسم';
-                label.innerText = 'الاسم الجديد (بدون مسافات):';
-                input.value = viewedUsername;
+                document.getElementById('modalInput').value = viewedUsername;
                 inputContainer.classList.remove('hidden');
-                input.dir = 'rtl';
             } else if (type === 'bio') {
                 title.innerText = 'تعديل النبذة (Bio)';
-                textarea.value = document.getElementById('profileBioDisplay').innerText;
+                document.getElementById('modalTextarea').value = document.getElementById('profileBioDisplay').innerText;
                 textareaContainer.classList.remove('hidden');
             }
 
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('modal-active'); }, 10);
+        }
+
+        function previewSelectedFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file; // حفظ الملف الفعلي
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('filePreviewImage').src = e.target.result;
+                    document.getElementById('filePreviewContainer').classList.remove('hidden');
+                    document.getElementById('fileInputText').innerText = file.name;
+                }
+                reader.readAsDataURL(file);
+            }
         }
 
         function closeEditModal() {
@@ -425,26 +448,54 @@
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
-        function saveEdit() {
-            if (currentEditMode === 'avatar') {
-                const val = document.getElementById('modalInput').value.trim();
-                if(val) { document.getElementById('profileAvatar').src = val; localStorage.setItem(`profile_avatar_${viewedUsername}`, val); }
-            } else if (currentEditMode === 'banner') {
-                const val = document.getElementById('modalInput').value.trim();
-                if(val) { document.getElementById('profileBanner').style.backgroundImage = `url('${val}')`; localStorage.setItem(`profile_banner_${viewedUsername}`, val); }
-            } else if (currentEditMode === 'name') {
-                const val = document.getElementById('modalInput').value.trim().replace(/\s+/g, '_');
-                if(val && val !== viewedUsername) {
-                    currentUser.username = val;
-                    localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
-                    window.location.href = `profile.html?user=${val}`;
-                    return; 
+        async function uploadFileToSupabase(file, folder) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${currentUser.username}_${Date.now()}.${fileExt}`;
+            const filePath = `${folder}/${fileName}`;
+
+            const { data, error } = await sbClient.storage.from('profiles_media').upload(filePath, file, { upsert: true });
+            if (error) throw error;
+
+            const { data: publicUrlData } = sbClient.storage.from('profiles_media').getPublicUrl(filePath);
+            return publicUrlData.publicUrl;
+        }
+
+        async function saveEdit() {
+            const btn = document.getElementById('saveEditBtn');
+            btn.disabled = true;
+            btn.innerText = 'جاري الحفظ...';
+
+            try {
+                if (currentEditMode === 'avatar' && selectedFile) {
+                    const publicUrl = await uploadFileToSupabase(selectedFile, 'avatars');
+                    await sbClient.from('profiles').update({ avatar_url: publicUrl }).eq('username', currentUser.username);
+                    document.getElementById('profileAvatar').src = publicUrl;
+
+                } else if (currentEditMode === 'banner' && selectedFile) {
+                    const publicUrl = await uploadFileToSupabase(selectedFile, 'banners');
+                    await sbClient.from('profiles').update({ banner_url: publicUrl }).eq('username', currentUser.username);
+                    document.getElementById('profileBanner').style.backgroundImage = `url('${publicUrl}')`;
+
+                } else if (currentEditMode === 'name') {
+                    const val = document.getElementById('modalInput').value.trim().replace(/\s+/g, '_');
+                    if(val && val !== viewedUsername) {
+                        await sbClient.from('profiles').update({ username: val }).eq('username', currentUser.username);
+                        currentUser.username = val;
+                        localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                        window.location.href = `profile.html?user=${val}`;
+                        return; 
+                    }
+                } else if (currentEditMode === 'bio') {
+                    const val = document.getElementById('modalTextarea').value.trim();
+                    await sbClient.from('profiles').update({ bio: val }).eq('username', currentUser.username);
+                    document.getElementById('profileBioDisplay').innerText = val || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
                 }
-            } else if (currentEditMode === 'bio') {
-                const val = document.getElementById('modalTextarea').value.trim();
-                if(val) { document.getElementById('profileBioDisplay').innerText = val; localStorage.setItem(`profile_bio_${viewedUsername}`, val); }
+                closeEditModal();
+            } catch (error) {
+                alert('حدث خطأ أثناء الحفظ. تأكد من إعدادات Supabase Storage: ' + error.message);
+                btn.disabled = false;
+                btn.innerText = 'حفظ التغييرات';
             }
-            closeEditModal();
         }
         // ------------------------------------------------
 
