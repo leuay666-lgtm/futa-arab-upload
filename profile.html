@@ -571,4 +571,91 @@
                         localStorage.setItem(`profile_banner_${viewedUsername}`, selectedFileDataUrl);
                     }
                 } else if (currentEditMode === 'name') {
-                    
+                    const val = document.getElementById('modalInput').value.trim().replace(/\s+/g, '_');
+                    if(val && val !== viewedUsername) {
+                        try { await sbClient.from('profiles').update({ username: val }).eq('username', currentUser.username); } catch(e){}
+                        localStorage.setItem(`name_cooldown_${currentUser.username}`, Date.now()); 
+                        currentUser.username = val;
+                        localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                        window.location.href = `profile.html?user=${val}`;
+                        return; 
+                    }
+                } else if (currentEditMode === 'bio') {
+                    const val = document.getElementById('modalTextarea').value.trim();
+                    try { await sbClient.from('profiles').update({ bio: val }).eq('username', currentUser.username); } catch(e){}
+                    localStorage.setItem(`bio_cooldown_${currentUser.username}`, Date.now()); 
+                    localStorage.setItem(`profile_bio_${currentUser.username}`, val);
+                    document.getElementById('profileBioDisplay').innerText = val || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
+                }
+                closeEditModal();
+            } catch (error) {
+                // تجاوز هادئ لتجنب إزعاج المستخدم
+            } finally {
+                btn.disabled = false; btn.innerText = 'حفظ التغييرات';
+            }
+        }
+
+        // --- باقي دوال عرض المانغات والمكتبة ---
+        async function loadUserUploads() {
+            try {
+                const { data: uploads } = await sbClient.from('mangas').select('*').eq('uploader_name', viewedUsername).eq('status', 'approved').order('created_at', { ascending: false });
+                const grid = document.getElementById('profileUploadsGrid');
+                document.getElementById('uploadsSectionCount').innerText = uploads ? uploads.length : 0;
+                if (!uploads || uploads.length === 0) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لم يقم برفع أي أعمال بعد.</div>`; return; }
+                allUploads = uploads; renderMangaGrid(allUploads.slice(0, 6), 'profileUploadsGrid');
+                if (allUploads.length > 6) { document.getElementById('uploadsSeeMoreBtn').classList.remove('hidden'); }
+            } catch (err) {}
+        }
+
+        async function loadUserFavorites() {
+            const isPub = localStorage.getItem(`fav_public_${viewedUsername}`) === 'true';
+            const grid = document.getElementById('profileFavoritesGrid');
+            if (!isOwner && !isPub) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800"><i class="fas fa-lock mb-2 text-xl opacity-50 block"></i>هذه القائمة خاصة.</div>`; return; }
+            try {
+                const { data: mangas } = await sbClient.from('mangas').select('*').eq('status', 'approved');
+                if (!mangas) return;
+                allFavorites = mangas.filter(m => localStorage.getItem(`bookmark_${m.id}`) === 'true');
+                if (allFavorites.length === 0) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لا توجد أعمال في المفضلة.</div>`; return; }
+                renderMangaGrid(allFavorites.slice(0, 6), 'profileFavoritesGrid');
+                if (allFavorites.length > 6) { document.getElementById('favoritesSeeMoreBtn').classList.remove('hidden'); }
+            } catch (err) {}
+        }
+
+        function renderMangaGrid(mangas, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = mangas.map(manga => `
+                <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
+                    <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none"><img src="${manga.cover_image_url}" class="absolute top-0 left-0 w-full h-full object-cover"></div>
+                    <div class="p-2 pointer-events-none bg-[#111113]"><h3 class="font-bold text-[11px] text-white line-clamp-1 leading-tight">${manga.title}</h3></div>
+                </a>
+            `).join('');
+        }
+
+        function expandGrid(containerId) {
+            if (containerId === 'profileUploadsGrid') { renderMangaGrid(allUploads, containerId); document.getElementById('uploadsSeeMoreBtn').classList.add('hidden'); }
+            else if (containerId === 'profileFavoritesGrid') { renderMangaGrid(allFavorites, containerId); document.getElementById('favoritesSeeMoreBtn').classList.add('hidden'); }
+        }
+
+        function toggleFavoritesPrivacy(checkbox) { if(isOwner) { localStorage.setItem(`fav_public_${currentUser.username}`, checkbox.checked); } }
+
+        function updateAuthUI() {
+            const badge = document.getElementById('userBadge');
+            if (currentUser) {
+                const subType = currentUser.subscription_type || 'free'; 
+                let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free"; let badgeIcon = '<i class="fas fa-user text-[8px]"></i> '; let badgeText = "مجاني";
+                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
+                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
+                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
+                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
+                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
+                badge.innerHTML = badgeIcon + badgeText;
+                badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
+            }
+        }
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); }
+        function openSearch() { document.getElementById('searchModal').classList.remove('hidden'); setTimeout(() => document.getElementById('searchModal').classList.replace('opacity-0', 'opacity-100'), 10); }
+        function closeSearch() { document.getElementById('searchModal').classList.replace('opacity-100', 'opacity-0'); setTimeout(() => document.getElementById('searchModal').classList.add('hidden'), 300); }
+    </script>
+</body>
+</html>
