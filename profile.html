@@ -251,6 +251,14 @@
             </div>
         </div>
 
+        <!-- 5. زر تسجيل الخروج باللون الأحمر في آخر الصفحة (لصاحب الحساب فقط) -->
+        <div id="ownerLogoutSection" class="pt-6 border-t border-gray-800/60 hidden">
+            <button onclick="logoutUser()" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3.5 px-6 rounded-xl shadow-lg shadow-red-900/30 border border-red-500 transition active:scale-95 flex items-center justify-center gap-2 text-sm">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل الخروج من الحساب</span>
+            </button>
+        </div>
+
     </main>
 
     <!-- النافذة المنبثقة للتعديل (Modal) مع نظام الضغط والكولداون -->
@@ -358,9 +366,10 @@
             // التحقق من ملكية الحساب بدون حساسية لحالة الأحرف
             isOwner = Boolean(currentUser && currentUser.username && currentUser.username.trim().toLowerCase() === viewedUsername.trim().toLowerCase());
 
-            // إظهار أزرار المالك وصندوق الخصوصية فوراً قبل أي اتصال بالإنترنت لضمان عدم اختفائها
+            // إظهار أزرار المالك وصندوق الخصوصية وزر تسجيل الخروج فوراً
             if (isOwner) {
                 document.getElementById('ownerSettingsBox').classList.remove('hidden');
+                document.getElementById('ownerLogoutSection').classList.remove('hidden');
                 document.getElementById('editAvatarBtn').classList.remove('hidden');
                 document.getElementById('editBannerBtn').classList.remove('hidden');
                 document.getElementById('editNameBtn').classList.remove('hidden');
@@ -375,6 +384,16 @@
             await loadUserUploads();
             await loadUserFavorites();
         };
+
+        // دالة تسجيل الخروج من الحساب
+        async function logoutUser() {
+            if (!confirm('هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟')) return;
+            try {
+                await sbClient.auth.signOut();
+            } catch (e) {}
+            localStorage.removeItem('futa_user_logged');
+            window.location.href = 'index.html';
+        }
 
         function updatePrivacyStatusBadge(isPublic) {
             const badge = document.getElementById('privacyStatusBadge');
@@ -642,7 +661,6 @@
             document.getElementById('fileInputText').innerText = '⏳ جاري ضغط الصورة وتقليل حجمها...';
             try {
                 const originalSizeKB = Math.round(file.size / 1024);
-                // تخصيص أبعاد الضغط حسب نوع الصورة (أفاتار أو بانر)
                 const isAvatar = (currentEditMode === 'avatar');
                 const maxW = isAvatar ? 400 : 1000;
                 const maxH = isAvatar ? 400 : 500;
@@ -816,6 +834,7 @@
         function updateAuthUI() {
             const badge = document.getElementById('userBadge');
             const menuText = document.getElementById('authMenuText');
+            const sidebarAuthBtn = document.getElementById('sidebarAuthBtn');
             if (currentUser) {
                 const subType = currentUser.subscription_type || 'free'; 
                 let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
@@ -831,6 +850,10 @@
                 badge.innerHTML = badgeIcon + badgeText;
                 badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
                 if (menuText) menuText.innerText = "تسجيل الخروج";
+                if (sidebarAuthBtn) {
+                    sidebarAuthBtn.href = "#";
+                    sidebarAuthBtn.onclick = (e) => { e.preventDefault(); logoutUser(); };
+                }
             }
         }
 
@@ -838,6 +861,37 @@
         function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
         function openSearch() { document.getElementById('searchModal').classList.remove('hidden'); setTimeout(() => document.getElementById('searchModal').classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
         function closeSearch() { document.getElementById('searchModal').classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { document.getElementById('searchModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300); }
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            const resultsContainer = document.getElementById('searchResults');
+            if (query.length < 2) {
+                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
+                return;
+            }
+            resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
+                    if (error || !data || data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>';
+                        return;
+                    }
+                    resultsContainer.innerHTML = data.map(manga => `
+                        <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
+                            <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                            <div class="flex-1 overflow-hidden">
+                                <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                            </div>
+                        </a>
+                    `).join('');
+                } catch (err) {
+                    resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>';
+                }
+            }, 600);
+        });
     </script>
 </body>
 </html>
