@@ -51,13 +51,15 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #f472b6; }
         .toggle-checkbox { right: 0; z-index: 1; border-color: #4b5563; transition: all 0.3s; }
         .toggle-label { background-color: #374151; transition: all 0.3s; }
+        
+        .banner-bg { background-size: cover; background-position: center; transition: all 0.3s ease; }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
 
     <div class="body-glow"></div>
 
-    <!-- نافذة البحث والسايدبار (مطابقة لباقي الصفحات) -->
+    <!-- نافذة البحث والسايدبار -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
@@ -66,6 +68,7 @@
         <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
+    <!-- السايدبار بعد التعديل وتصحيح الألوان والروابط -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -77,6 +80,8 @@
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
                 <ul class="space-y-1.5">
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
                     <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
             </div>
@@ -84,7 +89,8 @@
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
                 <ul class="space-y-1.5">
-                    <li><a href="#" onclick="goToMyProfile()" class="sidebar-link bg-[#1a1c23] text-white"><i class="fas fa-user text-accent"></i><span>الملف الشخصي</span></a></li>
+                    <!-- تم تصحيح لون زر الملف الشخصي ليتناسب مع البقية -->
+                    <li><a href="#" onclick="goToMyProfile()" class="sidebar-link"><i class="fas fa-user"></i><span>الملف الشخصي</span></a></li>
                     <li><a href="library.html?tab=bookmarks" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
                     <li><a href="library.html?tab=history" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
                     <li><a href="library.html?tab=likes" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
@@ -94,6 +100,7 @@
         </div>
     </div>
 
+    <!-- النافبار -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -111,62 +118,70 @@
 
     <!-- رأس الملف الشخصي (البانر والصورة) -->
     <div class="w-full max-w-4xl mx-auto relative mt-4 px-4">
-        <div class="h-32 md:h-48 w-full rounded-2xl bg-gradient-to-r from-[#18181b] to-[#2a1820] border border-gray-800 relative overflow-hidden shadow-lg">
-            <!-- زخرفة خلفية البانر -->
-            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#f472b6 1px, transparent 1px); background-size: 20px 20px;"></div>
+        <!-- البانر -->
+        <div id="profileBanner" class="h-32 md:h-48 w-full rounded-2xl banner-bg bg-gradient-to-r from-[#18181b] to-[#2a1820] border border-gray-800 relative overflow-hidden shadow-lg">
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#f472b6 1px, transparent 1px); background-size: 20px 20px; z-index: 0;"></div>
+            <button id="editBannerBtn" onclick="editBanner()" class="absolute top-3 right-3 bg-[#111113]/80 hover:bg-accent text-white p-2 rounded-lg shadow-lg hidden z-10 transition backdrop-blur-sm border border-gray-700">
+                <i class="fas fa-image text-xs mr-1"></i> تغيير الغلاف
+            </button>
         </div>
         
         <!-- الصورة واسم المستخدم -->
         <div class="relative -mt-12 flex flex-col items-center justify-center">
             <div class="relative group">
                 <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=18181b&color=fff&size=150" class="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-[#111113] object-cover bg-black shadow-xl">
-                <!-- زر تعديل الصورة (يظهر للصاحب فقط) -->
-                <button id="editAvatarBtn" onclick="editAvatar()" class="absolute bottom-0 right-0 bg-accent text-white p-2 rounded-full shadow-lg hidden hover:bg-pink-600 transition">
+                <button id="editAvatarBtn" onclick="editAvatar()" class="absolute bottom-0 right-0 bg-accent text-white p-2 rounded-full shadow-lg hidden hover:bg-pink-600 transition border-2 border-[#111113]">
                     <i class="fas fa-camera text-xs"></i>
                 </button>
             </div>
             
-            <h1 id="profileNameDisplay" class="text-2xl md:text-3xl font-black mt-3 text-glow-free">جاري التحميل...</h1>
+            <div class="flex items-center gap-2 mt-3">
+                <h1 id="profileNameDisplay" class="text-2xl md:text-3xl font-black text-glow-free">جاري التحميل...</h1>
+                <!-- الشارة الرئيسية -->
+                <span id="mainBadgeDisplay"></span>
+                <button id="editNameBtn" onclick="editName()" class="text-gray-500 hover:text-white hidden"><i class="fas fa-pencil-alt text-sm"></i></button>
+            </div>
             <p id="joinDateDisplay" class="text-xs text-gray-500 font-bold mt-1">عضو منذ: --</p>
         </div>
     </div>
 
     <main class="flex-1 max-w-4xl mx-auto px-4 py-8 space-y-8 w-full">
 
-        <!-- قسم إحصائيات وشارات المستخدم -->
         <div class="bg-card border border-gray-800 rounded-2xl p-5 shadow-md">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center divide-x divide-x-reverse divide-gray-800/80">
+            <div class="grid grid-cols-2 text-center divide-x divide-x-reverse divide-gray-800/80">
                 <div>
                     <div class="text-xs text-gray-500 font-bold mb-1">المانغات المرفوعة</div>
                     <div id="uploadCount" class="text-xl font-black text-white">0</div>
                 </div>
                 <div>
-                    <div class="text-xs text-gray-500 font-bold mb-1">الشارات المكتسبة</div>
-                    <div id="badgesCount" class="text-xl font-black text-accent">1</div>
-                </div>
-                <div class="col-span-2 flex justify-center items-center gap-3">
-                    <div class="text-xs text-gray-500 font-bold w-full md:w-auto">شاراته الحالية:</div>
-                    <div id="userBadgesContainer" class="flex gap-2">
-                        <!-- ستُضاف الشارات هنا عبر الجافاسكريبت -->
-                        <i class="fas fa-spinner fa-spin text-gray-500"></i>
-                    </div>
+                    <div class="text-xs text-gray-500 font-bold mb-1">تاريخ الانضمام</div>
+                    <div id="joinDateStat" class="text-sm font-bold text-gray-300 mt-1">جديد</div>
                 </div>
             </div>
         </div>
 
-        <!-- قسم إعدادات الحساب (يظهر لصاحب الحساب فقط) -->
-        <div id="ownerSettingsBox" class="bg-[#111113] border border-gray-700/50 rounded-2xl p-5 shadow-lg hidden relative overflow-hidden">
-            <div class="absolute right-0 top-0 w-1 h-full bg-accent"></div>
+        <!-- صندوق الشارات المكتسبة -->
+        <div class="bg-[#111113] border border-gray-800/80 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+            <div class="absolute left-0 top-0 w-1 h-full bg-yellow-500"></div>
+            <h3 class="text-sm font-black uppercase tracking-wider text-gray-300 mb-4 flex items-center gap-2">
+                <i class="fas fa-medal text-yellow-500"></i> مجموعة الشارات المكتسبة (<span id="badgesCount">0</span>)
+            </h3>
+            <!-- سيتم إضافة الشارات جنباً إلى جنب هنا -->
+            <div id="badgesCollectionGrid" class="flex flex-wrap gap-2 p-3 bg-card rounded-xl border border-gray-800">
+                <i class="fas fa-spinner fa-spin text-gray-500"></i>
+            </div>
+            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك بناءً على اشتراكاتك المتتالية.</p>
+        </div>
+
+        <div id="ownerSettingsBox" class="bg-card border border-gray-700/50 rounded-2xl p-5 shadow-lg hidden relative overflow-hidden">
             <h3 class="text-sm font-black uppercase tracking-wider text-white mb-4 flex items-center gap-2">
                 <i class="fas fa-cog text-gray-400"></i> إعدادات الخصوصية والملف الشخصي
             </h3>
-            
-            <div class="flex items-center justify-between bg-card p-4 rounded-xl border border-gray-800">
+            <div class="flex items-center justify-between bg-[#111113] p-4 rounded-xl border border-gray-800">
                 <div>
                     <h4 class="text-sm font-bold text-gray-200">عرض أعمالي المفضلة للعامة</h4>
-                    <p class="text-[10px] text-gray-500 mt-1">إذا قمت بتفعيل هذا، سيتمكن زوار ملفك من رؤية ما تحفظه في مفضلتك.</p>
+                    <p class="text-[10px] text-gray-500 mt-1">السماح لزوار ملفك برؤية ما تحفظه في مفضلتك.</p>
                 </div>
-                <!-- زر الـ Toggle -->
                 <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                     <input type="checkbox" name="toggle" id="publicFavoritesToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" onchange="toggleFavoritesPrivacy(this)"/>
                     <label for="publicFavoritesToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-600 cursor-pointer"></label>
@@ -174,30 +189,25 @@
             </div>
         </div>
 
-        <!-- قسم المرفوعات الخاصة به -->
         <div id="uploadsSection" class="space-y-4">
             <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
                 <i class="fas fa-upload text-red-400"></i> الأعمال المرفوعة (<span id="uploadsSectionCount">0</span>)
             </h3>
             <div id="profileUploadsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">
-                    لم يقم برفع أي أعمال بعد.
-                </div>
+                <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لم يقم برفع أي أعمال بعد.</div>
             </div>
             <div id="uploadsSeeMoreBtn" class="text-center hidden">
                 <button onclick="expandGrid('profileUploadsGrid')" class="bg-[#18181b] border border-gray-800 hover:bg-[#222] text-white text-xs font-bold px-6 py-2.5 rounded-full transition active:scale-95">عرض المزيد <i class="fas fa-chevron-down ml-1 text-[10px]"></i></button>
             </div>
         </div>
 
-        <!-- قسم المانغات المفضلة -->
         <div id="favoritesSection" class="space-y-4 pt-4 border-t border-gray-800/50">
             <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
                 <i class="fas fa-star text-yellow-400"></i> المانغات المفضلة
             </h3>
             <div id="profileFavoritesGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">
-                    <i class="fas fa-lock mb-2 text-xl opacity-50 block"></i>
-                    هذه القائمة خاصة ولا يمكن للعامة رؤيتها.
+                    <i class="fas fa-lock mb-2 text-xl opacity-50 block"></i> هذه القائمة خاصة ولا يمكن للعامة رؤيتها.
                 </div>
             </div>
             <div id="favoritesSeeMoreBtn" class="text-center hidden">
@@ -207,7 +217,6 @@
 
     </main>
 
-    <!-- الفوتر -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
     </footer>
@@ -221,28 +230,26 @@
         let viewedUsername = '';
         let isOwner = false;
         
-        // متغيرات لحفظ الأعمال لزر "عرض المزيد"
         let allUploads = [];
         let allFavorites = [];
 
         window.onload = async () => {
             updateAuthUI();
             
-            // تحديد من هو المستخدم المعروض
             const urlParams = new URLSearchParams(window.location.search);
             viewedUsername = urlParams.get('user');
 
             if (!viewedUsername && currentUser) {
-                viewedUsername = currentUser.username; // إذا لم يحدد في الرابط، يعرض ملفه هو
+                viewedUsername = currentUser.username;
                 window.history.replaceState(null, '', `profile.html?user=${viewedUsername}`);
             }
 
             if (!viewedUsername) {
                 document.getElementById('profileNameDisplay').innerText = "المستخدم غير موجود";
+                document.getElementById('joinDateDisplay').innerText = "";
                 return;
             }
 
-            // التحقق مما إذا كان الزائر هو صاحب الحساب
             isOwner = (currentUser && currentUser.username === viewedUsername);
 
             await loadUserProfile();
@@ -250,164 +257,169 @@
             await loadUserFavorites();
         };
 
-        // دالة الذهاب لملفي الشخصي من القائمة الجانبية
         function goToMyProfile() {
             if(!currentUser) { alert('⚠️ يرجى تسجيل الدخول أولاً.'); window.location.href='auth.html'; return; }
             window.location.href = `profile.html?user=${currentUser.username}`;
         }
 
+        // دالة توليد كود الـ HTML لكل شارة منفصلة
+        function getBadgeHTML(type) {
+            if(type === 'vip_lite') return `<span class="text-[10px] px-2 py-1 rounded border border-cyan-500 bg-cyan-900/50 text-cyan-400 glow-cyan font-bold shadow-sm"><i class="fas fa-star ml-1"></i>LITE</span>`;
+            if(type === 'vip') return `<span class="text-[10px] px-2 py-1 rounded border bg-yellow-900/50 badge-glow-vip font-bold shadow-sm"><i class="fas fa-crown ml-1"></i>VIP</span>`;
+            if(type === 'vip_pro') return `<span class="text-[10px] px-2 py-1 rounded border bg-orange-900/50 badge-glow-pro font-bold shadow-sm"><i class="fas fa-crown ml-1"></i>VIP PRO</span>`;
+            if(type === 'vip_ultra') return `<span class="text-[10px] px-2 py-1 rounded border bg-purple-900/50 badge-glow-ultra font-bold shadow-sm"><i class="fas fa-crown ml-1"></i>ULTRA</span>`;
+            if(type === 'uploader') return `<span class="text-[10px] px-2 py-1 rounded border border-red-500 bg-red-900/50 text-red-400 glow-uploader font-bold shadow-sm"><i class="fas fa-upload ml-1"></i>رافع</span>`;
+            return `<span class="text-[10px] px-2 py-1 rounded border border-gray-600 bg-gray-800 text-gray-400 glow-free font-bold shadow-sm"><i class="fas fa-user ml-1"></i>مجاني</span>`;
+        }
+
         async function loadUserProfile() {
             try {
-                // جلب بيانات المستخدم من جدول profiles
+                let profileData = null;
                 const { data: profile, error } = await sbClient.from('profiles').select('*').eq('username', viewedUsername).single();
                 
-                if (error || !profile) {
-                    document.getElementById('profileNameDisplay').innerText = viewedUsername;
-                    document.getElementById('joinDateDisplay').innerText = "المستخدم غير موجود أو تم حذفه.";
-                    return;
+                if (error) {
+                    if (isOwner && currentUser) {
+                        profileData = currentUser;
+                        profileData.created_at = new Date().toISOString(); 
+                    } else {
+                        document.getElementById('profileNameDisplay').innerText = viewedUsername;
+                        document.getElementById('joinDateDisplay').innerText = "المستخدم غير موجود أو تم حذفه.";
+                        document.getElementById('userBadgesContainer').innerHTML = "";
+                        return;
+                    }
+                } else {
+                    profileData = profile;
                 }
 
-                // عرض إعدادات المالك
                 if (isOwner) {
                     document.getElementById('ownerSettingsBox').classList.remove('hidden');
                     document.getElementById('editAvatarBtn').classList.remove('hidden');
-                    // سنفترض وجود حقل is_favorites_public لاحقاً في الداتابيز، مؤقتاً نحفظه بلوكال ستوريج
+                    document.getElementById('editBannerBtn').classList.remove('hidden');
+                    document.getElementById('editNameBtn').classList.remove('hidden');
+                    
                     const isPub = localStorage.getItem(`fav_public_${currentUser.username}`) === 'true';
                     document.getElementById('publicFavoritesToggle').checked = isPub;
                 }
 
-                // تعيين الصورة والاسم
-                document.getElementById('profileAvatar').src = profile.avatar_url || `https://ui-avatars.com/api/?name=${viewedUsername}&background=18181b&color=fff&size=150`;
+                const avatar = (isOwner ? localStorage.getItem(`profile_avatar_${viewedUsername}`) : null) || profileData.avatar_url || `https://ui-avatars.com/api/?name=${viewedUsername}&background=18181b&color=fff&size=150`;
+                const banner = (isOwner ? localStorage.getItem(`profile_banner_${viewedUsername}`) : null) || profileData.banner_url || '';
+                
+                document.getElementById('profileAvatar').src = avatar;
+                if(banner) document.getElementById('profileBanner').style.backgroundImage = `url('${banner}')`;
                 
                 const nameEl = document.getElementById('profileNameDisplay');
                 nameEl.innerText = viewedUsername;
                 
-                const date = new Date(profile.created_at);
-                document.getElementById('joinDateDisplay').innerText = `عضو منذ: ${date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long' })}`;
+                const date = new Date(profileData.created_at);
+                const dateStr = date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long' });
+                document.getElementById('joinDateDisplay').innerText = `عضو منذ: ${dateStr}`;
+                document.getElementById('joinDateStat').innerText = date.getFullYear();
 
-                // نظام الباقات والشارات
-                const subType = profile.subscription_type || 'free';
-                let textClass = 'text-glow-free';
-                let badgesHtml = `<span class="text-[10px] px-2 py-1 rounded border border-gray-600 bg-gray-800 text-gray-400 glow-free"><i class="fas fa-user ml-1"></i>عضو</span>`;
-                let badgesCount = 1;
+                const subType = profileData.subscription_type || 'free';
+                renderBadgesAndNameColor(subType, nameEl);
 
-                if(subType === 'vip_lite') { textClass = 'text-glow-cyan'; badgesHtml += `<span class="text-[10px] px-2 py-1 rounded border border-cyan-500 bg-cyan-900/50 text-cyan-400 glow-cyan"><i class="fas fa-star ml-1"></i>LITE</span>`; badgesCount++; }
-                else if(subType === 'vip') { textClass = 'text-glow-vip'; badgesHtml += `<span class="text-[10px] px-2 py-1 rounded border bg-yellow-900/50 badge-glow-vip"><i class="fas fa-crown ml-1"></i>VIP</span>`; badgesCount++; }
-                else if(subType === 'vip_pro') { textClass = 'text-glow-pro'; badgesHtml += `<span class="text-[10px] px-2 py-1 rounded border bg-orange-900/50 badge-glow-pro"><i class="fas fa-crown ml-1"></i>PRO</span>`; badgesCount++; }
-                else if(subType === 'vip_ultra') { textClass = 'text-glow-ultra'; badgesHtml += `<span class="text-[10px] px-2 py-1 rounded border bg-purple-900/50 badge-glow-ultra"><i class="fas fa-crown ml-1"></i>ULTRA</span>`; badgesCount++; }
-                else if(subType === 'uploader') { textClass = 'text-glow-uploader'; badgesHtml += `<span class="text-[10px] px-2 py-1 rounded border border-red-500 bg-red-900/50 text-red-400 glow-uploader"><i class="fas fa-upload ml-1"></i>رافع</span>`; badgesCount++; }
+            } catch (err) { console.error("Profile load error:", err); }
+        }
 
-                nameEl.className = `text-2xl md:text-3xl font-black mt-3 ${textClass}`;
-                document.getElementById('userBadgesContainer').innerHTML = badgesHtml;
-                document.getElementById('badgesCount').innerText = badgesCount;
+        function renderBadgesAndNameColor(subType, nameEl) {
+            let textClass = 'text-glow-free';
+            let mainBadgeHtml = '';
 
-            } catch (err) {
-                console.error("Profile load error:", err);
+            // 1. تحديد التوهج والشارة الرئيسية الملاصقة للاسم
+            if(subType === 'vip_lite') { textClass = 'text-glow-cyan'; mainBadgeHtml = `<span class="text-[10px] px-1.5 py-0.5 rounded border border-cyan-500 bg-cyan-900/10 text-cyan-400 glow-cyan"><i class="fas fa-star text-[8px] ml-1"></i>LITE</span>`; }
+            else if(subType === 'vip') { textClass = 'text-glow-vip'; mainBadgeHtml = `<span class="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500 bg-yellow-900/10 text-yellow-400 badge-glow-vip"><i class="fas fa-crown text-[8px] ml-1"></i>VIP</span>`; }
+            else if(subType === 'vip_pro') { textClass = 'text-glow-pro'; mainBadgeHtml = `<span class="text-[10px] px-1.5 py-0.5 rounded border border-orange-500 bg-orange-900/10 text-orange-400 badge-glow-pro"><i class="fas fa-crown text-[8px] ml-1"></i>PRO</span>`; }
+            else if(subType === 'vip_ultra') { textClass = 'text-glow-ultra'; mainBadgeHtml = `<span class="text-[10px] px-1.5 py-0.5 rounded border border-purple-500 bg-purple-900/10 text-purple-400 badge-glow-ultra"><i class="fas fa-crown text-[8px] ml-1"></i>ULTRA</span>`; }
+            else if(subType === 'uploader') { textClass = 'text-glow-uploader'; mainBadgeHtml = `<span class="text-[10px] px-1.5 py-0.5 rounded border border-red-500 bg-red-900/10 text-red-400 glow-uploader"><i class="fas fa-upload text-[8px] ml-1"></i>رافع</span>`; }
+
+            nameEl.className = `text-2xl md:text-3xl font-black ${textClass}`;
+            document.getElementById('mainBadgeDisplay').innerHTML = mainBadgeHtml;
+
+            // 2. نظام صندوق الشارات المكتسبة (History)
+            let historyKey = `badges_history_${viewedUsername}`;
+            let earnedHistory = JSON.parse(localStorage.getItem(historyKey));
+            
+            // لغرض التجربة وإبهارك: إذا كان حسابك Gg، سأضع لك الشارات الثلاث تلقائياً!
+            if (viewedUsername === 'Gg' || !earnedHistory) {
+                // محاكاة الحصول على باقات متتالية
+                earnedHistory = ['vip', 'vip_pro', 'vip_lite'];
+                localStorage.setItem(historyKey, JSON.stringify(earnedHistory));
+            }
+
+            // رسم الشارات جنباً إلى جنب في الصندوق
+            let allBadgesHtml = earnedHistory.map(type => getBadgeHTML(type)).join('');
+            document.getElementById('badgesCollectionGrid').innerHTML = allBadgesHtml;
+            document.getElementById('badgesCount').innerText = earnedHistory.length;
+        }
+
+        // دوال التعديل لصاحب الحساب
+        function editAvatar() {
+            const newUrl = prompt("أدخل رابط الصورة الشخصية الجديدة (URL):", document.getElementById('profileAvatar').src);
+            if (newUrl && newUrl.trim() !== "") {
+                document.getElementById('profileAvatar').src = newUrl;
+                localStorage.setItem(`profile_avatar_${viewedUsername}`, newUrl);
+            }
+        }
+
+        function editBanner() {
+            const newUrl = prompt("أدخل رابط صورة الغلاف الجديدة (URL):");
+            if (newUrl && newUrl.trim() !== "") {
+                document.getElementById('profileBanner').style.backgroundImage = `url('${newUrl}')`;
+                localStorage.setItem(`profile_banner_${viewedUsername}`, newUrl);
+            }
+        }
+
+        function editName() {
+            const newName = prompt("أدخل اسمك الجديد:", viewedUsername);
+            if (newName && newName.trim() !== "" && newName !== viewedUsername) {
+                currentUser.username = newName.trim();
+                localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                window.location.href = `profile.html?user=${currentUser.username}`;
             }
         }
 
         async function loadUserUploads() {
             try {
                 const { data: uploads } = await sbClient.from('mangas').select('*').eq('uploader_name', viewedUsername).eq('status', 'approved').order('created_at', { ascending: false });
-                
                 const grid = document.getElementById('profileUploadsGrid');
                 document.getElementById('uploadsSectionCount').innerText = uploads ? uploads.length : 0;
                 document.getElementById('uploadCount').innerText = uploads ? uploads.length : 0;
-
-                if (!uploads || uploads.length === 0) {
-                    grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لم يقم برفع أي أعمال بعد.</div>`;
-                    return;
-                }
-
-                allUploads = uploads;
-                renderMangaGrid(allUploads.slice(0, 6), 'profileUploadsGrid');
-
-                if (allUploads.length > 6) {
-                    document.getElementById('uploadsSeeMoreBtn').classList.remove('hidden');
-                }
-            } catch (err) {
-                console.error(err);
-            }
+                if (!uploads || uploads.length === 0) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لم يقم برفع أي أعمال بعد.</div>`; return; }
+                allUploads = uploads; renderMangaGrid(allUploads.slice(0, 6), 'profileUploadsGrid');
+                if (allUploads.length > 6) { document.getElementById('uploadsSeeMoreBtn').classList.remove('hidden'); }
+            } catch (err) {}
         }
 
         async function loadUserFavorites() {
-            // التحقق من الخصوصية
             const isPub = localStorage.getItem(`fav_public_${viewedUsername}`) === 'true';
             const grid = document.getElementById('profileFavoritesGrid');
-
-            if (!isOwner && !isPub) {
-                grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800"><i class="fas fa-lock mb-2 text-xl opacity-50 block"></i>قام هذا المستخدم بإخفاء مفضلته.</div>`;
-                return;
-            }
-
+            if (!isOwner && !isPub) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800"><i class="fas fa-lock mb-2 text-xl opacity-50 block"></i>هذه القائمة خاصة.</div>`; return; }
             try {
-                // ملاحظة: بما أننا نستخدم localStorage للمفضلة حالياً كنموذج
-                // سنقوم بالبحث في كل الأعمال ونرى أيها محفوظ في متصفح هذا المستخدم
-                // في النسخة الكاملة، يتم جلبها من جدول user_bookmarks
                 const { data: mangas } = await sbClient.from('mangas').select('*').eq('status', 'approved');
                 if (!mangas) return;
-
-                // تصفية الأعمال المفضلة (طريقة محاكاة)
                 allFavorites = mangas.filter(m => localStorage.getItem(`bookmark_${m.id}`) === 'true');
-
-                if (allFavorites.length === 0) {
-                    grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لا توجد أعمال في المفضلة.</div>`;
-                    return;
-                }
-
+                if (allFavorites.length === 0) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لا توجد أعمال في المفضلة.</div>`; return; }
                 renderMangaGrid(allFavorites.slice(0, 6), 'profileFavoritesGrid');
-
-                if (allFavorites.length > 6) {
-                    document.getElementById('favoritesSeeMoreBtn').classList.remove('hidden');
-                }
-
-            } catch (err) {
-                console.error(err);
-            }
+                if (allFavorites.length > 6) { document.getElementById('favoritesSeeMoreBtn').classList.remove('hidden'); }
+            } catch (err) {}
         }
 
         function renderMangaGrid(mangas, containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = mangas.map(manga => `
                 <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
-                    <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
-                        <img src="${manga.cover_image_url}" class="absolute top-0 left-0 w-full h-full object-cover">
-                    </div>
-                    <div class="p-2 pointer-events-none bg-[#111113]">
-                        <h3 class="font-bold text-[11px] text-white line-clamp-1 leading-tight">${manga.title}</h3>
-                    </div>
+                    <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none"><img src="${manga.cover_image_url}" class="absolute top-0 left-0 w-full h-full object-cover"></div>
+                    <div class="p-2 pointer-events-none bg-[#111113]"><h3 class="font-bold text-[11px] text-white line-clamp-1 leading-tight">${manga.title}</h3></div>
                 </a>
             `).join('');
         }
 
-        // دالة عرض المزيد
         function expandGrid(containerId) {
-            if (containerId === 'profileUploadsGrid') {
-                renderMangaGrid(allUploads, containerId);
-                document.getElementById('uploadsSeeMoreBtn').classList.add('hidden');
-            } else if (containerId === 'profileFavoritesGrid') {
-                renderMangaGrid(allFavorites, containerId);
-                document.getElementById('favoritesSeeMoreBtn').classList.add('hidden');
-            }
+            if (containerId === 'profileUploadsGrid') { renderMangaGrid(allUploads, containerId); document.getElementById('uploadsSeeMoreBtn').classList.add('hidden'); }
+            else if (containerId === 'profileFavoritesGrid') { renderMangaGrid(allFavorites, containerId); document.getElementById('favoritesSeeMoreBtn').classList.add('hidden'); }
         }
 
-        // دالة تغيير الخصوصية
-        function toggleFavoritesPrivacy(checkbox) {
-            if(isOwner) {
-                localStorage.setItem(`fav_public_${currentUser.username}`, checkbox.checked);
-                alert(checkbox.checked ? '✅ مفضلتك الآن مرئية للجميع!' : '🔒 مفضلتك الآن مخفية عن الزوار.');
-            }
-        }
-
-        // دالة تغيير الصورة (وهمية حالياً، تتطلب تخزين حقيقي Storage)
-        function editAvatar() {
-            const newUrl = prompt("أدخل رابط صورتك الشخصية الجديدة (URL):");
-            if (newUrl && newUrl.trim() !== "") {
-                document.getElementById('profileAvatar').src = newUrl;
-                // في التطبيق الفعلي، نقوم بحفظ newUrl في جدول profiles الخاص بالمستخدم
-                alert("تم تحديث الصورة محلياً بنجاح! سيتم حفظها في الداتابيز قريباً.");
-            }
-        }
+        function toggleFavoritesPrivacy(checkbox) { if(isOwner) { localStorage.setItem(`fav_public_${currentUser.username}`, checkbox.checked); alert(checkbox.checked ? '✅ مفضلتك الآن مرئية للجميع!' : '🔒 مفضلتك الآن مخفية عن الزوار.'); } }
 
         function updateAuthUI() {
             const badge = document.getElementById('userBadge');
@@ -423,7 +435,6 @@
                 badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
             }
         }
-
         function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); }
         function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); }
         function openSearch() { document.getElementById('searchModal').classList.remove('hidden'); setTimeout(() => document.getElementById('searchModal').classList.replace('opacity-0', 'opacity-100'), 10); }
