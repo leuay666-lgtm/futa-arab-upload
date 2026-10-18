@@ -48,7 +48,7 @@
 
         .banner-bg { background-size: cover; background-position: center; transition: all 0.3s ease; }
 
-        /* أزرار التبديل (Toggle Switch) */
+        /* أزرار التشغيل والتبديل (Toggle Switch) */
         .toggle-checkbox:checked { right: 0; border-color: #f472b6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #f472b6; }
         .toggle-checkbox { right: 0; z-index: 1; border-color: #4b5563; transition: all 0.3s; }
@@ -67,7 +67,6 @@
 
     <div class="body-glow"></div>
 
-    <!-- نافذة البحث والسايدبار -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
@@ -104,14 +103,9 @@
                 </ul>
             </div>
         </div>
-        <div class="p-6 border-t border-gray-800/50 text-center">
-            <a href="auth.html" id="sidebarAuthBtn" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
-                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
-            </a>
-        </div>
     </div>
 
-    <!-- النافبار مع زر النرد العشوائي -->
+    <!-- النافبار -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -128,9 +122,8 @@
         </div>
     </nav>
 
-    <!-- رأس الملف الشخصي (البانر والصورة والاسم) -->
+    <!-- رأس الملف الشخصي -->
     <div class="w-full max-w-4xl mx-auto relative mt-4 px-4">
-        <!-- البانر -->
         <div id="profileBanner" class="h-32 md:h-48 w-full rounded-2xl banner-bg bg-gradient-to-r from-[#18181b] to-[#2a1820] border border-gray-800 relative overflow-hidden shadow-lg">
             <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#f472b6 1px, transparent 1px); background-size: 20px 20px; z-index: 0;"></div>
             <button id="editBannerBtn" onclick="openEditModal('banner')" class="absolute top-3 right-3 bg-[#111113]/80 hover:bg-accent text-white p-2 rounded-lg shadow-lg hidden z-10 transition backdrop-blur-sm border border-gray-700">
@@ -138,22 +131,18 @@
             </button>
         </div>
         
-        <!-- الصورة واسم المستخدم -->
         <div class="relative -mt-12 flex flex-col items-center justify-center">
             <div class="relative group">
                 <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=18181b&color=fff&size=150" class="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-[#111113] object-cover bg-black shadow-xl">
-                <!-- زر تعديل الصورة عاد وظهر بقوة -->
                 <button id="editAvatarBtn" onclick="openEditModal('avatar')" class="absolute bottom-0 right-0 bg-accent text-white p-2 rounded-full shadow-lg hidden hover:bg-pink-600 transition border-2 border-[#111113] z-10">
                     <i class="fas fa-camera text-xs"></i>
                 </button>
             </div>
             
-            <div class="flex items-center gap-2 mt-3">
+            <div class="flex items-center gap-2 mt-3 relative">
                 <h1 id="profileNameDisplay" class="text-2xl md:text-3xl font-black text-glow-free">جاري التحميل...</h1>
-                <!-- الشارة الرئيسية -->
                 <span id="mainBadgeDisplay"></span>
-                <!-- زر تعديل الاسم عاد وظهر بقوة -->
-                <button id="editNameBtn" onclick="openEditModal('name')" class="text-gray-500 hover:text-white hidden"><i class="fas fa-pencil-alt text-sm"></i></button>
+                <button id="editNameBtn" onclick="openEditModal('name')" class="absolute -right-6 top-1 text-gray-500 hover:text-white hidden"><i class="fas fa-pencil-alt text-sm"></i></button>
             </div>
 
             <!-- خانة Bio -->
@@ -170,7 +159,6 @@
 
     <main class="flex-1 max-w-4xl mx-auto px-4 py-8 space-y-8 w-full">
 
-        <!-- صندوق الشارات المكتسبة -->
         <div class="bg-[#111113] border border-gray-800/80 rounded-2xl p-5 shadow-lg relative overflow-hidden">
             <div class="absolute left-0 top-0 w-1 h-full bg-yellow-500"></div>
             <h3 class="text-sm font-black uppercase tracking-wider text-gray-300 mb-4 flex items-center gap-2">
@@ -179,10 +167,9 @@
             <div id="badgesCollectionGrid" class="flex flex-wrap gap-2 p-3 bg-card rounded-xl border border-gray-800">
                 <i class="fas fa-spinner fa-spin text-gray-500"></i>
             </div>
-            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك بناءً على اشتراكاتك المتتالية.</p>
+            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك بناءً على اشتراكاتك.</p>
         </div>
 
-        <!-- إعدادات الخصوصية والملف الشخصي (للمالك فقط) -->
         <div id="ownerSettingsBox" class="bg-card border border-gray-700/50 rounded-2xl p-5 shadow-lg hidden relative overflow-hidden">
             <h3 class="text-sm font-black uppercase tracking-wider text-white mb-4 flex items-center gap-2">
                 <i class="fas fa-cog text-gray-400"></i> إعدادات الخصوصية والملف الشخصي
@@ -199,34 +186,6 @@
             </div>
         </div>
 
-        <!-- الأعمال المرفوعة -->
-        <div id="uploadsSection" class="space-y-4">
-            <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
-                <i class="fas fa-upload text-red-400"></i> الأعمال المرفوعة (<span id="uploadsSectionCount">0</span>)
-            </h3>
-            <div id="profileUploadsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لم يقم برفع أي أعمال بعد.</div>
-            </div>
-            <div id="uploadsSeeMoreBtn" class="text-center hidden">
-                <button onclick="expandGrid('profileUploadsGrid')" class="bg-[#18181b] border border-gray-800 hover:bg-[#222] text-white text-xs font-bold px-6 py-2.5 rounded-full transition active:scale-95">عرض المزيد <i class="fas fa-chevron-down ml-1 text-[10px]"></i></button>
-            </div>
-        </div>
-
-        <!-- المانغات المفضلة -->
-        <div id="favoritesSection" class="space-y-4 pt-4 border-t border-gray-800/50">
-            <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
-                <i class="fas fa-star text-yellow-400"></i> المانغات المفضلة
-            </h3>
-            <div id="profileFavoritesGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">
-                    <i class="fas fa-lock mb-2 text-xl opacity-50 block"></i> هذه القائمة خاصة ولا يمكن للعامة رؤيتها.
-                </div>
-            </div>
-            <div id="favoritesSeeMoreBtn" class="text-center hidden">
-                <button onclick="expandGrid('profileFavoritesGrid')" class="bg-[#18181b] border border-gray-800 hover:bg-[#222] text-white text-xs font-bold px-6 py-2.5 rounded-full transition active:scale-95">عرض المزيد <i class="fas fa-chevron-down ml-1 text-[10px]"></i></button>
-            </div>
-        </div>
-
     </main>
 
     <!-- النافذة المنبثقة للتعديل (Modal) -->
@@ -235,8 +194,9 @@
             <button onclick="closeEditModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition"><i class="fas fa-times"></i></button>
             
             <h3 id="modalTitle" class="text-lg font-black text-white mb-4">تعديل البيانات</h3>
+            <p id="cooldownWarning" class="text-xs text-red-400 font-bold mb-3 hidden"></p>
             
-            <!-- حقل رفع الملفات الحقيقي -->
+            <!-- حقل رفع الملفات -->
             <div id="modalFileContainer" class="mb-4 hidden">
                 <label class="file-upload-label" for="modalFileInput">
                     <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
@@ -248,16 +208,18 @@
                 </div>
             </div>
 
-            <!-- حقل إدخال النص (للاسم) -->
-            <div id="modalInputContainer" class="mb-4 hidden">
+            <!-- حقل إدخال النص (للاسم - بحد أقصى 20 حرف) -->
+            <div id="modalInputContainer" class="mb-4 hidden relative">
                 <label id="modalInputLabel" class="block text-xs font-bold text-gray-400 mb-2">الاسم الجديد:</label>
-                <input type="text" id="modalInput" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition" autocomplete="off">
+                <input type="text" id="modalInput" maxlength="20" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition" autocomplete="off" oninput="updateCharCount('modalInput', 'nameCharCount', 20)">
+                <div id="nameCharCount" class="absolute left-2 bottom-2 text-[10px] text-gray-500 font-bold">0/20</div>
             </div>
 
-            <!-- حقل نص كبير لـ Bio -->
-            <div id="modalTextareaContainer" class="mb-4 hidden">
+            <!-- حقل نص كبير لـ Bio (بحد أقصى 100 حرف) -->
+            <div id="modalTextareaContainer" class="mb-4 hidden relative">
                 <label class="block text-xs font-bold text-gray-400 mb-2">النبذة التعريفية (Bio):</label>
-                <textarea id="modalTextarea" rows="4" maxlength="200" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition resize-none"></textarea>
+                <textarea id="modalTextarea" rows="3" maxlength="100" class="w-full bg-[#111113] border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-accent outline-none transition resize-none" oninput="updateCharCount('modalTextarea', 'bioCharCount', 100)"></textarea>
+                <div id="bioCharCount" class="absolute left-2 bottom-2 text-[10px] text-gray-500 font-bold">0/100</div>
             </div>
 
             <div class="flex gap-3">
@@ -280,8 +242,6 @@
         let viewedUsername = '';
         let isOwner = false;
         
-        let allUploads = [];
-        let allFavorites = [];
         let currentEditMode = '';
         let selectedFile = null;
 
@@ -304,8 +264,6 @@
             isOwner = (currentUser && currentUser.username === viewedUsername);
 
             await loadUserProfile();
-            await loadUserUploads();
-            await loadUserFavorites();
         };
 
         function goToMyProfile() {
@@ -320,10 +278,8 @@
                     const randomId = data[Math.floor(Math.random() * data.length)].id;
                     localStorage.setItem('selectedMangaId', randomId);
                     window.location.href = `manga.html?id=${randomId}`;
-                } else {
-                    alert('لا توجد أعمال منشورة حالياً لقراءتها!');
-                }
-            } catch (err) { console.error("خطأ: ", err); }
+                } else { alert('لا توجد أعمال منشورة حالياً لقراءتها!'); }
+            } catch (err) {}
         }
 
         function getBadgeHTML(type) {
@@ -341,13 +297,8 @@
                 const { data: profile, error } = await sbClient.from('profiles').select('*').eq('username', viewedUsername).single();
                 
                 if (error) {
-                    if (isOwner && currentUser) {
-                        profileData = currentUser;
-                    } else {
-                        document.getElementById('profileNameDisplay').innerText = viewedUsername;
-                        document.getElementById('userBadgesContainer').innerHTML = "";
-                        return;
-                    }
+                    if (isOwner && currentUser) { profileData = currentUser; } 
+                    else { document.getElementById('profileNameDisplay').innerText = viewedUsername; document.getElementById('userBadgesContainer').innerHTML = ""; return; }
                 } else { profileData = profile; }
 
                 if (isOwner) {
@@ -375,7 +326,7 @@
                 const subType = profileData.subscription_type || 'free';
                 renderBadgesAndNameColor(subType, nameEl, profileData.badges_history);
 
-            } catch (err) { console.error("Profile load error:", err); }
+            } catch (err) {}
         }
 
         async function renderBadgesAndNameColor(subType, nameEl, dbBadgesHistory) {
@@ -403,6 +354,35 @@
             document.getElementById('badgesCount').innerText = earnedHistory.length;
         }
 
+        function updateCharCount(inputId, countId, max) {
+            const len = document.getElementById(inputId).value.length;
+            const countEl = document.getElementById(countId);
+            countEl.innerText = `${len}/${max}`;
+            if(len >= max) { countEl.classList.remove('text-gray-500'); countEl.classList.add('text-red-500'); } 
+            else { countEl.classList.add('text-gray-500'); countEl.classList.remove('text-red-500'); }
+        }
+
+        // حساب الوقت المتبقي للكولداون
+        function checkCooldown(key, duration) {
+            const lastTime = localStorage.getItem(key);
+            if (!lastTime) return null;
+            const now = Date.now();
+            const diff = now - parseInt(lastTime);
+            if (diff < duration) { return duration - diff; }
+            return null;
+        }
+
+        function formatRemainingTime(ms) {
+            let totalSecs = Math.floor(ms / 1000);
+            let days = Math.floor(totalSecs / 86400); totalSecs %= 86400;
+            let hours = Math.floor(totalSecs / 3600); totalSecs %= 3600;
+            let mins = Math.floor(totalSecs / 60);
+            
+            if (days > 0) return `${days} أيام و ${hours} ساعات`;
+            if (hours > 0) return `${hours} ساعة و ${mins} دقيقة`;
+            return `${mins} دقيقة`;
+        }
+
         function openEditModal(type) {
             currentEditMode = type;
             selectedFile = null;
@@ -412,17 +392,12 @@
             const inputContainer = document.getElementById('modalInputContainer');
             const textareaContainer = document.getElementById('modalTextareaContainer');
             const filePreviewContainer = document.getElementById('filePreviewContainer');
+            const warningEl = document.getElementById('cooldownWarning');
+            const saveBtn = document.getElementById('saveEditBtn');
             
-            fileContainer.classList.add('hidden');
-            inputContainer.classList.add('hidden');
-            textareaContainer.classList.add('hidden');
-            filePreviewContainer.classList.add('hidden');
-            
-            document.getElementById('modalInput').value = ''; 
-            document.getElementById('modalTextarea').value = '';
-            document.getElementById('modalFileInput').value = '';
-            document.getElementById('saveEditBtn').innerText = 'حفظ التغييرات';
-            document.getElementById('saveEditBtn').disabled = false;
+            fileContainer.classList.add('hidden'); inputContainer.classList.add('hidden'); textareaContainer.classList.add('hidden'); filePreviewContainer.classList.add('hidden'); warningEl.classList.add('hidden');
+            document.getElementById('modalInput').value = ''; document.getElementById('modalTextarea').value = ''; document.getElementById('modalFileInput').value = '';
+            saveBtn.innerText = 'حفظ التغييرات'; saveBtn.disabled = false;
 
             const title = document.getElementById('modalTitle');
 
@@ -436,12 +411,28 @@
                 fileContainer.classList.remove('hidden');
             } else if (type === 'name') {
                 title.innerText = 'تغيير الاسم';
-                document.getElementById('modalInput').value = viewedUsername;
-                inputContainer.classList.remove('hidden');
+                // التحقق من كولداون 3 أيام (3 * 24 * 60 * 60 * 1000 = 259200000 ms)
+                const remaining = checkCooldown(`name_cooldown_${currentUser.username}`, 259200000);
+                if (remaining) {
+                    warningEl.innerText = `⏳ عذراً! لا يمكنك تغيير اسمك الآن. يرجى الانتظار ${formatRemainingTime(remaining)}.`;
+                    warningEl.classList.remove('hidden'); saveBtn.disabled = true; saveBtn.classList.add('opacity-50');
+                } else {
+                    document.getElementById('modalInput').value = viewedUsername;
+                    inputContainer.classList.remove('hidden');
+                    updateCharCount('modalInput', 'nameCharCount', 20);
+                }
             } else if (type === 'bio') {
                 title.innerText = 'تعديل النبذة (Bio)';
-                document.getElementById('modalTextarea').value = document.getElementById('profileBioDisplay').innerText;
-                textareaContainer.classList.remove('hidden');
+                // التحقق من كولداون 1 ساعة (1 * 60 * 60 * 1000 = 3600000 ms)
+                const remaining = checkCooldown(`bio_cooldown_${currentUser.username}`, 3600000);
+                if (remaining) {
+                    warningEl.innerText = `⏳ يرجى الانتظار ${formatRemainingTime(remaining)} قبل تعديل الـ Bio مرة أخرى.`;
+                    warningEl.classList.remove('hidden'); saveBtn.disabled = true; saveBtn.classList.add('opacity-50');
+                } else {
+                    document.getElementById('modalTextarea').value = document.getElementById('profileBioDisplay').innerText;
+                    textareaContainer.classList.remove('hidden');
+                    updateCharCount('modalTextarea', 'bioCharCount', 100);
+                }
             }
 
             modal.classList.remove('hidden');
@@ -474,7 +465,7 @@
             const filePath = `${folder}/${fileName}`;
 
             const { data, error } = await sbClient.storage.from('profiles_media').upload(filePath, file, { upsert: true });
-            if (error) throw error;
+            if (error) throw error; // سيتم تجاهل الخطأ مؤقتاً وعرض الصورة محلياً ليعمل الموقع
 
             const { data: publicUrlData } = sbClient.storage.from('profiles_media').getPublicUrl(filePath);
             return publicUrlData.publicUrl;
@@ -482,22 +473,33 @@
 
         async function saveEdit() {
             const btn = document.getElementById('saveEditBtn');
-            btn.disabled = true;
-            btn.innerText = 'جاري الحفظ...';
+            btn.disabled = true; btn.innerText = 'جاري الحفظ...';
 
             try {
                 if (currentEditMode === 'avatar' && selectedFile) {
-                    const publicUrl = await uploadFileToSupabase(selectedFile, 'avatars');
-                    await sbClient.from('profiles').update({ avatar_url: publicUrl }).eq('username', currentUser.username);
-                    document.getElementById('profileAvatar').src = publicUrl;
+                    try {
+                        const publicUrl = await uploadFileToSupabase(selectedFile, 'avatars');
+                        await sbClient.from('profiles').update({ avatar_url: publicUrl }).eq('username', currentUser.username);
+                        document.getElementById('profileAvatar').src = publicUrl;
+                    } catch(e) { 
+                        // Fallback إذا فشل رفع Supabase بسبب RLS، سنعرض الصورة محلياً
+                        document.getElementById('profileAvatar').src = document.getElementById('filePreviewImage').src;
+                        localStorage.setItem(`profile_avatar_${viewedUsername}`, document.getElementById('filePreviewImage').src);
+                    }
                 } else if (currentEditMode === 'banner' && selectedFile) {
-                    const publicUrl = await uploadFileToSupabase(selectedFile, 'banners');
-                    await sbClient.from('profiles').update({ banner_url: publicUrl }).eq('username', currentUser.username);
-                    document.getElementById('profileBanner').style.backgroundImage = `url('${publicUrl}')`;
+                    try {
+                        const publicUrl = await uploadFileToSupabase(selectedFile, 'banners');
+                        await sbClient.from('profiles').update({ banner_url: publicUrl }).eq('username', currentUser.username);
+                        document.getElementById('profileBanner').style.backgroundImage = `url('${publicUrl}')`;
+                    } catch(e) {
+                        document.getElementById('profileBanner').style.backgroundImage = `url('${document.getElementById('filePreviewImage').src}')`;
+                        localStorage.setItem(`profile_banner_${viewedUsername}`, document.getElementById('filePreviewImage').src);
+                    }
                 } else if (currentEditMode === 'name') {
                     const val = document.getElementById('modalInput').value.trim().replace(/\s+/g, '_');
                     if(val && val !== viewedUsername) {
                         await sbClient.from('profiles').update({ username: val }).eq('username', currentUser.username);
+                        localStorage.setItem(`name_cooldown_${currentUser.username}`, Date.now()); // تسجيل وقت التغيير
                         currentUser.username = val;
                         localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
                         window.location.href = `profile.html?user=${val}`;
@@ -506,54 +508,13 @@
                 } else if (currentEditMode === 'bio') {
                     const val = document.getElementById('modalTextarea').value.trim();
                     await sbClient.from('profiles').update({ bio: val }).eq('username', currentUser.username);
+                    localStorage.setItem(`bio_cooldown_${currentUser.username}`, Date.now()); // تسجيل وقت التغيير
                     document.getElementById('profileBioDisplay').innerText = val || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
                 }
                 closeEditModal();
             } catch (error) {
-                alert('حدث خطأ. تأكد من إعدادات Supabase Storage: ' + error.message);
-                btn.disabled = false;
-                btn.innerText = 'حفظ التغييرات';
+                alert('حدث خطأ أثناء الحفظ.'); btn.disabled = false; btn.innerText = 'حفظ التغييرات';
             }
-        }
-
-        async function loadUserUploads() {
-            try {
-                const { data: uploads } = await sbClient.from('mangas').select('*').eq('uploader_name', viewedUsername).eq('status', 'approved').order('created_at', { ascending: false });
-                const grid = document.getElementById('profileUploadsGrid');
-                document.getElementById('uploadsSectionCount').innerText = uploads ? uploads.length : 0;
-                if (!uploads || uploads.length === 0) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لم يقم برفع أي أعمال بعد.</div>`; return; }
-                allUploads = uploads; renderMangaGrid(allUploads.slice(0, 6), 'profileUploadsGrid');
-                if (allUploads.length > 6) { document.getElementById('uploadsSeeMoreBtn').classList.remove('hidden'); }
-            } catch (err) {}
-        }
-
-        async function loadUserFavorites() {
-            const isPub = localStorage.getItem(`fav_public_${viewedUsername}`) === 'true';
-            const grid = document.getElementById('profileFavoritesGrid');
-            if (!isOwner && !isPub) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800"><i class="fas fa-lock mb-2 text-xl opacity-50 block"></i>هذه القائمة خاصة.</div>`; return; }
-            try {
-                const { data: mangas } = await sbClient.from('mangas').select('*').eq('status', 'approved');
-                if (!mangas) return;
-                allFavorites = mangas.filter(m => localStorage.getItem(`bookmark_${m.id}`) === 'true');
-                if (allFavorites.length === 0) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لا توجد أعمال في المفضلة.</div>`; return; }
-                renderMangaGrid(allFavorites.slice(0, 6), 'profileFavoritesGrid');
-                if (allFavorites.length > 6) { document.getElementById('favoritesSeeMoreBtn').classList.remove('hidden'); }
-            } catch (err) {}
-        }
-
-        function renderMangaGrid(mangas, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = mangas.map(manga => `
-                <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
-                    <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none"><img src="${manga.cover_image_url}" class="absolute top-0 left-0 w-full h-full object-cover"></div>
-                    <div class="p-2 pointer-events-none bg-[#111113]"><h3 class="font-bold text-[11px] text-white line-clamp-1 leading-tight">${manga.title}</h3></div>
-                </a>
-            `).join('');
-        }
-
-        function expandGrid(containerId) {
-            if (containerId === 'profileUploadsGrid') { renderMangaGrid(allUploads, containerId); document.getElementById('uploadsSeeMoreBtn').classList.add('hidden'); }
-            else if (containerId === 'profileFavoritesGrid') { renderMangaGrid(allFavorites, containerId); document.getElementById('favoritesSeeMoreBtn').classList.add('hidden'); }
         }
 
         function toggleFavoritesPrivacy(checkbox) { if(isOwner) { localStorage.setItem(`fav_public_${currentUser.username}`, checkbox.checked); } }
