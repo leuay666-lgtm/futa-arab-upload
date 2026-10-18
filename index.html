@@ -22,8 +22,7 @@
         #sidebarMenu { transition: transform 0.3s ease-in-out; }
 
         .body-glow {
-            position: fixed;
-            top: -20%; left: -10%; width: 120%; height: 60%;
+            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
             background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(17,17,19,0) 70%);
             z-index: -1; pointer-events: none;
         }
@@ -39,13 +38,12 @@
 
     <div class="body-glow"></div>
 
-    <!-- نافذة البحث الذكية (مخفية افتراضياً) -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
             <div class="relative flex-1">
                 <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
-                <input type="text" id="searchInput" placeholder="ابحث عن مانغا أو تصنيف (مثال: رومانسي)..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
+                <input type="text" id="searchInput" placeholder="ابحث عن مانغا أو تصنيف..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
             </div>
         </div>
         <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3">
@@ -53,7 +51,6 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -77,35 +74,31 @@
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
                 <ul class="space-y-1.5">
-                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
-                    <li><a href="#" onclick="checkAuthForFavorites()" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="library.html?tab=bookmarks" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح المفضلة.'); return false; }" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="library.html?tab=history" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح السجل.'); return false; }" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="library.html?tab=likes" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح هذه القائمة.'); return false; }" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
                 </ul>
             </div>
         </div>
         <div class="p-6 border-t border-gray-800/50 text-center">
-            <!-- التغيير الوحيد هنا: ربط الزر بـ auth.html -->
             <a href="auth.html" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
                 <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
             </a>
         </div>
     </div>
 
-    <!-- شريط التنقل العلوي -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
                 <span id="userBadge" class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
             </div>
-            
             <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
-            
             <div class="flex items-center gap-4">
-                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95"><i class="fas fa-dice"></i></button>
                 <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
             </div>
         </div>
-        
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="text-white border-b-2 border-accent pb-1">الأحدث</a>
             <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
@@ -115,7 +108,6 @@
         </div>
     </nav>
 
-    <!-- المحتوى الرئيسي -->
     <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-8 w-full">
         <section>
             <h2 class="text-lg font-black uppercase mb-4 tracking-wider">التحديثات الجديدة <span class="text-accent">LATEST</span></h2>
@@ -132,7 +124,6 @@
         </section>
     </main>
 
-    <!-- الفوتر -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
             <div class="flex gap-4 text-sm font-bold text-gray-400">
@@ -140,9 +131,7 @@
                 <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
                 <a href="#" class="hover:text-white transition">DMCA</a>
             </div>
-            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
-                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.
-            </p>
+            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع.</p>
             <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
         </div>
     </footer>
@@ -155,13 +144,9 @@
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
-        
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
-        window.onload = () => {
-            updateAuthUI();
-            loadPublishedMangas();
-        };
+        window.onload = () => { updateAuthUI(); loadPublishedMangas(); };
 
         function updateAuthUI() {
             const badge = document.getElementById('userBadge');
@@ -176,78 +161,40 @@
             }
         }
 
-        function checkAuthForFavorites() {
-            if (!currentUser) return alert('⚠️ عذراً، يجب تسجيل الدخول لفتح هذه القائمة.');
-        }
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
 
-        function openSidebar() {
-            document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100');
-            document.getElementById('sidebarOverlay').classList.remove('pointer-events-none');
-            document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebar() {
-            document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0');
-            document.getElementById('sidebarOverlay').classList.add('pointer-events-none');
-            document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full');
-            document.body.style.overflow = 'auto';
-        }
-
-        function openMangaPage(id) {
-            localStorage.setItem('selectedMangaId', id);
-            window.location.href = `manga.html?id=${id}`;
-        }
+        function openMangaPage(id) { localStorage.setItem('selectedMangaId', id); window.location.href = `manga.html?id=${id}`; }
 
         function openSearch() {
             const modal = document.getElementById('searchModal');
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10);
-            document.getElementById('searchInput').focus();
-            document.body.style.overflow = 'hidden';
+            document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden';
         }
-
         function closeSearch() {
             const modal = document.getElementById('searchModal');
             modal.classList.replace('opacity-100', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                document.getElementById('searchInput').value = '';
-                document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
-            }, 300);
+            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>'; }, 300);
         }
 
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const query = e.target.value.trim();
-            const resultsContainer = document.getElementById('searchResults');
-            
-            if (query.length < 2) {
-                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
-                return;
-            }
-
-            resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i><p class="mt-3 text-xs font-bold text-gray-400">جاري البحث...</p></div>';
-
+            clearTimeout(searchTimeout); const query = e.target.value.trim(); const resultsContainer = document.getElementById('searchResults');
+            if (query.length < 2) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>'; return; }
+            resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
             searchTimeout = setTimeout(async () => {
                 try {
                     const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
                     if (error) throw error;
                     if (data.length === 0) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>'; return; }
-
                     resultsContainer.innerHTML = data.map(manga => {
                         const tagsHtml = (manga.tags ? manga.tags.split(',').slice(0, 3) : []).map(tag => `<span class="bg-black border border-gray-700 text-gray-300 px-2 py-0.5 rounded text-[9px] font-bold">${tag.trim()}</span>`).join('');
                         return `
                             <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
                                 <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
-                                <div class="flex-1 overflow-hidden">
-                                    <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
-                                    <div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div>
-                                </div>
-                            </a>
-                        `;
+                                <div class="flex-1 overflow-hidden"><h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3><div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div></div>
+                            </a>`;
                     }).join('');
                 } catch (err) { resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>'; }
             }, 600);
@@ -256,68 +203,36 @@
         async function goToRandomManga() {
             try {
                 const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
-                if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
+                if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً!');
                 const randomId = data[Math.floor(Math.random() * data.length)].id;
                 openMangaPage(randomId);
-            } catch (err) { console.error("خطأ: ", err); }
+            } catch (err) { console.error(err); }
         }
 
         async function loadPublishedMangas() {
             try {
                 const { data: mangas, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
                 if (error) throw error;
-
-                const gridContainer = document.getElementById('latestUpdates');
-                const listContainer = document.getElementById('topMangaList');
-
-                if (!mangas || mangas.length === 0) {
-                    gridContainer.innerHTML = '<div class="col-span-2 md:col-span-4 text-center text-gray-500 py-10">لا توجد أعمال منشورة بعد.</div>';
-                    listContainer.innerHTML = '<div class="text-center text-gray-500 py-4">لا توجد بيانات.</div>';
-                    return;
-                }
-
+                const gridContainer = document.getElementById('latestUpdates'); const listContainer = document.getElementById('topMangaList');
+                if (!mangas || mangas.length === 0) { gridContainer.innerHTML = '<div class="col-span-2 md:col-span-4 text-center text-gray-500 py-10">لا توجد أعمال منشورة بعد.</div>'; listContainer.innerHTML = '<div class="text-center text-gray-500 py-4">لا توجد بيانات.</div>'; return; }
                 gridContainer.innerHTML = ''; listContainer.innerHTML = '';
-
                 mangas.forEach((manga, index) => {
-                    const tagsArray = manga.tags ? manga.tags.split(',') : [];
-                    const tagsHtml = tagsArray.map(tag => `<span class="tag-badge whitespace-nowrap">${tag.trim()}</span>`).join('');
+                    const tagsHtml = (manga.tags ? manga.tags.split(',') : []).map(tag => `<span class="tag-badge whitespace-nowrap">${tag.trim()}</span>`).join('');
                     const mangaLink = `manga.html?id=${manga.id}`;
-
                     gridContainer.innerHTML += `
                         <a href="${mangaLink}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer z-10">
-                            <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
-                                <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
-                                <div class="absolute top-2 right-2 bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow">جديد</div>
-                            </div>
-                            <div class="p-2.5 pointer-events-none">
-                                <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
-                                    <span class="text-yellow-500"><i class="fas fa-star"></i> 4.5</span>
-                                    <span class="truncate max-w-[60%]">${manga.uploader_name || 'مجهول'}</span>
-                                </div>
-                                <h3 class="font-bold text-xs text-white line-clamp-2 leading-tight">${manga.title}</h3>
-                            </div>
-                        </a>
-                    `;
-
+                            <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none"><img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover"><div class="absolute top-2 right-2 bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow">جديد</div></div>
+                            <div class="p-2.5 pointer-events-none"><div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5"><span class="text-yellow-500"><i class="fas fa-star"></i> 4.5</span><span class="truncate max-w-[60%]">${manga.uploader_name || 'مجهول'}</span></div><h3 class="font-bold text-xs text-white line-clamp-2 leading-tight">${manga.title}</h3></div>
+                        </a>`;
                     if (index < 5) {
                         listContainer.innerHTML += `
                             <a href="${mangaLink}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-card p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-start shadow-md relative cursor-pointer z-10">
                                 <img src="${manga.cover_image_url}" class="w-20 h-28 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm border border-gray-700/50 pointer-events-none">
-                                <div class="flex-1 overflow-hidden pointer-events-none">
-                                    <h3 class="font-bold text-sm text-white mb-2 leading-tight">${manga.title}</h3>
-                                    <div class="flex flex-wrap gap-1.5 mt-1">
-                                        <span class="tag-badge text-gray-400">Hentai</span>
-                                        <span class="tag-badge text-gray-400">Manhwa</span>
-                                        ${tagsHtml}
-                                    </div>
-                                </div>
-                            </a>
-                        `;
+                                <div class="flex-1 overflow-hidden pointer-events-none"><h3 class="font-bold text-sm text-white mb-2 leading-tight">${manga.title}</h3><div class="flex flex-wrap gap-1.5 mt-1"><span class="tag-badge text-gray-400">Hentai</span>${tagsHtml}</div></div>
+                            </a>`;
                     }
                 });
-            } catch (err) {
-                document.getElementById('latestUpdates').innerHTML = `<div class="col-span-2 md:col-span-4 text-red-500 text-center text-sm py-10">خطأ في الاتصال: ${err.message}</div>`;
-            }
+            } catch (err) { document.getElementById('latestUpdates').innerHTML = `<div class="col-span-2 md:col-span-4 text-red-500 text-center text-sm py-10">خطأ في الاتصال: ${err.message}</div>`; }
         }
     </script>
 </body>
