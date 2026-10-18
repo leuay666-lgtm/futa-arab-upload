@@ -17,13 +17,12 @@
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #111113; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        
+        
         #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
         #sidebarMenu { transition: transform 0.3s ease-in-out; }
 
         .body-glow {
-            position: fixed;
-            top: -20%; left: -10%; width: 120%; height: 60%;
+            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
             background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(17,17,19,0) 70%);
             z-index: -1; pointer-events: none;
         }
@@ -38,15 +37,25 @@
         .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
         .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
         .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
-        
+        
         .badge-glow-vip { animation: badgeGold 2s infinite alternate; border-color: #eab308; color: #eab308; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
+        .text-glow-vip { color: #facc15; animation: textGold 2s infinite alternate; }
         @keyframes badgeGold { 0% { box-shadow: 0 0 5px rgba(234,179,8,0.5), inset 0 0 2px rgba(234,179,8,0.5); } 100% { box-shadow: 0 0 15px rgba(234,179,8,0.8), inset 0 0 6px rgba(234,179,8,0.8); } }
-        
+        @keyframes textGold { 0% { text-shadow: 0 0 5px rgba(234,179,8,0.5); } 100% { text-shadow: 0 0 15px rgba(234,179,8,0.8); } }
+        
         .badge-glow-pro { animation: badgePro 2s infinite alternate; border-color: #f97316; color: #f97316; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6); }
+        .text-glow-pro { color: #f97316; animation: textPro 2s infinite alternate; }
         @keyframes badgePro { 0% { box-shadow: 0 0 5px rgba(249,115,22,0.5), inset 0 0 2px rgba(249,115,22,0.5); } 100% { box-shadow: 0 0 15px rgba(239,68,68,0.8), inset 0 0 6px rgba(239,68,68,0.8); border-color:#ef4444; color:#ef4444;} }
-        
+        @keyframes textPro { 0% { text-shadow: 0 0 5px rgba(249,115,22,0.5); } 100% { color: #ef4444; text-shadow: 0 0 15px rgba(239,68,68,0.8); } }
+        
         .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: transparent; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
+        .text-glow-ultra { color: #d946ef; animation: textUltra 3s infinite linear; }
         @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
+        @keyframes textUltra { 0% { filter: hue-rotate(0deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } 100% { filter: hue-rotate(360deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } }
+
+        /* زر انظر أكثر العائم */
+        .see-more-btn { background: linear-gradient(135deg, #f472b6, #e11d48); color: white; font-weight: 900; padding: 10px 24px; border-radius: 9999px; box-shadow: 0 4px 15px rgba(244,114,182,0.4); transition: all 0.3s ease; }
+        .see-more-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(244,114,182,0.6); }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -99,30 +108,31 @@
             </div>
         </div>
         <div class="p-6 border-t border-gray-800/50 text-center">
-            <a href="auth.html" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+            <a href="auth.html" id="sidebarAuthBtn" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
                 <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
             </a>
         </div>
     </div>
 
-    <!-- شريط التنقل العلوي -->
+    <!-- شريط التنقل العلوي مع الهوية الذكية للمستخدم -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
-                <a href="subscription.html" class="active:scale-95 transition cursor-pointer" title="ترقية الاشتراك">
+                <!-- مكان الهوية في النافبار: إذا كان مسجلاً يظهر اسمه، شعاره، وصورته الدائرية المتوهجة -->
+                <div id="navUserIdentity">
                     <span id="userBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free">مجاني</span>
-                </a>
+                </div>
             </div>
-            
+            
             <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
-            
+            
             <div class="flex items-center gap-4">
                 <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
                 <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
             </div>
         </div>
-        
+        
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="text-white border-b-2 border-accent pb-1">الأحدث</a>
             <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
@@ -133,20 +143,50 @@
     </nav>
 
     <!-- المحتوى الرئيسي -->
-    <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-8 w-full">
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-10 w-full">
+        
+        <!-- 1. قسم آخر التحديثات (Latest) -->
         <section>
-            <h2 class="text-lg font-black uppercase mb-4 tracking-wider">التحديثات الجديدة <span class="text-accent">LATEST</span></h2>
-            <div id="latestUpdates" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>جاري تحميل الأعمال...</div>
+            <h2 class="text-lg font-black uppercase mb-4 tracking-wider flex items-center justify-between">
+                <span>التحديثات الجديدة <span class="text-accent">LATEST</span></span>
+            </h2>
+            <div id="latestUpdates" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="col-span-2 md:col-span-3 text-center py-10 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>جاري تحميل الأعمال...</div>
+            </div>
+            <!-- زر انظر أكثر العائم في الصف السابع للأحدث -->
+            <div id="latestSeeMoreContainer" class="text-center mt-6 hidden">
+                <button onclick="expandSection('latest')" class="see-more-btn text-xs active:scale-95 shadow-lg">
+                    <i class="fas fa-chevron-down ml-1"></i> انظر أكثر (المزيد من التحديثات)
+                </button>
             </div>
         </section>
 
+        <!-- 2. قسم الأكثر مشاهدة (Most Viewed) -->
         <section id="topSection">
-            <h2 class="text-lg font-black uppercase mb-4 tracking-wider mt-4">الأكثر قراءة <span class="text-accent">TOP</span></h2>
-            <div id="topMangaList" class="flex flex-col gap-3">
-                <div class="text-center py-10 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i></div>
+            <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر مشاهدة <span class="text-accent">TOP VIEWED</span></h2>
+            <div id="viewedMangaList" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="col-span-2 md:col-span-3 text-center py-10 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i></div>
+            </div>
+            <div id="viewedSeeMoreContainer" class="text-center mt-6 hidden">
+                <button onclick="expandSection('viewed')" class="see-more-btn text-xs active:scale-95 shadow-lg">
+                    <i class="fas fa-chevron-down ml-1"></i> انظر أكثر (الأكثر مشاهدة)
+                </button>
             </div>
         </section>
+
+        <!-- 3. قسم الأكثر إعجاباً / أعمال أعجبتني (Most Liked) -->
+        <section>
+            <h2 class="text-lg font-black uppercase mb-4 tracking-wider">أعمال أعجبتني <span class="text-accent">MOST LIKED</span></h2>
+            <div id="likedMangaList" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="col-span-2 md:col-span-3 text-center py-10 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i></div>
+            </div>
+            <div id="likedSeeMoreContainer" class="text-center mt-6 hidden">
+                <button onclick="expandSection('liked')" class="see-more-btn text-xs active:scale-95 shadow-lg">
+                    <i class="fas fa-chevron-down ml-1"></i> انظر أكثر (المزيد من المعجب بها)
+                </button>
+            </div>
+        </section>
+
     </main>
 
     <!-- الفوتر -->
@@ -172,41 +212,71 @@
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
-        
+        
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
+
+        // مصفوفات لحفظ البيانات والتحكم في زر "انظر أكثر" (عرض 6 كبداية ثم 6 أخرى)
+        let allLatest = []; let latestLimit = 6;
+        let allViewed = []; let viewedLimit = 6;
+        let allLiked = [];  let likedLimit = 6;
 
         window.onload = () => {
             updateAuthUI();
-            loadPublishedMangas();
+            loadAllSections();
         };
 
+        // دالة تحديث شريط النافبار والسايدبار حسب حالة تسجيل الدخول
         function updateAuthUI() {
-            const badge = document.getElementById('userBadge');
+            const identityContainer = document.getElementById('navUserIdentity');
             const menuText = document.getElementById('authMenuText');
+            const sidebarAuthBtn = document.getElementById('sidebarAuthBtn');
+
             if (currentUser) {
-                const subType = currentUser.subscription_type || 'free'; 
-                let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
-                let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
+                const subType = currentUser.subscription_type || 'free'; 
+                let badgeClass = "glow-free border-gray-600 text-gray-300";
+                let badgeIcon = '<i class="fas fa-user text-[8px]"></i>';
                 let badgeText = "مجاني";
+                let ringColor = "border-gray-500 shadow-gray-500/50";
+                let nameGlowClass = "text-white";
 
-                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
-                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
-                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
-                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
-                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
+                if(subType === 'vip_lite') { badgeClass = "glow-cyan border-cyan-500 text-cyan-400"; badgeIcon = '<i class="fas fa-star text-[8px]"></i>'; badgeText = "LITE"; ringColor = "border-cyan-500 shadow-cyan-500/80"; nameGlowClass = "text-cyan-400"; }
+                else if(subType === 'vip') { badgeClass = "badge-glow-vip border-yellow-500 text-yellow-400"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i>'; badgeText = "VIP"; ringColor = "border-yellow-500 shadow-yellow-500/80"; nameGlowClass = "text-yellow-400"; }
+                else if(subType === 'vip_pro') { badgeClass = "badge-glow-pro border-orange-500 text-orange-400"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i>'; badgeText = "PRO"; ringColor = "border-orange-500 shadow-orange-500/80"; nameGlowClass = "text-orange-400"; }
+                else if(subType === 'vip_ultra') { badgeClass = "badge-glow-ultra border-purple-500 text-purple-400"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i>'; badgeText = "ULTRA"; ringColor = "border-purple-500 shadow-purple-500/80"; nameGlowClass = "text-purple-400"; }
+                else if(subType === 'uploader') { badgeClass = "glow-uploader border-red-500 text-red-400"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i>'; badgeText = "رافع"; ringColor = "border-red-500 shadow-red-500/80"; nameGlowClass = "text-red-400"; }
 
-                badge.innerHTML = badgeIcon + badgeText;
-                badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
-                menuText.innerText = "تسجيل الخروج";
+                const avatarUrl = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `https://ui-avatars.com/api/?name=${currentUser.username}&background=18181b&color=fff&size=100`;
+
+                // بناء شكل الهوية في النافبار: صورة بروفيل دائرية متوهجة + الاسم المتوهج + الشارة
+                identityContainer.innerHTML = `
+                    <a href="profile.html?user=${currentUser.username}" class="flex items-center gap-2 active:scale-95 transition">
+                        <img src="${avatarUrl}" class="w-8 h-8 rounded-full border-2 ${ringColor} shadow-md object-cover bg-black">
+                        <div class="hidden sm:flex flex-col">
+                            <span class="text-xs font-black ${nameGlowClass} leading-tight">${currentUser.username}</span>
+                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded border ${badgeClass} inline-flex items-center gap-0.5 mt-0.5">${badgeIcon} ${badgeText}</span>
+                        </div>
+                    </a>
+                `;
+
+                if (menuText) menuText.innerText = "تسجيل الخروج";
+                if (sidebarAuthBtn) {
+                    sidebarAuthBtn.href = "#";
+                    sidebarAuthBtn.onclick = (e) => { e.preventDefault(); logoutUser(); };
+                }
             } else {
-                badge.innerHTML = "مجاني";
-                badge.className = "bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free";
-                menuText.innerText = "تسجيل الدخول / حساب جديد";
+                identityContainer.innerHTML = `
+                    <a href="subscription.html" class="active:scale-95 transition cursor-pointer" title="ترقية الاشتراك">
+                        <span id="userBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free">مجاني</span>
+                    </a>
+                `;
+                if (menuText) menuText.innerText = "تسجيل الدخول / حساب جديد";
             }
         }
 
-        function checkAuthForFavorites() {
-            if (!currentUser) return alert('⚠️ عذراً، يجب تسجيل الدخول لفتح هذه القائمة.');
+        function logoutUser() {
+            if (!confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) return;
+            localStorage.removeItem('futa_user_logged');
+            window.location.href = 'index.html';
         }
 
         function openSidebar() {
@@ -221,11 +291,6 @@
             document.getElementById('sidebarOverlay').classList.add('pointer-events-none');
             document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full');
             document.body.style.overflow = 'auto';
-        }
-
-        function openMangaPage(id) {
-            localStorage.setItem('selectedMangaId', id);
-            window.location.href = `manga.html?id=${id}`;
         }
 
         function openSearch() {
@@ -252,7 +317,7 @@
             clearTimeout(searchTimeout);
             const query = e.target.value.trim();
             const resultsContainer = document.getElementById('searchResults');
-            
+            
             if (query.length < 2) {
                 resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
                 return;
@@ -287,65 +352,100 @@
                 const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
                 if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
                 const randomId = data[Math.floor(Math.random() * data.length)].id;
-                openMangaPage(randomId);
-            } catch (err) { console.error("خطأ: ", err); }
+                localStorage.setItem('selectedMangaId', randomId);
+                window.location.href = `manga.html?id=${randomId}`;
+            } catch (err) {}
         }
 
-        async function loadPublishedMangas() {
+        // --- دالة حساب التقييم الحي بناءً على الإيكات ---
+        function calculateRating(likesCount) {
+            let rating = 1.0;
+            if (likesCount >= 2 && likesCount < 5) rating = 2.5;
+            else if (likesCount >= 5 && likesCount < 10) rating = 3.8;
+            else if (likesCount >= 10 && likesCount < 20) rating = 4.5;
+            else if (likesCount >= 20) rating = 5.0;
+            return rating.toFixed(1);
+        }
+
+        // --- جلب وعرض كل الأقسام الثلاثة ---
+        async function loadAllSections() {
             try {
-                const { data: mangas, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
-                if (error) throw error;
+                // 1. آخر التحديثات مرتبة بالتاريخ
+                const { data: latestData } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
+                allLatest = latestData || [];
+                renderSection('latest', allLatest, latestLimit, 'latestUpdates', 'latestSeeMoreContainer');
 
-                const gridContainer = document.getElementById('latestUpdates');
-                const listContainer = document.getElementById('topMangaList');
+                // 2. الأكثر مشاهدة (محاكاة أو ترتيب حسب معرف عشوائي أو تاريخ أقدم قليلاً)
+                allViewed = [...(latestData || [])].reverse(); // كمحاكاة للأكثر مشاهدة
+                renderSection('viewed', allViewed, viewedLimit, 'viewedMangaList', 'viewedSeeMoreContainer');
 
-                if (!mangas || mangas.length === 0) {
-                    gridContainer.innerHTML = '<div class="col-span-2 md:col-span-4 text-center text-gray-500 py-10">لا توجد أعمال منشورة بعد.</div>';
-                    listContainer.innerHTML = '<div class="text-center text-gray-500 py-4">لا توجد بيانات.</div>';
-                    return;
-                }
+                // 3. أعمال أعجبتني (ترتيب الأقسام حسب التفاعل)
+                allLiked = [...(latestData || [])].sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+                renderSection('liked', allLiked, likedLimit, 'likedMangaList', 'likedSeeMoreContainer');
 
-                gridContainer.innerHTML = ''; listContainer.innerHTML = '';
-
-                mangas.forEach((manga, index) => {
-                    const tagsArray = manga.tags ? manga.tags.split(',') : [];
-                    const tagsHtml = tagsArray.map(tag => `<span class="tag-badge whitespace-nowrap">${tag.trim()}</span>`).join('');
-                    const mangaLink = `manga.html?id=${manga.id}`;
-
-                    gridContainer.innerHTML += `
-                        <a href="${mangaLink}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer z-10">
-                            <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
-                                <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
-                                <div class="absolute top-2 right-2 bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow">جديد</div>
-                            </div>
-                            <div class="p-2.5 pointer-events-none">
-                                <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
-                                    <span class="text-yellow-500"><i class="fas fa-star"></i> 4.5</span>
-                                    <span class="truncate max-w-[60%]">${manga.uploader_name || 'مجهول'}</span>
-                                </div>
-                                <h3 class="font-bold text-xs text-white line-clamp-2 leading-tight">${manga.title}</h3>
-                            </div>
-                        </a>
-                    `;
-
-                    if (index < 5) {
-                        listContainer.innerHTML += `
-                            <a href="${mangaLink}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-card p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-start shadow-md relative cursor-pointer z-10">
-                                <img src="${manga.cover_image_url}" class="w-20 h-28 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm border border-gray-700/50 pointer-events-none">
-                                <div class="flex-1 overflow-hidden pointer-events-none">
-                                    <h3 class="font-bold text-sm text-white mb-2 leading-tight">${manga.title}</h3>
-                                    <div class="flex flex-wrap gap-1.5 mt-1">
-                                        <span class="tag-badge text-gray-400">Hentai</span>
-                                        <span class="tag-badge text-gray-400">Manhwa</span>
-                                        ${tagsHtml}
-                                    </div>
-                                </div>
-                            </a>
-                        `;
-                    }
-                });
             } catch (err) {
-                document.getElementById('latestUpdates').innerHTML = `<div class="col-span-2 md:col-span-4 text-red-500 text-center text-sm py-10">خطأ في الاتصال: ${err.message}</div>`;
+                console.error("Error loading sections:", err);
+            }
+        }
+
+        // دالة رسم أي قسم مع زر "انظر أكثر"
+        function renderSection(sectionName, itemsArray, currentLimit, containerId, btnContainerId) {
+            const container = document.getElementById(containerId);
+            const btnContainer = document.getElementById(btnContainerId);
+
+            if (!itemsArray || itemsArray.length === 0) {
+                container.innerHTML = '<div class="col-span-2 md:col-span-3 text-center text-gray-500 py-10 text-xs">لا توجد أعمال منشورة بعد.</div>';
+                return;
+            }
+
+            const visibleItems = itemsArray.slice(0, currentLimit);
+
+            container.innerHTML = visibleItems.map(manga => {
+                // محاكاة عدد الإيكات ليعطيك تقييماً حياً
+                const fakeLikes = manga.likes_count || Math.floor(Math.random() * 15);
+                const currentRating = calculateRating(fakeLikes);
+
+                return `
+                    <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-xl overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer z-10">
+                        <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
+                            <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
+                            
+                            <!-- المربعات الجانبية السفلية على الغلاف: مربع أبيض (مانغا) ومربع أصفر (منها/تصنيف) -->
+                            <div class="absolute bottom-2 right-2 flex gap-1.5 z-20">
+                                <span class="bg-white text-black text-[9px] font-black px-1.5 py-0.5 rounded shadow">مانغا</span>
+                                <span class="bg-yellow-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded shadow">منها</span>
+                            </div>
+                        </div>
+                        <div class="p-3 pointer-events-none bg-[#111113]">
+                            <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
+                                <span class="text-yellow-400 font-bold"><i class="fas fa-star ml-0.5"></i> ${currentRating}</span>
+                                <span class="truncate max-w-[60%] text-gray-300 font-bold">${manga.uploader_name || 'مجهول'}</span>
+                            </div>
+                            <h3 class="font-black text-xs text-white line-clamp-1 leading-tight">${manga.title}</h3>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+
+            // التحكم في إظهار أو إخفاء زر "انظر أكثر"
+            if (itemsArray.length > currentLimit) {
+                btnContainer.classList.remove('hidden');
+            } else {
+                btnContainer.classList.add('hidden');
+            }
+        }
+
+        // دالة النقر على زر "انظر أكثر" لإظهار 6 صور أخرى
+        function expandSection(type) {
+            if (type === 'latest') {
+                latestLimit += 6;
+                renderSection('latest', allLatest, latestLimit, 'latestUpdates', 'latestSeeMoreContainer');
+            } else if (type === 'viewed') {
+                viewedLimit += 6;
+                renderSection('viewed', allViewed, viewedLimit, 'viewedMangaList', 'viewedSeeMoreContainer');
+            } else if (type === 'liked') {
+                likedLimit += 6;
+                renderSection('liked', allLiked, likedLimit, 'likedMangaList', 'likedSeeMoreContainer');
             }
         }
     </script>
