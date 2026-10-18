@@ -92,7 +92,7 @@
             box-shadow: 0 6px 25px rgba(244, 114, 182, 0.6);
         }
 
-        /* ستايل أزرار الفلتر الجديدة */
+        /* ستايل أزرار الفلتر المتعدد */
         .filter-chip {
             background-color: #18181b;
             border: 1px solid #27272a;
@@ -133,7 +133,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) مع الروابط الفعالة -->
+    <!-- القائمة الجانبية (Sidebar) مع بطاقة الحساب المتوهجة أسفلها -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -149,7 +149,7 @@
                 <ul class="space-y-1.5">
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
                     <li><a href="index.html" onclick="closeSidebar(); resetFilters();" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
-                    <li><a href="#topSection" onclick="closeSidebar()" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
+                    <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
                     <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
             </div>
@@ -157,14 +157,15 @@
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
                 <ul class="space-y-1.5">
-                    <li><a href="library.html?tab=bookmarks" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح المفضلة.'); return false; }" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
-                    <li><a href="library.html?tab=history" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح السجل.'); return false; }" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
-                    <li><a href="library.html?tab=likes" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح هذه القائمة.'); return false; }" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="library.html?tab=bookmarks" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="library.html?tab=history" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="library.html?tab=likes" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="library.html?tab=uploads" id="sidebarUploadsLink" class="sidebar-link hidden"><i class="fas fa-cloud-upload-alt text-accent"></i><span>منشوراتي</span></a></li>
                     <li><a href="subscription.html" class="sidebar-link"><i class="fas fa-crown text-yellow-500"></i><span class="text-yellow-500">اشتراكي</span></a></li>
                 </ul>
             </div>
         </div>
-        <!-- أسفل السايدبار: صورة البروفيل الدائرية المتوهجة واسم المستخدم -->
+        <!-- أسفل السايدبار: بطاقة الحساب المتوهجة الحقيقية -->
         <div id="sidebarFooterAccount" class="p-4 border-t border-gray-800/70 bg-[#0d0d10]">
             <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px] py-2">
                 <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
@@ -189,17 +190,16 @@
                 <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
             </div>
         </div>
-        
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="text-white border-b-2 border-accent pb-1">الأحدث</a>
             <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="subscription.html" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
-            <a href="#topSection" class="hover:text-white transition">الأكثر مشاهدة</a>
+            <a href="#topSection" class="hover:text-white transition">الأكثر قراءة</a>
         </div>
     </nav>
 
-    <!-- شريط فلاتر أنواع الأعمال (فلتر متعدد: مانغا، مانها، كوميكس) -->
+    <!-- شريط فلاتر أنواع الأعمال -->
     <div class="max-w-4xl mx-auto px-4 pt-5 pb-1 w-full">
         <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <span class="text-xs text-gray-400 font-bold ml-1 flex items-center gap-1"><i class="fas fa-filter text-accent"></i> الفلتر:</span>
@@ -263,7 +263,7 @@
                 <a href="#" class="hover:text-white transition">DMCA</a>
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
-                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.
+                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع لأغراض القراءة المجانية. الموقع لا يستضيف أي ملفات على خوادمه.
             </p>
             <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
         </div>
@@ -281,7 +281,7 @@
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
         let rawMangas = [];
-        let activeFilters = new Set(['all']); // التحكم في الأنواع المختارة في الفلتر
+        let activeFilters = new Set(['all']);
 
         let latestLimit = 6;
         let viewedLimit = 6;
@@ -292,7 +292,6 @@
             loadPublishedMangas();
         };
 
-        // نظام الفلاتر المتعددة (إمكانية اختيار نوع أو أكثر معاً أو الكل)
         function toggleFilter(type) {
             if (type === 'all') {
                 activeFilters.clear();
@@ -309,15 +308,11 @@
                 }
             }
 
-            // تحديث تصميم أزرار الفلتر
             ['all', 'مانغا', 'مانها', 'كوميكس'].forEach(f => {
                 const btn = document.getElementById(`chip_${f}`);
                 if (btn) {
-                    if (activeFilters.has(f)) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
+                    if (activeFilters.has(f)) btn.classList.add('active');
+                    else btn.classList.remove('active');
                 }
             });
 
@@ -355,40 +350,12 @@
                 let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
                 let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
                 let badgeText = "مجاني";
-                let nameGlowClass = "text-glow-free";
-                let avatarGlowClass = "avatar-glow-free";
 
-                if(subType === 'vip_lite') {
-                    badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan";
-                    badgeIcon = '<i class="fas fa-star text-[8px]"></i> ';
-                    badgeText = "LITE";
-                    nameGlowClass = "text-glow-cyan";
-                    avatarGlowClass = "avatar-glow-cyan";
-                } else if(subType === 'vip') {
-                    badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip";
-                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
-                    badgeText = "VIP";
-                    nameGlowClass = "text-glow-vip";
-                    avatarGlowClass = "avatar-glow-vip";
-                } else if(subType === 'vip_pro') {
-                    badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro";
-                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
-                    badgeText = "PRO";
-                    nameGlowClass = "text-glow-pro";
-                    avatarGlowClass = "avatar-glow-pro";
-                } else if(subType === 'vip_ultra') {
-                    badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra";
-                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
-                    badgeText = "ULTRA";
-                    nameGlowClass = "text-glow-ultra";
-                    avatarGlowClass = "avatar-glow-ultra";
-                } else if(subType === 'uploader') {
-                    badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader";
-                    badgeIcon = '<i class="fas fa-upload text-[8px]"></i> ';
-                    badgeText = "رافع";
-                    nameGlowClass = "text-glow-uploader";
-                    avatarGlowClass = "avatar-glow-uploader";
-                }
+                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
+                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
+                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
+                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
+                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
 
                 topBadge.innerHTML = badgeIcon + badgeText;
                 topBadge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
@@ -398,10 +365,10 @@
                 sidebarFooter.innerHTML = `
                     <a href="profile.html?user=${currentUser.username}" class="flex items-center justify-between p-2 rounded-xl bg-[#141418] hover:bg-[#1c1c22] border border-gray-800/80 transition active:scale-95 group">
                         <div class="flex items-center gap-3 overflow-hidden">
-                            <img src="${avatarUrl}" class="w-11 h-11 rounded-full object-cover bg-black border-2 ${avatarGlowClass} flex-shrink-0">
+                            <img src="${avatarUrl}" class="w-11 h-11 rounded-full object-cover bg-black border-2 flex-shrink-0">
                             <div class="flex flex-col items-start overflow-hidden">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="font-black text-sm truncate ${nameGlowClass}">${currentUser.username}</span>
+                                    <span class="font-black text-sm truncate">${currentUser.username}</span>
                                     <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${badgeClass}">${badgeIcon}${badgeText}</span>
                                 </div>
                                 <span class="text-[10px] text-gray-500 font-bold mt-0.5 group-hover:text-gray-300 transition">إعدادات الحساب والملف الشخصي</span>
@@ -421,20 +388,8 @@
             }
         }
 
-        function openSidebar() {
-            document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100');
-            document.getElementById('sidebarOverlay').classList.remove('pointer-events-none');
-            document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebar() {
-            document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0');
-            document.getElementById('sidebarOverlay').classList.add('pointer-events-none');
-            document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full');
-            document.body.style.overflow = 'auto';
-        }
-
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
         function openSearch() {
             const modal = document.getElementById('searchModal');
             modal.classList.remove('hidden');
@@ -442,16 +397,10 @@
             document.getElementById('searchInput').focus();
             document.body.style.overflow = 'hidden';
         }
-
         function closeSearch() {
             const modal = document.getElementById('searchModal');
             modal.classList.replace('opacity-100', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                document.getElementById('searchInput').value = '';
-                document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
-            }, 300);
+            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
         }
 
         let searchTimeout;
@@ -499,7 +448,6 @@
             } catch (err) {}
         }
 
-        // تحديد شارة نوع العمل (مانغا أبيض، مانها أصفر، كوميكس أحمر)
         function getWorkType(manga) {
             const rawType = ((manga.work_type || manga.type || manga.category || manga.tags || '') + '').toLowerCase();
             if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) return 'مانها';
@@ -519,10 +467,28 @@
             return dbLikes + localLiked;
         }
 
+        // --- نظام النجوم المطابق تماماً لصفحة تعريف المانغا (manga.html) ---
+        function renderStars(rating) {
+            let starsHtml = '';
+            let fullStars = Math.floor(rating);
+            let hasHalfStar = (rating - fullStars) >= 0.5;
+            
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    starsHtml += `<i class="fas fa-star text-yellow-400 text-[10px]"></i>`;
+                } else if (i === fullStars + 1 && hasHalfStar) {
+                    starsHtml += `<i class="fas fa-star-half-alt text-yellow-400 text-[10px]"></i>`;
+                } else {
+                    starsHtml += `<i class="far fa-star text-gray-600 text-[10px]"></i>`;
+                }
+            }
+            return starsHtml;
+        }
+
         function calculateStarRating(likes) {
-            if (likes <= 0) return '0.0';
+            if (likes <= 0) return 0.0;
             const score = Math.min(5.0, 2.5 + Math.log10(likes + 1) * 1.6);
-            return score.toFixed(1);
+            return parseFloat(score.toFixed(1));
         }
 
         async function loadPublishedMangas() {
@@ -532,14 +498,12 @@
                 rawMangas = mangas;
             } catch (err) {
                 rawMangas = [
-                    { id: '1', title: 'عمل تجريبي مانغا', cover_image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500', uploader_name: 'Gg', likes_count: 12, work_type: 'مانغا' },
-                    { id: '2', title: 'عمل تجريبي مانها', cover_image_url: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=500', uploader_name: 'Admin', likes_count: 25, work_type: 'مانها' }
+                    { id: '1', title: 'عمل تجريبي مانغا', cover_image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500', uploader_name: 'Gg', likes_count: 2, work_type: 'مانغا' }
                 ];
             }
             applyFiltersAndRender();
         }
 
-        // تطبيق الفلاتر المحددة على الأقسام الثلاثة
         function applyFiltersAndRender() {
             let filtered = rawMangas;
             if (!activeFilters.has('all')) {
@@ -550,12 +514,12 @@
             const allViewed = [...filtered].sort((a, b) => (Number(b.views || b.views_count || 0)) - (Number(a.views || a.views_count || 0)));
             const allLiked  = [...filtered].sort((a, b) => getLikesCount(b) - getLikesCount(a));
 
-            renderMangaSection(allLatest, latestLimit, 'latestUpdates', 'latestSeeMoreContainer', allLatest);
-            renderMangaSection(allViewed, viewedLimit, 'viewedMangaList', 'viewedSeeMoreContainer', allViewed);
-            renderMangaSection(allLiked, likedLimit, 'likedMangaList', 'likedSeeMoreContainer', allLiked);
+            renderMangaSection(allLatest, latestLimit, 'latestUpdates', 'latestSeeMoreContainer');
+            renderMangaSection(allViewed, viewedLimit, 'viewedMangaList', 'viewedSeeMoreContainer');
+            renderMangaSection(allLiked, likedLimit, 'likedMangaList', 'likedSeeMoreContainer');
         }
 
-        function renderMangaSection(itemsArray, limit, containerId, btnContainerId, fullArray) {
+        function renderMangaSection(itemsArray, limit, containerId, btnContainerId) {
             const container = document.getElementById(containerId);
             const btnContainer = document.getElementById(btnContainerId);
 
@@ -572,7 +536,8 @@
                 const type = getWorkType(manga);
                 const typeBadge = getWorkTypeBadgeHTML(type);
                 const likes = getLikesCount(manga);
-                const rating = calculateStarRating(likes);
+                const numericRating = calculateStarRating(likes);
+                const starsHtml = renderStars(numericRating);
 
                 return `
                     <a href="${mangaLink}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-xl overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer z-10">
@@ -584,11 +549,12 @@
                         </div>
                         <div class="p-2.5 pointer-events-none bg-[#141417]">
                             <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
-                                <span class="text-yellow-400 font-bold flex items-center gap-1" title="${likes} إعجاب">
-                                    <i class="fas fa-star"></i> ${rating}
+                                <div class="flex items-center gap-1" title="التقييم: ${numericRating} (${likes} إعجاب)">
+                                    <span class="text-white font-black">${numericRating}</span>
+                                    <div class="flex items-center gap-0.5">${starsHtml}</div>
                                     <span class="text-[9px] text-gray-500">(${likes})</span>
-                                </span>
-                                <span class="truncate max-w-[55%] font-semibold">${manga.uploader_name || 'مجهول'}</span>
+                                </div>
+                                <span class="truncate max-w-[45%] font-semibold">${manga.uploader_name || 'مجهول'}</span>
                             </div>
                             <h3 class="font-bold text-xs text-white line-clamp-1 leading-tight">${manga.title}</h3>
                         </div>
