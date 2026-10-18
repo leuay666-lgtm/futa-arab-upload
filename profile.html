@@ -46,12 +46,6 @@
         @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
         @keyframes textUltra { 0% { filter: hue-rotate(0deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } 100% { filter: hue-rotate(360deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } }
 
-        /* أزرار التشغيل والتبديل (Toggle Switch) */
-        .toggle-checkbox:checked { right: 0; border-color: #f472b6; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #f472b6; }
-        .toggle-checkbox { right: 0; z-index: 1; border-color: #4b5563; transition: all 0.3s; }
-        .toggle-label { background-color: #374151; transition: all 0.3s; }
-        
         .banner-bg { background-size: cover; background-position: center; transition: all 0.3s ease; }
     </style>
 </head>
@@ -59,7 +53,7 @@
 
     <div class="body-glow"></div>
 
-    <!-- نافذة البحث والسايدبار -->
+    <!-- نافذة البحث -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
@@ -68,7 +62,7 @@
         <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
-    <!-- السايدبار بعد التعديل وتصحيح الألوان والروابط -->
+    <!-- القائمة الجانبية الموحدة -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -89,7 +83,6 @@
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
                 <ul class="space-y-1.5">
-                    <!-- تم تصحيح لون زر الملف الشخصي ليتناسب مع البقية -->
                     <li><a href="#" onclick="goToMyProfile()" class="sidebar-link"><i class="fas fa-user"></i><span>الملف الشخصي</span></a></li>
                     <li><a href="library.html?tab=bookmarks" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
                     <li><a href="library.html?tab=history" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
@@ -137,28 +130,14 @@
             
             <div class="flex items-center gap-2 mt-3">
                 <h1 id="profileNameDisplay" class="text-2xl md:text-3xl font-black text-glow-free">جاري التحميل...</h1>
-                <!-- الشارة الرئيسية -->
+                <!-- الشارة الرئيسية المرافقة للاسم -->
                 <span id="mainBadgeDisplay"></span>
                 <button id="editNameBtn" onclick="editName()" class="text-gray-500 hover:text-white hidden"><i class="fas fa-pencil-alt text-sm"></i></button>
             </div>
-            <p id="joinDateDisplay" class="text-xs text-gray-500 font-bold mt-1">عضو منذ: --</p>
         </div>
     </div>
 
     <main class="flex-1 max-w-4xl mx-auto px-4 py-8 space-y-8 w-full">
-
-        <div class="bg-card border border-gray-800 rounded-2xl p-5 shadow-md">
-            <div class="grid grid-cols-2 text-center divide-x divide-x-reverse divide-gray-800/80">
-                <div>
-                    <div class="text-xs text-gray-500 font-bold mb-1">المانغات المرفوعة</div>
-                    <div id="uploadCount" class="text-xl font-black text-white">0</div>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500 font-bold mb-1">تاريخ الانضمام</div>
-                    <div id="joinDateStat" class="text-sm font-bold text-gray-300 mt-1">جديد</div>
-                </div>
-            </div>
-        </div>
 
         <!-- صندوق الشارات المكتسبة -->
         <div class="bg-[#111113] border border-gray-800/80 rounded-2xl p-5 shadow-lg relative overflow-hidden">
@@ -166,13 +145,14 @@
             <h3 class="text-sm font-black uppercase tracking-wider text-gray-300 mb-4 flex items-center gap-2">
                 <i class="fas fa-medal text-yellow-500"></i> مجموعة الشارات المكتسبة (<span id="badgesCount">0</span>)
             </h3>
-            <!-- سيتم إضافة الشارات جنباً إلى جنب هنا -->
+            <!-- سيتم إضافة الشارات المتراكمة جنباً إلى جنب هنا -->
             <div id="badgesCollectionGrid" class="flex flex-wrap gap-2 p-3 bg-card rounded-xl border border-gray-800">
                 <i class="fas fa-spinner fa-spin text-gray-500"></i>
             </div>
-            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك بناءً على اشتراكاتك المتتالية.</p>
+            <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم إضافة الشارات إلى محفظتك مع كل اشتراك جديد.</p>
         </div>
 
+        <!-- إعدادات الخصوصية والملف الشخصي (للمالك فقط) -->
         <div id="ownerSettingsBox" class="bg-card border border-gray-700/50 rounded-2xl p-5 shadow-lg hidden relative overflow-hidden">
             <h3 class="text-sm font-black uppercase tracking-wider text-white mb-4 flex items-center gap-2">
                 <i class="fas fa-cog text-gray-400"></i> إعدادات الخصوصية والملف الشخصي
@@ -182,13 +162,15 @@
                     <h4 class="text-sm font-bold text-gray-200">عرض أعمالي المفضلة للعامة</h4>
                     <p class="text-[10px] text-gray-500 mt-1">السماح لزوار ملفك برؤية ما تحفظه في مفضلتك.</p>
                 </div>
-                <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                    <input type="checkbox" name="toggle" id="publicFavoritesToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" onchange="toggleFavoritesPrivacy(this)"/>
-                    <label for="publicFavoritesToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-600 cursor-pointer"></label>
-                </div>
+                <!-- زر الـ Toggle (تعديل كامل ليتحرك بصرياً) -->
+                <label class="relative inline-flex items-center cursor-pointer mr-2">
+                    <input type="checkbox" id="publicFavoritesToggle" class="sr-only peer" onchange="toggleFavoritesPrivacy(this)">
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:-translate-x-5 after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f472b6]"></div>
+                </label>
             </div>
         </div>
 
+        <!-- الأعمال المرفوعة -->
         <div id="uploadsSection" class="space-y-4">
             <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
                 <i class="fas fa-upload text-red-400"></i> الأعمال المرفوعة (<span id="uploadsSectionCount">0</span>)
@@ -201,6 +183,7 @@
             </div>
         </div>
 
+        <!-- المانغات المفضلة -->
         <div id="favoritesSection" class="space-y-4 pt-4 border-t border-gray-800/50">
             <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
                 <i class="fas fa-star text-yellow-400"></i> المانغات المفضلة
@@ -246,7 +229,6 @@
 
             if (!viewedUsername) {
                 document.getElementById('profileNameDisplay').innerText = "المستخدم غير موجود";
-                document.getElementById('joinDateDisplay').innerText = "";
                 return;
             }
 
@@ -283,7 +265,6 @@
                         profileData.created_at = new Date().toISOString(); 
                     } else {
                         document.getElementById('profileNameDisplay').innerText = viewedUsername;
-                        document.getElementById('joinDateDisplay').innerText = "المستخدم غير موجود أو تم حذفه.";
                         document.getElementById('userBadgesContainer').innerHTML = "";
                         return;
                     }
@@ -310,11 +291,6 @@
                 const nameEl = document.getElementById('profileNameDisplay');
                 nameEl.innerText = viewedUsername;
                 
-                const date = new Date(profileData.created_at);
-                const dateStr = date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long' });
-                document.getElementById('joinDateDisplay').innerText = `عضو منذ: ${dateStr}`;
-                document.getElementById('joinDateStat').innerText = date.getFullYear();
-
                 const subType = profileData.subscription_type || 'free';
                 renderBadgesAndNameColor(subType, nameEl);
 
@@ -337,22 +313,20 @@
 
             // 2. نظام صندوق الشارات المكتسبة (History)
             let historyKey = `badges_history_${viewedUsername}`;
-            let earnedHistory = JSON.parse(localStorage.getItem(historyKey));
+            let earnedHistory = JSON.parse(localStorage.getItem(historyKey)) || [];
             
-            // لغرض التجربة وإبهارك: إذا كان حسابك Gg، سأضع لك الشارات الثلاث تلقائياً!
-            if (viewedUsername === 'Gg' || !earnedHistory) {
-                // محاكاة الحصول على باقات متتالية
-                earnedHistory = ['vip', 'vip_pro', 'vip_lite'];
+            // لغرض التجربة وإبهارك: إذا كان حسابك Gg، سأضع لك الشارات لتراها متراكمة
+            if (viewedUsername === 'Gg' && earnedHistory.length === 0) {
+                earnedHistory = ['vip', 'vip_pro', 'vip_lite', 'vip']; // تتراكم الشارات بنفس الترتيب الذي تم الحصول عليه
                 localStorage.setItem(historyKey, JSON.stringify(earnedHistory));
             }
 
-            // رسم الشارات جنباً إلى جنب في الصندوق
             let allBadgesHtml = earnedHistory.map(type => getBadgeHTML(type)).join('');
+            if (allBadgesHtml === '') allBadgesHtml = '<span class="text-[10px] text-gray-500">لا توجد شارات مكتسبة بعد.</span>';
             document.getElementById('badgesCollectionGrid').innerHTML = allBadgesHtml;
             document.getElementById('badgesCount').innerText = earnedHistory.length;
         }
 
-        // دوال التعديل لصاحب الحساب
         function editAvatar() {
             const newUrl = prompt("أدخل رابط الصورة الشخصية الجديدة (URL):", document.getElementById('profileAvatar').src);
             if (newUrl && newUrl.trim() !== "") {
@@ -383,7 +357,6 @@
                 const { data: uploads } = await sbClient.from('mangas').select('*').eq('uploader_name', viewedUsername).eq('status', 'approved').order('created_at', { ascending: false });
                 const grid = document.getElementById('profileUploadsGrid');
                 document.getElementById('uploadsSectionCount').innerText = uploads ? uploads.length : 0;
-                document.getElementById('uploadCount').innerText = uploads ? uploads.length : 0;
                 if (!uploads || uploads.length === 0) { grid.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لم يقم برفع أي أعمال بعد.</div>`; return; }
                 allUploads = uploads; renderMangaGrid(allUploads.slice(0, 6), 'profileUploadsGrid');
                 if (allUploads.length > 6) { document.getElementById('uploadsSeeMoreBtn').classList.remove('hidden'); }
