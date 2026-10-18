@@ -17,9 +17,6 @@
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #111113; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        
-        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
-        #sidebarMenu { transition: transform 0.3s ease-in-out; }
 
         .body-glow {
             position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
@@ -27,49 +24,87 @@
             z-index: -1; pointer-events: none;
         }
 
-        .tag-badge { background-color: #000000; border: 1px solid #262626; color: #d1d5db; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; }
+        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
+        #sidebarMenu { transition: transform 0.3s ease-in-out; }
         .sidebar-link { display: flex; align-items: center; justify-content: flex-start; gap: 12px; color: #d1d5db; padding: 10px; border-radius: 8px; transition: all 0.3s ease; }
         .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
         .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
         .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
 
-        .filter-tag { background-color: #18181b; border: 1px solid #333; color: #9ca3af; padding: 8px 16px; border-radius: 9999px; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s ease; user-select: none; }
-        .filter-tag:hover { border-color: #f472b6; color: #ffffff; }
-        .filter-tag.active { background-color: #f472b6; border-color: #f472b6; color: #ffffff; }
-
-        /* تأثيرات التوهج للشارات في كل الموقع */
+        /* تأثيرات توهج الشارات والأسماء والإطارات */
         .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
+        .text-glow-free { color: #ffffff; }
+        .avatar-glow-free { border-color: #6b7280; box-shadow: 0 0 10px rgba(156, 163, 175, 0.3); }
+        
         .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+        .text-glow-uploader { color: #ef4444; text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+        .avatar-glow-uploader { border-color: #ef4444; box-shadow: 0 0 14px rgba(239, 68, 68, 0.6); }
+
         .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
+        .text-glow-cyan { color: #06b6d4; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+        .avatar-glow-cyan { border-color: #06b6d4; box-shadow: 0 0 14px rgba(6, 182, 212, 0.6); }
         
         .badge-glow-vip { animation: badgeGold 2s infinite alternate; border-color: #eab308; color: #eab308; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
+        .text-glow-vip { color: #facc15; animation: textGold 2s infinite alternate; }
+        .avatar-glow-vip { border-color: #eab308; animation: badgeGold 2s infinite alternate; }
         @keyframes badgeGold { 0% { box-shadow: 0 0 5px rgba(234,179,8,0.5), inset 0 0 2px rgba(234,179,8,0.5); } 100% { box-shadow: 0 0 15px rgba(234,179,8,0.8), inset 0 0 6px rgba(234,179,8,0.8); } }
+        @keyframes textGold { 0% { text-shadow: 0 0 5px rgba(234,179,8,0.5); } 100% { text-shadow: 0 0 15px rgba(234,179,8,0.8); } }
         
         .badge-glow-pro { animation: badgePro 2s infinite alternate; border-color: #f97316; color: #f97316; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6); }
-        @keyframes badgePro { 0% { box-shadow: 0 0 5px rgba(249,115,22,0.5), inset 0 0 2px rgba(249,115,22,0.5); } 100% { box-shadow: 0 0 15px rgba(239,68,68,0.8), inset 0 0 6px rgba(239,68,68,0.8); border-color:#ef4444; color:#ef4444;} }
+        .text-glow-pro { color: #f97316; animation: textPro 2s infinite alternate; }
+        .avatar-glow-pro { border-color: #f97316; animation: badgePro 2s infinite alternate; }
+        @keyframes badgePro { 0% { box-shadow: 0 0 5px rgba(249,115,22,0.5), inset 0 0 2px rgba(249,115,22,0.5); } 100% { box-shadow: 0 0 15px rgba(239,68,68,0.8), inset 0 0 6px rgba(239,68,68,0.8); border-color:#ef4444; } }
+        @keyframes textPro { 0% { text-shadow: 0 0 5px rgba(249,115,22,0.5); } 100% { color: #ef4444; text-shadow: 0 0 15px rgba(239,68,68,0.8); } }
         
-        .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: transparent; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
+        .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: #d946ef; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
+        .text-glow-ultra { color: #d946ef; animation: textUltra 3s infinite linear; }
+        .avatar-glow-ultra { border-color: #d946ef; animation: badgeUltra 3s infinite linear; }
         @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
+        @keyframes textUltra { 0% { filter: hue-rotate(0deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } 100% { filter: hue-rotate(360deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } }
+
+        /* أزرار التاغات */
+        .tag-btn {
+            background-color: #121215;
+            border: 1px solid #27272a;
+            color: #d1d5db;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 800;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .tag-btn:hover {
+            border-color: #f472b6;
+            color: #ffffff;
+        }
+        .tag-btn.active {
+            background-color: #f472b6;
+            border-color: #f472b6;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(244, 114, 182, 0.45);
+        }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
 
     <div class="body-glow"></div>
 
+    <!-- نافذة البحث الذكية -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
             <div class="relative flex-1">
                 <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
-                <input type="text" id="searchInput" placeholder="ابحث عن مانغا..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
+                <input type="text" id="searchInput" placeholder="ابحث عن مانغا أو تصنيف..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
             </div>
         </div>
         <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3">
-            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>
+            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) المحدثة -->
+    <!-- القائمة الجانبية (Sidebar) الموحدة مع بطاقة البروفيل المتوهجة أسفلها -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -84,7 +119,7 @@
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
                 <ul class="space-y-1.5">
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
-                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#latestSection" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
                     <li><a href="tags.html" class="sidebar-link bg-[#1a1c23] text-white"><i class="fas fa-tags text-accent"></i><span>التصنيفات</span></a></li>
                 </ul>
@@ -100,9 +135,10 @@
                 </ul>
             </div>
         </div>
-        <div class="p-6 border-t border-gray-800/50 text-center">
-            <a href="auth.html" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
-                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
+        <!-- أسفل السايدبار: صورة البروفيل الدائرية المتوهجة واسم المستخدم والشعار -->
+        <div id="sidebarFooterAccount" class="p-4 border-t border-gray-800/70 bg-[#0d0d10]">
+            <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px] py-2">
+                <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
             </a>
         </div>
     </div>
@@ -116,37 +152,59 @@
                     <span id="userBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free">مجاني</span>
                 </a>
             </div>
+            
             <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
+            
             <div class="flex items-center gap-4">
-                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95"><i class="fas fa-dice"></i></button>
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
                 <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
             </div>
         </div>
+        
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="hover:text-white transition">الأحدث</a>
             <a href="tags.html" class="text-white border-b-2 border-accent pb-1">تصنيفات</a>
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="subscription.html" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+            <a href="index.html#topSection" class="hover:text-white transition">الأكثر مشاهدة</a>
         </div>
     </nav>
 
+    <!-- المحتوى الرئيسي لصفحة التصنيفات -->
     <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-6 w-full">
-        <div class="text-center py-4">
-            <h1 class="text-2xl font-black text-white mb-2">تصفح حسب <span class="text-accent">التصنيف</span></h1>
-            <p class="text-xs text-gray-400 font-semibold">اختر تصنيفاً أو أكثر لتصفية الأعمال وعرض ما يناسب ذوقك.</p>
+        
+        <div class="text-right">
+            <h1 class="text-2xl font-black text-white">تصفح حسب <span class="text-accent">التصنيف</span></h1>
+            <p class="text-xs text-gray-400 font-bold mt-1">اختر تصنيفاً أو أكثر لفلترة الأعمال التي تناسب ذوقك.</p>
         </div>
-        <div class="bg-[#18181b]/80 border border-gray-800 rounded-2xl p-4 shadow-lg">
-            <div id="filterTagsContainer" class="flex flex-wrap gap-2 justify-center"><span class="text-gray-500 text-xs py-2"><i class="fas fa-spinner fa-spin ml-2"></i>جاري استخراج التصنيفات...</span></div>
+
+        <!-- صندوق أزرار التاغات -->
+        <div class="bg-card border border-gray-800/90 rounded-2xl p-5 shadow-lg">
+            <div id="tagsFilterContainer" class="flex flex-wrap gap-2.5 justify-center sm:justify-start">
+                <span class="text-xs text-gray-500 font-bold py-4"><i class="fas fa-spinner fa-spin ml-1"></i> جاري جلب التصنيفات...</span>
+            </div>
         </div>
+
+        <!-- شريط عدد النتائج وزر إعادة الضبط -->
         <div class="flex justify-between items-center px-1">
-            <h2 class="text-sm font-black uppercase tracking-wider text-gray-300">النتائج: <span id="resultCount" class="text-accent">0</span> عمل</h2>
-            <button onclick="clearFilters()" class="text-[11px] text-gray-400 hover:text-white font-bold bg-[#111113] border border-gray-700 px-3 py-1.5 rounded-lg transition active:scale-95">إعادة ضبط <i class="fas fa-redo text-[10px] ml-1"></i></button>
+            <div class="text-xs font-black text-gray-300">
+                النتائج المطابقة (<span id="resultsCount" class="text-accent">0</span>)
+            </div>
+            <button onclick="clearFilters()" class="bg-[#18181b] hover:bg-gray-800 text-gray-300 hover:text-white text-xs font-bold px-3.5 py-2 rounded-xl border border-gray-700 transition active:scale-95 flex items-center gap-1.5">
+                <span>إعادة ضبط</span> <i class="fas fa-redo-alt text-[10px]"></i>
+            </button>
         </div>
-        <div id="filteredResults" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-sm">اختر تصنيفاً من الأعلى لعرض النتائج...</div>
+
+        <!-- شبكة عرض الأعمال المفلترة -->
+        <div id="filteredResults" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div class="col-span-2 md:col-span-3 text-center py-12 text-gray-500 text-sm">
+                <i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>جاري تحميل الأعمال...
+            </div>
         </div>
+
     </main>
 
+    <!-- الفوتر -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
             <div class="flex gap-4 text-sm font-bold text-gray-400">
@@ -154,10 +212,13 @@
                 <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
                 <a href="#" class="hover:text-white transition">DMCA</a>
             </div>
-            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع.</p>
+            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
+                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.
+            </p>
             <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
         </div>
     </footer>
+
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
         <i class="fas fa-arrow-up"></i>
     </button>
@@ -166,124 +227,264 @@
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
-        let allMangas = []; let availableTags = new Set(); let selectedTags = new Set(); 
+        let allMangas = [];
+        let allAvailableTags = [];
+        let selectedTags = new Set();
 
-        window.onload = () => { updateAuthUI(); fetchAllMangas(); };
+        window.onload = async () => {
+            updateAuthUI();
 
-        function updateAuthUI() {
-            const badge = document.getElementById('userBadge');
-            const menuText = document.getElementById('authMenuText');
+            // قراءة التاغ القادم من صفحة تعريف المانغا (إن وجد) لتفعيله أوتوماتيكياً
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlTag = urlParams.get('tag') || localStorage.getItem('selectedTag');
+            if (urlTag) {
+                selectedTags.add(urlTag.trim());
+                localStorage.removeItem('selectedTag');
+            }
+
+            await loadTagsAndMangas();
+        };
+
+        // --- تحديث السايدبار والنافبار بالبطاقة المتوهجة ---
+        async function updateAuthUI() {
+            const topBadge = document.getElementById('userBadge');
+            const sidebarFooter = document.getElementById('sidebarFooterAccount');
+
             if (currentUser) {
+                try {
+                    const { data: profile } = await sbClient.from('profiles').select('*').eq('username', currentUser.username).single();
+                    if (profile) {
+                        currentUser.subscription_type = profile.subscription_type || currentUser.subscription_type;
+                        currentUser.avatar_url = profile.avatar_url || currentUser.avatar_url;
+                        localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                    }
+                } catch (e) {}
+
                 const subType = currentUser.subscription_type || 'free'; 
                 let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
                 let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
                 let badgeText = "مجاني";
+                let nameGlowClass = "text-glow-free";
+                let avatarGlowClass = "avatar-glow-free";
 
-                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
-                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
-                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
-                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
-                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
+                if(subType === 'vip_lite') {
+                    badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan";
+                    badgeIcon = '<i class="fas fa-star text-[8px]"></i> ';
+                    badgeText = "LITE";
+                    nameGlowClass = "text-glow-cyan";
+                    avatarGlowClass = "avatar-glow-cyan";
+                } else if(subType === 'vip') {
+                    badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip";
+                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
+                    badgeText = "VIP";
+                    nameGlowClass = "text-glow-vip";
+                    avatarGlowClass = "avatar-glow-vip";
+                } else if(subType === 'vip_pro') {
+                    badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro";
+                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
+                    badgeText = "PRO";
+                    nameGlowClass = "text-glow-pro";
+                    avatarGlowClass = "avatar-glow-pro";
+                } else if(subType === 'vip_ultra') {
+                    badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra";
+                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
+                    badgeText = "ULTRA";
+                    nameGlowClass = "text-glow-ultra";
+                    avatarGlowClass = "avatar-glow-ultra";
+                } else if(subType === 'uploader') {
+                    badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader";
+                    badgeIcon = '<i class="fas fa-upload text-[8px]"></i> ';
+                    badgeText = "رافع";
+                    nameGlowClass = "text-glow-uploader";
+                    avatarGlowClass = "avatar-glow-uploader";
+                }
 
-                badge.innerHTML = badgeIcon + badgeText;
-                badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
-                menuText.innerText = "تسجيل الخروج";
+                topBadge.innerHTML = badgeIcon + badgeText;
+                topBadge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
+
+                const avatarUrl = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `https://ui-avatars.com/api/?name=${currentUser.username}&background=18181b&color=fff&size=120`;
+
+                sidebarFooter.innerHTML = `
+                    <a href="profile.html?user=${encodeURIComponent(currentUser.username)}" class="flex items-center justify-between p-2 rounded-xl bg-[#141418] hover:bg-[#1c1c22] border border-gray-800/80 transition active:scale-95 group">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <img src="${avatarUrl}" class="w-11 h-11 rounded-full object-cover bg-black border-2 ${avatarGlowClass} flex-shrink-0">
+                            <div class="flex flex-col items-start overflow-hidden">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-black text-sm truncate ${nameGlowClass}">${currentUser.username}</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${badgeClass}">${badgeIcon}${badgeText}</span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 font-bold mt-0.5 group-hover:text-gray-300 transition">إعدادات الحساب والملف الشخصي</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-left text-xs text-gray-500 group-hover:text-accent transition mr-1"></i>
+                    </a>
+                `;
             } else {
-                badge.innerHTML = "مجاني";
-                badge.className = "bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free";
-                menuText.innerText = "تسجيل الدخول / حساب جديد";
+                topBadge.innerHTML = "مجاني";
+                topBadge.className = "bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free";
+                sidebarFooter.innerHTML = `
+                    <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px] py-2">
+                        <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
+                    </a>
+                `;
             }
+        }
+
+        // --- جلب التاغات والأعمال وفلترتها ---
+        async function loadTagsAndMangas() {
+            const tagsSet = new Set(['مانغا', 'مانها', 'كوميكس']);
+            try {
+                const { data: tagsData } = await sbClient.from('tags').select('*').order('name');
+                if (tagsData) tagsData.forEach(t => tagsSet.add(t.name.trim()));
+
+                const { data: mangasData } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
+                if (mangasData) {
+                    allMangas = mangasData;
+                    mangasData.forEach(m => {
+                        if (m.tags) {
+                            m.tags.split(',').forEach(t => {
+                                if (t.trim()) tagsSet.add(t.trim());
+                            });
+                        }
+                    });
+                }
+            } catch (e) {}
+
+            // التأكد من وجود أي تاغ تم النقر عليه في القائمة
+            selectedTags.forEach(t => tagsSet.add(t));
+
+            allAvailableTags = Array.from(tagsSet);
+            renderTagsFilters();
+            filterMangas();
+        }
+
+        function renderTagsFilters() {
+            const container = document.getElementById('tagsFilterContainer');
+            if (allAvailableTags.length === 0) {
+                container.innerHTML = `<span class="text-xs text-gray-500">لا توجد تصنيفات متاحة.</span>`;
+                return;
+            }
+
+            container.innerHTML = allAvailableTags.map(tag => {
+                const isActive = selectedTags.has(tag);
+                return `
+                    <button onclick="toggleTag('${tag.replace(/'/g, "\\'")}')" class="tag-btn ${isActive ? 'active' : ''}">
+                        ${tag}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function toggleTag(tag) {
+            if (selectedTags.has(tag)) {
+                selectedTags.delete(tag);
+            } else {
+                selectedTags.add(tag);
+            }
+            renderTagsFilters();
+            filterMangas();
+        }
+
+        function clearFilters() {
+            selectedTags.clear();
+            window.history.replaceState(null, '', 'tags.html');
+            renderTagsFilters();
+            filterMangas();
+        }
+
+        // تحديد شارة نوع العمل والتقييم الموحد
+        function getWorkType(manga) {
+            const rawType = ((manga.work_type || manga.type || manga.category || manga.tags || '') + '').toLowerCase();
+            if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) return 'مانها';
+            if (rawType.includes('comic') || rawType.includes('كوميكس') || rawType.includes('كوميك')) return 'كوميكس';
+            return 'مانغا';
+        }
+
+        function getWorkTypeBadgeHTML(type) {
+            if (type === 'مانها') return `<span class="bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded shadow-md">مانها</span>`;
+            if (type === 'كوميكس') return `<span class="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-md">كوميكس</span>`;
+            return `<span class="bg-white text-black text-[10px] font-black px-2 py-0.5 rounded shadow-md">مانغا</span>`;
+        }
+
+        function getLikesCount(manga) {
+            const isLiked = localStorage.getItem(`liked_${manga.id}`) === 'true' || localStorage.getItem(`like_${manga.id}`) === 'true';
+            const savedCount = localStorage.getItem(`likes_count_${manga.id}`);
+            if (savedCount !== null && !isNaN(parseInt(savedCount))) return parseInt(savedCount);
+            const dbLikes = Number(manga.likes_count || manga.likes || 0);
+            const baseLikes = dbLikes > 0 ? dbLikes : 1;
+            return baseLikes + (isLiked ? 1 : 0);
+        }
+
+        function calculateRatingBasedOnLikes(likes) {
+            if (likes < 2) return 1.5;
+            if (likes >= 2 && likes < 5) return 2.0;
+            if (likes >= 5 && likes < 10) return 4.5;
+            return 5.0;
+        }
+
+        function filterMangas() {
+            let filtered = allMangas;
+            if (selectedTags.size > 0) {
+                filtered = allMangas.filter(manga => {
+                    const mangaTags = (manga.tags ? manga.tags.split(',').map(t => t.trim()) : []);
+                    mangaTags.push(getWorkType(manga));
+                    return Array.from(selectedTags).every(sel => mangaTags.includes(sel));
+                });
+            }
+            renderFilteredResults(filtered);
+        }
+
+        function renderFilteredResults(mangas) {
+            const container = document.getElementById('filteredResults');
+            document.getElementById('resultsCount').innerText = mangas.length;
+
+            if (mangas.length === 0) {
+                container.innerHTML = `<div class="col-span-2 md:col-span-3 text-center py-14 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800">لا توجد أعمال تطابق التصنيفات المحددة.</div>`;
+                return;
+            }
+
+            container.innerHTML = mangas.map(manga => {
+                const typeBadge = getWorkTypeBadgeHTML(getWorkType(manga));
+                const likes = getLikesCount(manga);
+                const rating = calculateRatingBasedOnLikes(likes).toFixed(1);
+
+                return `
+                    <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-xl overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
+                        <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
+                            <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
+                            <div class="absolute bottom-2 right-2 z-20">${typeBadge}</div>
+                        </div>
+                        <div class="p-2.5 pointer-events-none bg-[#141417]">
+                            <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
+                                <span class="text-yellow-400 font-bold flex items-center gap-1">
+                                    <i class="fas fa-star"></i> ${rating}
+                                    <span class="text-[9px] text-gray-500">(${likes})</span>
+                                </span>
+                                <span class="truncate max-w-[55%] font-semibold">${manga.uploader_name || 'مجهول'}</span>
+                            </div>
+                            <h3 class="font-bold text-xs text-white line-clamp-1 leading-tight">${manga.title}</h3>
+                        </div>
+                    </a>
+                `;
+            }).join('');
         }
 
         function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
         function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
-
-        function openSearch() {
-            const modal = document.getElementById('searchModal'); modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10);
-            document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden';
-        }
-        function closeSearch() {
-            const modal = document.getElementById('searchModal'); modal.classList.replace('opacity-100', 'opacity-0');
-            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>'; }, 300);
-        }
-
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout); const query = e.target.value.trim(); const resultsContainer = document.getElementById('searchResults');
-            if (query.length < 2) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>'; return; }
-            resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%`).limit(10);
-                    if (error) throw error;
-                    if (data.length === 0) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>'; return; }
-                    resultsContainer.innerHTML = data.map(manga => {
-                        const tagsHtml = (manga.tags ? manga.tags.split(',').slice(0, 3) : []).map(tag => `<span class="bg-black border border-gray-700 text-gray-300 px-2 py-0.5 rounded text-[9px] font-bold">${tag.trim()}</span>`).join('');
-                        return `
-                            <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
-                                <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
-                                <div class="flex-1 overflow-hidden"><h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3><div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div></div>
-                            </a>`;
-                    }).join('');
-                } catch (err) { resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ!</div>'; }
-            }, 600);
-        });
+        function openSearch() { const modal = document.getElementById('searchModal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
+        function closeSearch() { const modal = document.getElementById('searchModal'); modal.classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300); }
 
         async function goToRandomManga() {
             try {
-                if (allMangas.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
-                const randomId = allMangas[Math.floor(Math.random() * allMangas.length)].id;
-                localStorage.setItem('selectedMangaId', randomId); window.location.href = `manga.html?id=${randomId}`;
-            } catch (err) { console.error(err); }
-        }
-
-        async function fetchAllMangas() {
-            try {
-                const { data: mangas, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
-                if (error) throw error;
-                allMangas = mangas;
-                allMangas.forEach(manga => { if (manga.tags) { manga.tags.split(',').forEach(tag => { const cleanTag = tag.trim(); if (cleanTag) availableTags.add(cleanTag); }); } });
-                renderTagsFilters(); renderFilteredResults(allMangas);
-            } catch (err) { document.getElementById('filterTagsContainer').innerHTML = `<span class="text-red-500 text-xs">فشل تحميل التصنيفات</span>`; }
-        }
-
-        function renderTagsFilters() {
-            const container = document.getElementById('filterTagsContainer');
-            if (availableTags.size === 0) { container.innerHTML = '<span class="text-gray-500 text-xs py-2">لا توجد تصنيفات متاحة.</span>'; return; }
-            container.innerHTML = Array.from(availableTags).sort().map(tag => {
-                const isActive = selectedTags.has(tag) ? 'active' : '';
-                return `<button onclick="toggleTagFilter('${tag}')" class="filter-tag ${isActive}">${tag}</button>`;
-            }).join('');
-        }
-
-        function toggleTagFilter(tag) { if (selectedTags.has(tag)) { selectedTags.delete(tag); } else { selectedTags.add(tag); } renderTagsFilters(); filterMangas(); }
-        function clearFilters() { selectedTags.clear(); renderTagsFilters(); renderFilteredResults(allMangas); }
-
-        function filterMangas() {
-            if (selectedTags.size === 0) { renderFilteredResults(allMangas); return; }
-            const filtered = allMangas.filter(manga => {
-                if (!manga.tags) return false; const mangaTagsList = manga.tags.split(',').map(t => t.trim());
-                return Array.from(selectedTags).every(selectedTag => mangaTagsList.includes(selectedTag)); 
-            });
-            renderFilteredResults(filtered);
-        }
-
-        function renderFilteredResults(mangasToRender) {
-            const container = document.getElementById('filteredResults'); document.getElementById('resultCount').innerText = mangasToRender.length;
-            if (mangasToRender.length === 0) {
-                container.innerHTML = `<div class="col-span-2 md:col-span-4 text-center py-16 text-gray-500 flex flex-col items-center"><i class="far fa-frown text-4xl mb-3 opacity-30"></i><p class="text-sm font-bold">لا توجد أعمال تحتوي على هذه التصنيفات.</p><button onclick="clearFilters()" class="mt-4 text-accent hover:text-white underline text-xs">امسح التحديد وجرب مرة أخرى</button></div>`;
-                return;
-            }
-            container.innerHTML = mangasToRender.map(manga => {
-                const mangaLink = `manga.html?id=${manga.id}`;
-                return `
-                    <a href="${mangaLink}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
-                        <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none"><img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover"></div>
-                        <div class="p-2.5 pointer-events-none bg-[#111113]"><div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5"><span class="text-pink-400"><i class="fas fa-heart text-[9px]"></i> تفاعل</span><span class="truncate max-w-[60%]">${manga.uploader_name || 'مجهول'}</span></div><h3 class="font-bold text-xs text-white line-clamp-2 leading-tight">${manga.title}</h3></div>
-                    </a>`;
-            }).join('');
+                const { data } = await sbClient.from('mangas').select('id').eq('status', 'approved');
+                if (data && data.length > 0) {
+                    const randomId = data[Math.floor(Math.random() * data.length)].id;
+                    localStorage.setItem('selectedMangaId', randomId);
+                    window.location.href = `manga.html?id=${randomId}`;
+                }
+            } catch (e) {}
         }
     </script>
 </body>
