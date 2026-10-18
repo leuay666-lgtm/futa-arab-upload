@@ -67,6 +67,7 @@
 
     <div class="body-glow"></div>
 
+    <!-- نافذة البحث والسايدبار -->
     <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
         <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
             <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
@@ -186,6 +187,34 @@
             </div>
         </div>
 
+        <!-- الأعمال المرفوعة -->
+        <div id="uploadsSection" class="space-y-4">
+            <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
+                <i class="fas fa-upload text-red-400"></i> الأعمال المرفوعة (<span id="uploadsSectionCount">0</span>)
+            </h3>
+            <div id="profileUploadsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لم يقم برفع أي أعمال بعد.</div>
+            </div>
+            <div id="uploadsSeeMoreBtn" class="text-center hidden">
+                <button onclick="expandGrid('profileUploadsGrid')" class="bg-[#18181b] border border-gray-800 hover:bg-[#222] text-white text-xs font-bold px-6 py-2.5 rounded-full transition active:scale-95">عرض المزيد <i class="fas fa-chevron-down ml-1 text-[10px]"></i></button>
+            </div>
+        </div>
+
+        <!-- المانغات المفضلة -->
+        <div id="favoritesSection" class="space-y-4 pt-4 border-t border-gray-800/50">
+            <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
+                <i class="fas fa-star text-yellow-400"></i> المانغات المفضلة
+            </h3>
+            <div id="profileFavoritesGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="col-span-2 md:col-span-4 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">
+                    <i class="fas fa-lock mb-2 text-xl opacity-50 block"></i> هذه القائمة خاصة ولا يمكن للعامة رؤيتها.
+                </div>
+            </div>
+            <div id="favoritesSeeMoreBtn" class="text-center hidden">
+                <button onclick="expandGrid('profileFavoritesGrid')" class="bg-[#18181b] border border-gray-800 hover:bg-[#222] text-white text-xs font-bold px-6 py-2.5 rounded-full transition active:scale-95">عرض المزيد <i class="fas fa-chevron-down ml-1 text-[10px]"></i></button>
+            </div>
+        </div>
+
     </main>
 
     <!-- النافذة المنبثقة للتعديل (Modal) -->
@@ -196,7 +225,7 @@
             <h3 id="modalTitle" class="text-lg font-black text-white mb-4">تعديل البيانات</h3>
             <p id="cooldownWarning" class="text-xs text-red-400 font-bold mb-3 hidden"></p>
             
-            <!-- حقل رفع الملفات -->
+            <!-- حقل رفع الملفات (مع ضغط الصور التلقائي) -->
             <div id="modalFileContainer" class="mb-4 hidden">
                 <label class="file-upload-label" for="modalFileInput">
                     <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
@@ -229,9 +258,21 @@
         </div>
     </div>
 
+    <!-- الفوتر مع الزر العائم -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
-        <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
+            <div class="flex gap-4 text-sm font-bold text-gray-400">
+                <a href="index.html" class="hover:text-white transition">الرئيسية</a>
+                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="#" class="hover:text-white transition">DMCA</a>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.</p>
+            <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+        </div>
     </footer>
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <script>
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
@@ -243,6 +284,7 @@
         let isOwner = false;
         
         let currentEditMode = '';
+        let selectedFileDataUrl = null;
         let selectedFile = null;
 
         window.onload = async () => {
@@ -264,6 +306,8 @@
             isOwner = (currentUser && currentUser.username === viewedUsername);
 
             await loadUserProfile();
+            await loadUserUploads();
+            await loadUserFavorites();
         };
 
         function goToMyProfile() {
@@ -345,7 +389,7 @@
             let earnedHistory = dbBadgesHistory || [];
             if (subType !== 'free' && !earnedHistory.includes(subType)) {
                 earnedHistory.push(subType);
-                if(isOwner) { await sbClient.from('profiles').update({ badges_history: earnedHistory }).eq('username', viewedUsername); }
+                if(isOwner) { try { await sbClient.from('profiles').update({ badges_history: earnedHistory }).eq('username', viewedUsername); } catch(e){} }
             }
 
             let allBadgesHtml = earnedHistory.map(type => getBadgeHTML(type)).join('');
@@ -354,15 +398,7 @@
             document.getElementById('badgesCount').innerText = earnedHistory.length;
         }
 
-        function updateCharCount(inputId, countId, max) {
-            const len = document.getElementById(inputId).value.length;
-            const countEl = document.getElementById(countId);
-            countEl.innerText = `${len}/${max}`;
-            if(len >= max) { countEl.classList.remove('text-gray-500'); countEl.classList.add('text-red-500'); } 
-            else { countEl.classList.add('text-gray-500'); countEl.classList.remove('text-red-500'); }
-        }
-
-        // حساب الوقت المتبقي للكولداون
+        // نظام التحقق من الوقت (كولداون)
         function checkCooldown(key, duration) {
             const lastTime = localStorage.getItem(key);
             if (!lastTime) return null;
@@ -377,14 +413,22 @@
             let days = Math.floor(totalSecs / 86400); totalSecs %= 86400;
             let hours = Math.floor(totalSecs / 3600); totalSecs %= 3600;
             let mins = Math.floor(totalSecs / 60);
-            
             if (days > 0) return `${days} أيام و ${hours} ساعات`;
             if (hours > 0) return `${hours} ساعة و ${mins} دقيقة`;
             return `${mins} دقيقة`;
         }
 
+        function updateCharCount(inputId, countId, max) {
+            const len = document.getElementById(inputId).value.length;
+            const countEl = document.getElementById(countId);
+            countEl.innerText = `${len}/${max}`;
+            if(len >= max) { countEl.classList.remove('text-gray-500'); countEl.classList.add('text-red-500'); } 
+            else { countEl.classList.add('text-gray-500'); countEl.classList.remove('text-red-500'); }
+        }
+
         function openEditModal(type) {
             currentEditMode = type;
+            selectedFileDataUrl = null;
             selectedFile = null;
             
             const modal = document.getElementById('editModal');
@@ -397,7 +441,7 @@
             
             fileContainer.classList.add('hidden'); inputContainer.classList.add('hidden'); textareaContainer.classList.add('hidden'); filePreviewContainer.classList.add('hidden'); warningEl.classList.add('hidden');
             document.getElementById('modalInput').value = ''; document.getElementById('modalTextarea').value = ''; document.getElementById('modalFileInput').value = '';
-            saveBtn.innerText = 'حفظ التغييرات'; saveBtn.disabled = false;
+            saveBtn.innerText = 'حفظ التغييرات'; saveBtn.disabled = false; saveBtn.classList.remove('opacity-50');
 
             const title = document.getElementById('modalTitle');
 
@@ -411,7 +455,7 @@
                 fileContainer.classList.remove('hidden');
             } else if (type === 'name') {
                 title.innerText = 'تغيير الاسم';
-                // التحقق من كولداون 3 أيام (3 * 24 * 60 * 60 * 1000 = 259200000 ms)
+                // التحقق من كولداون 3 أيام (259200000 مللي ثانية)
                 const remaining = checkCooldown(`name_cooldown_${currentUser.username}`, 259200000);
                 if (remaining) {
                     warningEl.innerText = `⏳ عذراً! لا يمكنك تغيير اسمك الآن. يرجى الانتظار ${formatRemainingTime(remaining)}.`;
@@ -423,7 +467,7 @@
                 }
             } else if (type === 'bio') {
                 title.innerText = 'تعديل النبذة (Bio)';
-                // التحقق من كولداون 1 ساعة (1 * 60 * 60 * 1000 = 3600000 ms)
+                // التحقق من كولداون ساعة واحدة (3600000 مللي ثانية)
                 const remaining = checkCooldown(`bio_cooldown_${currentUser.username}`, 3600000);
                 if (remaining) {
                     warningEl.innerText = `⏳ يرجى الانتظار ${formatRemainingTime(remaining)} قبل تعديل الـ Bio مرة أخرى.`;
@@ -439,17 +483,51 @@
             setTimeout(() => { modal.classList.add('modal-active'); }, 10);
         }
 
-        function previewSelectedFile(event) {
+        // نظام ضغط وتقليل حجم الصورة عبر Canvas HTML5
+        function compressImage(file, maxWidth, maxHeight, quality) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width; let height = img.height;
+                        if (width > height) { if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; } } 
+                        else { if (height > maxHeight) { width = Math.round(width * maxHeight / height); height = maxHeight; } }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality); // ضغط وتصدير
+                        resolve(dataUrl);
+                    };
+                    img.onerror = error => reject(error);
+                };
+            });
+        }
+
+        // تحويل DataURL إلى ملف (File) لرفعه للسيرفر
+        function dataURLtoFile(dataurl, filename) {
+            let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+            return new File([u8arr], filename, {type:mime});
+        }
+
+        async function previewSelectedFile(event) {
             const file = event.target.files[0];
             if (file) {
-                selectedFile = file;
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('filePreviewImage').src = e.target.result;
+                document.getElementById('fileInputText').innerText = 'جاري ضغط الصورة ومعالجتها...';
+                try {
+                    selectedFileDataUrl = await compressImage(file, 800, 800, 0.7); // تقليل الحجم إلى 800x800 بجودة 70%
+                    selectedFile = dataURLtoFile(selectedFileDataUrl, file.name.replace(/\.[^/.]+$/, "") + ".jpg");
+                    
+                    document.getElementById('filePreviewImage').src = selectedFileDataUrl;
                     document.getElementById('filePreviewContainer').classList.remove('hidden');
-                    document.getElementById('fileInputText').innerText = file.name;
+                    document.getElementById('fileInputText').innerText = 'تم المعالجة: ' + file.name;
+                } catch(e) {
+                    document.getElementById('fileInputText').innerText = 'حدث خطأ في معالجة الصورة!';
                 }
-                reader.readAsDataURL(file);
             }
         }
 
@@ -460,13 +538,10 @@
         }
 
         async function uploadFileToSupabase(file, folder) {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${currentUser.username}_${Date.now()}.${fileExt}`;
+            const fileName = `${currentUser.username}_${Date.now()}.jpg`;
             const filePath = `${folder}/${fileName}`;
-
             const { data, error } = await sbClient.storage.from('profiles_media').upload(filePath, file, { upsert: true });
-            if (error) throw error; // سيتم تجاهل الخطأ مؤقتاً وعرض الصورة محلياً ليعمل الموقع
-
+            if (error) throw error;
             const { data: publicUrlData } = sbClient.storage.from('profiles_media').getPublicUrl(filePath);
             return publicUrlData.publicUrl;
         }
@@ -476,67 +551,24 @@
             btn.disabled = true; btn.innerText = 'جاري الحفظ...';
 
             try {
-                if (currentEditMode === 'avatar' && selectedFile) {
+                if (currentEditMode === 'avatar' && selectedFileDataUrl) {
                     try {
                         const publicUrl = await uploadFileToSupabase(selectedFile, 'avatars');
                         await sbClient.from('profiles').update({ avatar_url: publicUrl }).eq('username', currentUser.username);
                         document.getElementById('profileAvatar').src = publicUrl;
                     } catch(e) { 
-                        // Fallback إذا فشل رفع Supabase بسبب RLS، سنعرض الصورة محلياً
-                        document.getElementById('profileAvatar').src = document.getElementById('filePreviewImage').src;
-                        localStorage.setItem(`profile_avatar_${viewedUsername}`, document.getElementById('filePreviewImage').src);
+                        // حفظ وعرض صامت محلياً لتفادي الأخطاء المزعجة (Fallback)
+                        document.getElementById('profileAvatar').src = selectedFileDataUrl;
+                        localStorage.setItem(`profile_avatar_${viewedUsername}`, selectedFileDataUrl);
                     }
-                } else if (currentEditMode === 'banner' && selectedFile) {
+                } else if (currentEditMode === 'banner' && selectedFileDataUrl) {
                     try {
                         const publicUrl = await uploadFileToSupabase(selectedFile, 'banners');
                         await sbClient.from('profiles').update({ banner_url: publicUrl }).eq('username', currentUser.username);
                         document.getElementById('profileBanner').style.backgroundImage = `url('${publicUrl}')`;
                     } catch(e) {
-                        document.getElementById('profileBanner').style.backgroundImage = `url('${document.getElementById('filePreviewImage').src}')`;
-                        localStorage.setItem(`profile_banner_${viewedUsername}`, document.getElementById('filePreviewImage').src);
+                        document.getElementById('profileBanner').style.backgroundImage = `url('${selectedFileDataUrl}')`;
+                        localStorage.setItem(`profile_banner_${viewedUsername}`, selectedFileDataUrl);
                     }
                 } else if (currentEditMode === 'name') {
-                    const val = document.getElementById('modalInput').value.trim().replace(/\s+/g, '_');
-                    if(val && val !== viewedUsername) {
-                        await sbClient.from('profiles').update({ username: val }).eq('username', currentUser.username);
-                        localStorage.setItem(`name_cooldown_${currentUser.username}`, Date.now()); // تسجيل وقت التغيير
-                        currentUser.username = val;
-                        localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
-                        window.location.href = `profile.html?user=${val}`;
-                        return; 
-                    }
-                } else if (currentEditMode === 'bio') {
-                    const val = document.getElementById('modalTextarea').value.trim();
-                    await sbClient.from('profiles').update({ bio: val }).eq('username', currentUser.username);
-                    localStorage.setItem(`bio_cooldown_${currentUser.username}`, Date.now()); // تسجيل وقت التغيير
-                    document.getElementById('profileBioDisplay').innerText = val || 'مرحباً بكم في ملفي الشخصي في Futa Arab.';
-                }
-                closeEditModal();
-            } catch (error) {
-                alert('حدث خطأ أثناء الحفظ.'); btn.disabled = false; btn.innerText = 'حفظ التغييرات';
-            }
-        }
-
-        function toggleFavoritesPrivacy(checkbox) { if(isOwner) { localStorage.setItem(`fav_public_${currentUser.username}`, checkbox.checked); } }
-
-        function updateAuthUI() {
-            const badge = document.getElementById('userBadge');
-            if (currentUser) {
-                const subType = currentUser.subscription_type || 'free'; 
-                let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free"; let badgeIcon = '<i class="fas fa-user text-[8px]"></i> '; let badgeText = "مجاني";
-                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
-                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
-                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
-                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
-                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
-                badge.innerHTML = badgeIcon + badgeText;
-                badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
-            }
-        }
-        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); }
-        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); }
-        function openSearch() { document.getElementById('searchModal').classList.remove('hidden'); setTimeout(() => document.getElementById('searchModal').classList.replace('opacity-0', 'opacity-100'), 10); }
-        function closeSearch() { document.getElementById('searchModal').classList.replace('opacity-100', 'opacity-0'); setTimeout(() => document.getElementById('searchModal').classList.add('hidden'), 300); }
-    </script>
-</body>
-</html>
+                    
