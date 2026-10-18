@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>مكتبتي - Futa Arab</title>
+    <style>
+        body { background-color: #111113; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #18181b; }
+        .text-accent { color: #f472b6; }
+        .bg-accent { background-color: #f472b6; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        .body-glow {
+            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
+            background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(17,17,19,0) 70%);
+            z-index: -1; pointer-events: none;
+        }
+
+        .tag-badge { background-color: #000000; border: 1px solid #262626; color: #d1d5db; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; }
+        
+        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
+        #sidebarMenu { transition: transform 0.3s ease-in-out; }
+        .sidebar-link { display: flex; align-items: center; justify-content: flex-start; gap: 12px; color: #d1d5db; padding: 10px; border-radius: 8px; transition: all 0.3s ease; }
+        .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
+        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+        .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
+
+        /* ستايل تبويبات المكتبة (Tabs) */
+        .lib-tab { padding: 10px 16px; font-size: 13px; font-weight: bold; color: #9ca3af; border-bottom: 2px solid transparent; transition: all 0.3s ease; white-space: nowrap; cursor: pointer; }
+        .lib-tab:hover { color: #ffffff; }
+        .lib-tab.active { color: #f472b6; border-bottom-color: #f472b6; }
+        .lib-content { display: none; }
+        .lib-content.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col">
+
+    <div class="body-glow"></div>
+
+    <!-- نافذة البحث الذكية (مخفية افتراضياً) -->
+    <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
+        <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
+            <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
+            <div class="relative flex-1">
+                <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
+                <input type="text" id="searchInput" placeholder="ابحث عن مانغا أو تصنيف..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
+            </div>
+        </div>
+        <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>
+        </div>
+    </div>
+
+    <!-- القائمة الجانبية (Sidebar) -->
+    <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
+    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
+            <button onclick="closeSidebar()" class="absolute right-4 top-6 text-gray-500 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-times"></i></button>
+            <div class="w-full text-left pl-2">
+                <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
+                <p class="text-[11px] text-gray-500 mt-0.5 font-semibold">Manga • Manhwa • Doujinshi</p>
+            </div>
+        </div>
+        <div class="flex-1 py-6 flex flex-col gap-8 px-6">
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
+                    <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
+                </ul>
+            </div>
+            <div class="h-[1px] w-full bg-gray-800/50"></div>
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="library.html?tab=bookmarks" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="library.html?tab=history" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="library.html?tab=likes" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="library.html?tab=uploads" id="sidebarUploadsLink" class="sidebar-link hidden"><i class="fas fa-cloud-upload-alt text-accent"></i><span>منشوراتي</span></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="p-6 border-t border-gray-800/50 text-center">
+            <a href="auth.html" id="sidebarAuthBtn" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
+                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- شريط التنقل العلوي -->
+    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
+                <span id="userBadge" class="bg-[#5C4033] text-[#E8DCC4] text-[10px] font-bold px-2 py-1 rounded-md border border-[#8B5A2B]">مجاني</span>
+            </div>
+            
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
+            <a href="index.html" class="hover:text-white transition">الأحدث</a>
+            <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
+            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي للمكتبة -->
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-6 w-full flex flex-col">
+        
+        <!-- رأس الحساب (بيانات المستخدم) -->
+        <div class="bg-card border border-gray-800/80 rounded-2xl p-6 mb-6 shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center border-2 border-accent/50 flex-shrink-0">
+                    <i class="fas fa-user text-2xl text-gray-400"></i>
+                </div>
+                <div>
+                    <h1 id="profileName" class="text-2xl font-black text-white mb-1">الزائر الكريم</h1>
+                    <div class="flex gap-2">
+                        <span id="profileRole" class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded font-bold border border-gray-700">حساب زائر</span>
+                        <span id="uploadsCounterBadge" class="hidden text-[10px] bg-pink-900/40 text-pink-400 px-2 py-0.5 rounded font-bold border border-pink-800/50">
+                            <i class="fas fa-cloud-upload-alt mr-1"></i> <span id="uploadsCount">0</span> عمل منشور
+                        </span>
+                    </div>
+                </div>
+                <!-- زر الإعدادات -->
+                <a href="#" class="mr-auto text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 p-2.5 rounded-lg transition active:scale-95">
+                    <i class="fas fa-cog"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- تبويبات المكتبة العلوية -->
+        <div class="flex overflow-x-auto border-b border-gray-800 mb-6 scrollbar-hide">
+            <button onclick="switchLibTab('history')" id="tabBtn-history" class="lib-tab active"><i class="fas fa-history ml-1.5"></i>آخر مشاهدة</button>
+            <button onclick="switchLibTab('bookmarks')" id="tabBtn-bookmarks" class="lib-tab"><i class="far fa-bookmark ml-1.5"></i>المفضلة</button>
+            <button onclick="switchLibTab('likes')" id="tabBtn-likes" class="lib-tab"><i class="far fa-heart ml-1.5"></i>أعمال أعجبتني</button>
+            <!-- هذا التبويب يظهر فقط للرافعين والمدراء -->
+            <button onclick="switchLibTab('uploads')" id="tabBtn-uploads" class="lib-tab hidden"><i class="fas fa-cloud-upload-alt ml-1.5 text-accent"></i>منشوراتي</button>
+        </div>
+
+        <!-- حاويات المحتوى للتبويبات -->
+        
+        <!-- 1. محتوى سجل القراءة (آخر مشاهدة) -->
+        <div id="tabContent-history" class="lib-content active">
+            <div id="historyGrid" class="flex flex-col gap-3">
+                <div class="text-center py-16 text-gray-500 text-sm">
+                    <i class="fas fa-history text-3xl mb-3 opacity-20 block"></i> لم تقرأ أي عمل مؤخراً. (الربط بقاعدة البيانات قيد التنفيذ)
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. محتوى المفضلة -->
+        <div id="tabContent-bookmarks" class="lib-content">
+            <div id="bookmarksGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="col-span-2 md:col-span-4 text-center py-16 text-gray-500 text-sm">
+                    <i class="far fa-bookmark text-3xl mb-3 opacity-20 block"></i> مفضلتك فارغة حالياً. (الربط بقاعدة البيانات قيد التنفيذ)
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. محتوى الإعجابات -->
+        <div id="tabContent-likes" class="lib-content">
+            <div id="likesGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="col-span-2 md:col-span-4 text-center py-16 text-gray-500 text-sm">
+                    <i class="far fa-heart text-3xl mb-3 opacity-20 block"></i> لم تعجب بأي عمل بعد. (الربط بقاعدة البيانات قيد التنفيذ)
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. محتوى المنشورات (للرافعين فقط) -->
+        <div id="tabContent-uploads" class="lib-content">
+            <div class="flex justify-between items-center mb-4 px-1">
+                <h3 class="text-sm font-black text-gray-300">أعمالك المرفوعة</h3>
+                <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="text-[11px] bg-accent text-white px-3 py-1.5 rounded-lg font-bold hover:bg-pink-600 transition">رفع عمل جديد <i class="fas fa-plus ml-1"></i></a>
+            </div>
+            <div id="uploadsGrid" class="flex flex-col gap-3">
+                <!-- سيتم استخراج المنشورات الخاصة به هنا -->
+                <div class="text-center py-16 text-gray-500 text-sm">
+                    <i class="fas fa-spinner fa-spin text-3xl mb-3 block"></i> جاري استخراج أعمالك...
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
+            <div class="flex gap-4 text-sm font-bold text-gray-400">
+                <a href="index.html" class="hover:text-white transition">الرئيسية</a>
+            </div>
+            <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
+
+        window.onload = () => {
+            if (!currentUser) {
+                // إذا لم يكن مسجلاً، اطلب منه التسجيل أولاً (مؤقتاً نعرض رسالة، وفي المستقبل يتم توجيهه ל-auth.html)
+                document.getElementById('profileName').innerText = "يجب تسجيل الدخول";
+                document.getElementById('profileRole').innerText = "غير مسجل";
+                document.getElementById('sidebarAuthBtn').href = "auth.html";
+                return;
+            }
+
+            // تحديث بيانات الحساب في الرأس
+            document.getElementById('profileName').innerText = currentUser.username || 'مستخدم';
+            document.getElementById('userBadge').innerText = currentUser.username;
+            document.getElementById('authMenuText').innerText = "تسجيل الخروج";
+            document.getElementById('sidebarAuthBtn').href = "#"; // هنا يجب إضافة كود تسجيل الخروج لاحقاً
+            
+            // قراءة التبويب من الرابط (مثال: library.html?tab=likes)
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetTab = urlParams.get('tab') || 'history';
+            switchLibTab(targetTab);
+
+            // جلب البيانات من Supabase (مؤقتاً سنجلب منشوراته فقط إذا كان رافعاً)
+            checkUserRoleAndFetchUploads();
+        };
+
+        // دالة التنقل بين التبويبات
+        function switchLibTab(tabName) {
+            const tabs = ['history', 'bookmarks', 'likes', 'uploads'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tabBtn-${t}`);
+                const content = document.getElementById(`tabContent-${t}`);
+                if(btn && content) {
+                    if (t === tabName) {
+                        btn.classList.add('active');
+                        content.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                        content.classList.remove('active');
+                    }
+                }
+            });
+            // تحديث الرابط بدون إعادة التحميل
+            window.history.replaceState(null, '', `library.html?tab=${tabName}`);
+        }
+
+        async function checkUserRoleAndFetchUploads() {
+            if (!currentUser) return;
+            
+            try {
+                // في المستقبل، سيتم التحقق من دوره الحقيقي في الداتابيز (role = 'uploader' مثلاً)
+                // الآن، بما أننا لم نفعل الحسابات كاملة، سنفترض أنه رافع ونجلب أي مانغا تحمل اسمه
+                
+                const uploaderName = currentUser.username; // اسم الرافع الحالي
+                const { data: uploads, error } = await sbClient.from('mangas').select('*').eq('uploader_name', uploaderName).order('created_at', { ascending: false });
+                
+                if (error) throw error;
+
+                // إذا كان لديه أعمال (أو كود مؤقت لإظهار التبويب للتجربة)
+                document.getElementById('tabBtn-uploads').classList.remove('hidden');
+                document.getElementById('sidebarUploadsLink').classList.remove('hidden');
+                document.getElementById('uploadsCounterBadge').classList.remove('hidden');
+                document.getElementById('uploadsCount').innerText = uploads ? uploads.length : 0;
+                document.getElementById('profileRole').innerText = uploads && uploads.length > 0 ? "رافع (Uploader)" : "مستخدم نشط";
+                document.getElementById('profileRole').className = "text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold border border-accent/50";
+
+                const uploadsGrid = document.getElementById('uploadsGrid');
+                
+                if (!uploads || uploads.length === 0) {
+                    uploadsGrid.innerHTML = `
+                        <div class="text-center py-10 text-gray-500 text-sm">
+                            <i class="fas fa-folder-open text-3xl mb-3 opacity-20 block"></i>
+                            لم تقم بنشر أي أعمال بعد.<br>
+                            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="text-accent underline mt-2 inline-block">انشر عملك الأول الآن</a>
+                        </div>`;
+                    return;
+                }
+
+                uploadsGrid.innerHTML = uploads.map(manga => {
+                    const statusColor = manga.status === 'approved' ? 'text-emerald-400' : (manga.status === 'pending' ? 'text-yellow-400' : 'text-red-400');
+                    const statusText = manga.status === 'approved' ? 'منشور' : (manga.status === 'pending' ? 'قيد المراجعة' : 'مرفوض');
+                    
+                    return `
+                        <a href="manga.html?id=${manga.id}" class="flex gap-3 bg-card p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-center shadow-md relative cursor-pointer">
+                            <img src="${manga.cover_image_url}" class="w-16 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                            <div class="flex-1 overflow-hidden">
+                                <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                                <div class="text-[10px] text-gray-500 mb-1">بتاريخ: ${new Date(manga.created_at).toLocaleDateString('ar-EG')}</div>
+                                <span class="text-[10px] font-bold ${statusColor} bg-gray-900 px-2 py-0.5 rounded-full border border-gray-800"><i class="fas fa-circle text-[8px] ml-1"></i>${statusText}</span>
+                            </div>
+                            <div class="text-gray-500 px-2"><i class="fas fa-chevron-left text-sm"></i></div>
+                        </a>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                document.getElementById('uploadsGrid').innerHTML = '<div class="text-center text-red-500 py-10 text-sm">فشل في استخراج بيانات منشوراتك.</div>';
+            }
+        }
+
+        // دوال القائمة الجانبية والبحث
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
+        
+        function openSearch() {
+            const modal = document.getElementById('searchModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10);
+            document.getElementById('searchInput').focus();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSearch() {
+            const modal = document.getElementById('searchModal');
+            modal.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
+        }
+    </script>
+</body>
+</html>
