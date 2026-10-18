@@ -33,7 +33,7 @@
         .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
         .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
 
-        /* تأثيرات توهج الشارات والأسماء وإطارات الصور */
+        /* تأثيرات توهج الشارات والأسماء والإطارات */
         .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
         .text-glow-free { color: #ffffff; }
         .avatar-glow-free { border-color: #6b7280; box-shadow: 0 0 10px rgba(156, 163, 175, 0.3); }
@@ -91,6 +91,28 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 25px rgba(244, 114, 182, 0.6);
         }
+
+        /* ستايل أزرار الفلتر الجديدة */
+        .filter-chip {
+            background-color: #18181b;
+            border: 1px solid #27272a;
+            color: #a1a1aa;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-chip.active {
+            background-color: #f472b6;
+            border-color: #f472b6;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(244, 114, 182, 0.4);
+        }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -111,7 +133,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) -->
+    <!-- القائمة الجانبية (Sidebar) مع الروابط الفعالة -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -126,7 +148,7 @@
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
                 <ul class="space-y-1.5">
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
-                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html" onclick="closeSidebar(); resetFilters();" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="#topSection" onclick="closeSidebar()" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
                     <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
@@ -142,7 +164,7 @@
                 </ul>
             </div>
         </div>
-        <!-- أسفل السايدبار: يظهر صورة البروفيل المتوهجة والاسم وشعار الاشتراك بدلاً من تسجيل الخروج -->
+        <!-- أسفل السايدبار: صورة البروفيل الدائرية المتوهجة واسم المستخدم -->
         <div id="sidebarFooterAccount" class="p-4 border-t border-gray-800/70 bg-[#0d0d10]">
             <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px] py-2">
                 <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
@@ -150,7 +172,7 @@
         </div>
     </div>
 
-    <!-- شريط التنقل العلوي الأصلي -->
+    <!-- شريط التنقل العلوي -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -174,14 +196,24 @@
             <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="subscription.html" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
             <a href="#topSection" class="hover:text-white transition">الأكثر مشاهدة</a>
-            <a href="#likedSection" class="hover:text-white transition">الأكثر إعجاباً</a>
         </div>
     </nav>
 
-    <!-- المحتوى الرئيسي: الثلاث خانات (كل خانة 6 أغلفة + زر عائم للمزيد) -->
-    <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-12 w-full">
+    <!-- شريط فلاتر أنواع الأعمال (فلتر متعدد: مانغا، مانها، كوميكس) -->
+    <div class="max-w-4xl mx-auto px-4 pt-5 pb-1 w-full">
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <span class="text-xs text-gray-400 font-bold ml-1 flex items-center gap-1"><i class="fas fa-filter text-accent"></i> الفلتر:</span>
+            <button onclick="toggleFilter('all')" id="chip_all" class="filter-chip active">الكل</button>
+            <button onclick="toggleFilter('مانغا')" id="chip_مانغا" class="filter-chip">مانغا</button>
+            <button onclick="toggleFilter('مانها')" id="chip_مانها" class="filter-chip">مانها</button>
+            <button onclick="toggleFilter('كوميكس')" id="chip_كوميكس" class="filter-chip">كوميكس</button>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-4 space-y-12 w-full">
         
-        <!-- 1. خانة آخر التحديثات -->
+        <!-- 1. آخر التحديثات -->
         <section id="latestSection" class="relative">
             <h2 class="text-lg font-black uppercase mb-4 tracking-wider">آخر التحديثات <span class="text-accent">LATEST</span></h2>
             <div id="latestUpdates" class="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -194,7 +226,7 @@
             </div>
         </section>
 
-        <!-- 2. خانة الأكثر مشاهدة -->
+        <!-- 2. الأكثر مشاهدة -->
         <section id="topSection" class="relative pt-2 border-t border-gray-800/50">
             <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر مشاهدة <span class="text-accent">MOST VIEWED</span></h2>
             <div id="viewedMangaList" class="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -207,9 +239,9 @@
             </div>
         </section>
 
-        <!-- 3. خانة الأكثر إعجاباً -->
+        <!-- 3. الأكثر إعجاباً -->
         <section id="likedSection" class="relative pt-2 border-t border-gray-800/50">
-            <h2 class="text-lg font-black uppercase mb-4 tracking-wider">الأكثر إعجاباً <span class="text-accent">MOST LIKED</span></h2>
+            <h2 class="text-lg font-black uppercase mb-4 tracking-wider">أعمال أعجبتني <span class="text-accent">MOST LIKED</span></h2>
             <div id="likedMangaList" class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div class="col-span-2 md:col-span-3 text-center py-10 text-gray-500 text-sm"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i></div>
             </div>
@@ -248,21 +280,68 @@
         
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
-        let allLatest = []; let latestLimit = 6;
-        let allViewed = []; let viewedLimit = 6;
-        let allLiked  = []; let likedLimit  = 6;
+        let rawMangas = [];
+        let activeFilters = new Set(['all']); // التحكم في الأنواع المختارة في الفلتر
+
+        let latestLimit = 6;
+        let viewedLimit = 6;
+        let likedLimit  = 6;
 
         window.onload = () => {
             updateAuthUI();
             loadPublishedMangas();
         };
 
+        // نظام الفلاتر المتعددة (إمكانية اختيار نوع أو أكثر معاً أو الكل)
+        function toggleFilter(type) {
+            if (type === 'all') {
+                activeFilters.clear();
+                activeFilters.add('all');
+            } else {
+                activeFilters.delete('all');
+                if (activeFilters.has(type)) {
+                    activeFilters.delete(type);
+                } else {
+                    activeFilters.add(type);
+                }
+                if (activeFilters.size === 0) {
+                    activeFilters.add('all');
+                }
+            }
+
+            // تحديث تصميم أزرار الفلتر
+            ['all', 'مانغا', 'مانها', 'كوميكس'].forEach(f => {
+                const btn = document.getElementById(`chip_${f}`);
+                if (btn) {
+                    if (activeFilters.has(f)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+
+            applyFiltersAndRender();
+        }
+
+        function resetFilters() {
+            activeFilters.clear();
+            activeFilters.add('all');
+            ['all', 'مانغا', 'مانها', 'كوميكس'].forEach(f => {
+                const btn = document.getElementById(`chip_${f}`);
+                if (btn) {
+                    if (f === 'all') btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+            applyFiltersAndRender();
+        }
+
         async function updateAuthUI() {
             const topBadge = document.getElementById('userBadge');
             const sidebarFooter = document.getElementById('sidebarFooterAccount');
 
             if (currentUser) {
-                // محاولة جلب أحدث بيانات البروفيل من قاعدة البيانات بصمت إن وجدت
                 try {
                     const { data: profile } = await sbClient.from('profiles').select('*').eq('username', currentUser.username).single();
                     if (profile) {
@@ -311,11 +390,9 @@
                     avatarGlowClass = "avatar-glow-uploader";
                 }
 
-                // 1. تحديث الشارة في الشريط العلوي فقط
                 topBadge.innerHTML = badgeIcon + badgeText;
                 topBadge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
 
-                // 2. تحديث أسفل السايدبار: الصورة الدائرية المتوهجة + الاسم المتوهج + الشارة -> يوجه إلى profile.html
                 const avatarUrl = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `https://ui-avatars.com/api/?name=${currentUser.username}&background=18181b&color=fff&size=120`;
 
                 sidebarFooter.innerHTML = `
@@ -358,11 +435,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        function openMangaPage(id) {
-            localStorage.setItem('selectedMangaId', id);
-            window.location.href = `manga.html?id=${id}`;
-        }
-
         function openSearch() {
             const modal = document.getElementById('searchModal');
             modal.classList.remove('hidden');
@@ -398,46 +470,49 @@
             searchTimeout = setTimeout(async () => {
                 try {
                     const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
-                    if (error) throw error;
-                    if (data.length === 0) { resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>'; return; }
-
-                    resultsContainer.innerHTML = data.map(manga => {
-                        const tagsHtml = (manga.tags ? manga.tags.split(',').slice(0, 3) : []).map(tag => `<span class="bg-black border border-gray-700 text-gray-300 px-2 py-0.5 rounded text-[9px] font-bold">${tag.trim()}</span>`).join('');
-                        return `
-                            <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
-                                <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
-                                <div class="flex-1 overflow-hidden">
-                                    <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
-                                    <div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div>
-                                </div>
-                            </a>
-                        `;
-                    }).join('');
-                } catch (err) { resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>'; }
+                    if (error || !data || data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>';
+                        return;
+                    }
+                    resultsContainer.innerHTML = data.map(manga => `
+                        <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
+                            <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                            <div class="flex-1 overflow-hidden">
+                                <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                            </div>
+                        </a>
+                    `).join('');
+                } catch (err) {
+                    resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>';
+                }
             }, 600);
         });
 
         async function goToRandomManga() {
             try {
-                const { data, error } = await sbClient.from('mangas').select('id').eq('status', 'approved');
-                if (error || !data || data.length === 0) return alert('لا توجد أعمال منشورة حالياً لقراءتها!');
-                const randomId = data[Math.floor(Math.random() * data.length)].id;
-                openMangaPage(randomId);
-            } catch (err) { console.error("خطأ: ", err); }
+                const { data } = await sbClient.from('mangas').select('id').eq('status', 'approved');
+                if (data && data.length > 0) {
+                    const randomId = data[Math.floor(Math.random() * data.length)].id;
+                    localStorage.setItem('selectedMangaId', randomId);
+                    window.location.href = `manga.html?id=${randomId}`;
+                } else { alert('لا توجد أعمال منشورة حالياً لقراءتها!'); }
+            } catch (err) {}
         }
 
         // تحديد شارة نوع العمل (مانغا أبيض، مانها أصفر، كوميكس أحمر)
-        function getWorkTypeBadgeHTML(manga) {
+        function getWorkType(manga) {
             const rawType = ((manga.work_type || manga.type || manga.category || manga.tags || '') + '').toLowerCase();
-            if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) {
-                return `<span class="bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded shadow-md">مانها</span>`;
-            } else if (rawType.includes('comic') || rawType.includes('كوميكس') || rawType.includes('كوميك')) {
-                return `<span class="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-md">كوميكس</span>`;
-            }
+            if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) return 'مانها';
+            if (rawType.includes('comic') || rawType.includes('كوميكس') || rawType.includes('كوميك')) return 'كوميكس';
+            return 'مانغا';
+        }
+
+        function getWorkTypeBadgeHTML(type) {
+            if (type === 'مانها') return `<span class="bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded shadow-md">مانها</span>`;
+            if (type === 'كوميكس') return `<span class="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-md">كوميكس</span>`;
             return `<span class="bg-white text-black text-[10px] font-black px-2 py-0.5 rounded shadow-md">مانغا</span>`;
         }
 
-        // حساب التقييم بالنجوم ديناميكياً بناءً على عدد اللايكات الفعلي
         function getLikesCount(manga) {
             const dbLikes = Number(manga.likes_count || manga.likes || 0);
             const localLiked = localStorage.getItem(`like_${manga.id}`) === 'true' ? 1 : 0;
@@ -446,7 +521,6 @@
 
         function calculateStarRating(likes) {
             if (likes <= 0) return '0.0';
-            // معادلة ترفع التقييم تدريجياً مع زيادة الإعجابات حتى يصل إلى 5.0
             const score = Math.min(5.0, 2.5 + Math.log10(likes + 1) * 1.6);
             return score.toFixed(1);
         }
@@ -454,43 +528,49 @@
         async function loadPublishedMangas() {
             try {
                 const { data: mangas, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
-                if (error) throw error;
-
-                if (!mangas || mangas.length === 0) {
-                    const emptyMsg = '<div class="col-span-2 md:col-span-3 text-center text-gray-500 py-10 text-sm">لا توجد أعمال منشورة بعد.</div>';
-                    document.getElementById('latestUpdates').innerHTML = emptyMsg;
-                    document.getElementById('viewedMangaList').innerHTML = emptyMsg;
-                    document.getElementById('likedMangaList').innerHTML = emptyMsg;
-                    return;
-                }
-
-                // 1. ترتيب آخر التحديثات (حسب الأحدث)
-                allLatest = [...mangas];
-
-                // 2. ترتيب الأكثر مشاهدة (حسب عمود المشاهدات views أو views_count إن وجد)
-                allViewed = [...mangas].sort((a, b) => (Number(b.views || b.views_count || 0)) - (Number(a.views || a.views_count || 0)));
-
-                // 3. ترتيب الأكثر إعجاباً (حسب عدد اللايكات)
-                allLiked = [...mangas].sort((a, b) => getLikesCount(b) - getLikesCount(a));
-
-                renderMangaSection(allLatest, latestLimit, 'latestUpdates', 'latestSeeMoreContainer');
-                renderMangaSection(allViewed, viewedLimit, 'viewedMangaList', 'viewedSeeMoreContainer');
-                renderMangaSection(allLiked, likedLimit, 'likedMangaList', 'likedSeeMoreContainer');
-
+                if (error || !mangas) throw new Error("Load failed");
+                rawMangas = mangas;
             } catch (err) {
-                document.getElementById('latestUpdates').innerHTML = `<div class="col-span-2 md:col-span-3 text-red-500 text-center text-sm py-10">خطأ في الاتصال: ${err.message}</div>`;
+                rawMangas = [
+                    { id: '1', title: 'عمل تجريبي مانغا', cover_image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500', uploader_name: 'Gg', likes_count: 12, work_type: 'مانغا' },
+                    { id: '2', title: 'عمل تجريبي مانها', cover_image_url: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=500', uploader_name: 'Admin', likes_count: 25, work_type: 'مانها' }
+                ];
             }
+            applyFiltersAndRender();
         }
 
-        function renderMangaSection(itemsArray, limit, containerId, btnContainerId) {
+        // تطبيق الفلاتر المحددة على الأقسام الثلاثة
+        function applyFiltersAndRender() {
+            let filtered = rawMangas;
+            if (!activeFilters.has('all')) {
+                filtered = rawMangas.filter(m => activeFilters.has(getWorkType(m)));
+            }
+
+            const allLatest = filtered;
+            const allViewed = [...filtered].sort((a, b) => (Number(b.views || b.views_count || 0)) - (Number(a.views || a.views_count || 0)));
+            const allLiked  = [...filtered].sort((a, b) => getLikesCount(b) - getLikesCount(a));
+
+            renderMangaSection(allLatest, latestLimit, 'latestUpdates', 'latestSeeMoreContainer', allLatest);
+            renderMangaSection(allViewed, viewedLimit, 'viewedMangaList', 'viewedSeeMoreContainer', allViewed);
+            renderMangaSection(allLiked, likedLimit, 'likedMangaList', 'likedSeeMoreContainer', allLiked);
+        }
+
+        function renderMangaSection(itemsArray, limit, containerId, btnContainerId, fullArray) {
             const container = document.getElementById(containerId);
             const btnContainer = document.getElementById(btnContainerId);
+
+            if (!itemsArray || itemsArray.length === 0) {
+                container.innerHTML = '<div class="col-span-2 md:col-span-3 text-center text-gray-500 py-10 text-xs">لا توجد أعمال مطابقة لهذا الفلتر.</div>';
+                btnContainer.classList.add('hidden');
+                return;
+            }
 
             const visibleItems = itemsArray.slice(0, limit);
 
             container.innerHTML = visibleItems.map(manga => {
                 const mangaLink = `manga.html?id=${manga.id}`;
-                const typeBadge = getWorkTypeBadgeHTML(manga);
+                const type = getWorkType(manga);
+                const typeBadge = getWorkTypeBadgeHTML(type);
                 const likes = getLikesCount(manga);
                 const rating = calculateStarRating(likes);
 
@@ -498,7 +578,6 @@
                     <a href="${mangaLink}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-xl overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer z-10">
                         <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
                             <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
-                            <!-- شارة نوع العمل في الزاوية السفلية -->
                             <div class="absolute bottom-2 right-2 z-20">
                                 ${typeBadge}
                             </div>
@@ -524,17 +603,16 @@
             }
         }
 
-        // إظهار 6 أعمال إضافية عند الضغط على زر المزيد
         function expandSection(sectionType) {
             if (sectionType === 'latest') {
                 latestLimit += 6;
-                renderMangaSection(allLatest, latestLimit, 'latestUpdates', 'latestSeeMoreContainer');
+                applyFiltersAndRender();
             } else if (sectionType === 'viewed') {
                 viewedLimit += 6;
-                renderMangaSection(allViewed, viewedLimit, 'viewedMangaList', 'viewedSeeMoreContainer');
+                applyFiltersAndRender();
             } else if (sectionType === 'liked') {
                 likedLimit += 6;
-                renderMangaSection(allLiked, likedLimit, 'likedMangaList', 'likedSeeMoreContainer');
+                applyFiltersAndRender();
             }
         }
     </script>
