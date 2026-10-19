@@ -35,7 +35,7 @@
         .lib-tab:hover { color: #ffffff; }
         .lib-tab.active { color: #f472b6; border-bottom-color: #f472b6; }
         .lib-content { display: none; }
-        .lib-content.active { display: block; animation: fadeIn 0.4s ease; }
+        .lib-content.active { display: block; animation: fadeIn 0.35s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* تأثيرات التوهج للشارات والأسماء والإطارات */
@@ -103,7 +103,7 @@
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
                 <ul class="space-y-1.5">
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
-                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#latestSection" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
                     <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
@@ -112,15 +112,15 @@
             <div>
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
                 <ul class="space-y-1.5">
-                    <li><a href="library.html?tab=bookmarks" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
-                    <li><a href="library.html?tab=history" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
-                    <li><a href="library.html?tab=likes" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
-                    <li><a href="library.html?tab=uploads" id="sidebarUploadsLink" class="sidebar-link hidden"><i class="fas fa-cloud-upload-alt text-accent"></i><span>منشوراتي</span></a></li>
+                    <li><a href="library.html?tab=bookmarks" onclick="closeSidebar(); switchLibTab('bookmarks'); return false;" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="library.html?tab=history" onclick="closeSidebar(); switchLibTab('history'); return false;" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="library.html?tab=likes" onclick="closeSidebar(); switchLibTab('likes'); return false;" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="library.html?tab=uploads" id="sidebarUploadsLink" onclick="closeSidebar(); switchLibTab('uploads'); return false;" class="sidebar-link hidden"><i class="fas fa-cloud-upload-alt text-accent"></i><span>منشوراتي</span></a></li>
                     <li><a href="subscription.html" class="sidebar-link"><i class="fas fa-crown text-yellow-500"></i><span class="text-yellow-500">اشتراكي</span></a></li>
                 </ul>
             </div>
         </div>
-        <!-- أسفل السايدبار: صورة بروفيل متوهجة واسم المستخدم -> ينقل لإعدادات الملف الشخصي -->
+        <!-- أسفل السايدبار: صورة بروفيل متوهجة واسم المستخدم -->
         <div id="sidebarFooterAccount" class="p-4 border-t border-gray-800/70 bg-[#0d0d10]">
             <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px] py-2">
                 <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
@@ -156,7 +156,7 @@
     <!-- المحتوى الرئيسي للمكتبة -->
     <main class="flex-1 max-w-4xl mx-auto px-4 py-5 w-full flex flex-col">
         
-        <!-- رأس الحساب (بدون فراغات، تصميم متناسق مع التوهج الحقيقي) -->
+        <!-- رأس الحساب (متناسق مع التوهج الحقيقي) -->
         <div class="bg-card border border-gray-800/80 rounded-2xl p-4 mb-5 shadow-lg relative overflow-hidden flex items-center justify-between">
             <div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
             
@@ -169,7 +169,7 @@
                     <div class="flex items-center gap-2">
                         <h1 id="profileName" class="text-lg font-black text-glow-free truncate">الزائر الكريم</h1>
                     </div>
-                    <div class="flex gap-1.5 items-center mt-1">
+                    <div class="flex gap-1.5 items-center mt-1 flex-wrap">
                         <span id="profileRole" class="text-[9px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded font-bold border border-gray-700">حساب زائر</span>
                         <span id="uploadsCounterBadge" class="hidden text-[9px] bg-pink-900/40 text-pink-400 px-2 py-0.5 rounded font-bold border border-pink-800/50">
                             <i class="fas fa-cloud-upload-alt mr-1"></i> <span id="uploadsCount">0</span> عمل منشور
@@ -186,18 +186,35 @@
 
         <!-- تبويبات المكتبة العلوية -->
         <div class="flex overflow-x-auto border-b border-gray-800 mb-5 scrollbar-hide">
-            <button onclick="switchLibTab('history')" id="tabBtn-history" class="lib-tab active"><i class="fas fa-history ml-1"></i>آخر مشاهدة</button>
-            <button onclick="switchLibTab('bookmarks')" id="tabBtn-bookmarks" class="lib-tab"><i class="far fa-bookmark ml-1"></i>المفضلة</button>
-            <button onclick="switchLibTab('likes')" id="tabBtn-likes" class="lib-tab"><i class="far fa-heart ml-1"></i>أعمال أعجبتني</button>
-            <button onclick="switchLibTab('uploads')" id="tabBtn-uploads" class="lib-tab hidden"><i class="fas fa-cloud-upload-alt ml-1 text-accent"></i>منشوراتي</button>
+            <button onclick="switchLibTab('history')" id="tabBtn-history" class="lib-tab active">
+                <i class="fas fa-history ml-1"></i><span>آخر مشاهدة</span>
+                <span id="historyTabCount" class="text-[10px] bg-gray-800 text-gray-300 px-1.5 py-0.2 rounded-full">0</span>
+            </button>
+            <button onclick="switchLibTab('bookmarks')" id="tabBtn-bookmarks" class="lib-tab">
+                <i class="far fa-bookmark ml-1"></i><span>المفضلة</span>
+                <span id="bookmarksTabCount" class="text-[10px] bg-gray-800 text-gray-300 px-1.5 py-0.2 rounded-full">0</span>
+            </button>
+            <button onclick="switchLibTab('likes')" id="tabBtn-likes" class="lib-tab">
+                <i class="far fa-heart ml-1"></i><span>أعمال أعجبتني</span>
+                <span id="likesTabCount" class="text-[10px] bg-gray-800 text-gray-300 px-1.5 py-0.2 rounded-full">0</span>
+            </button>
+            <button onclick="switchLibTab('uploads')" id="tabBtn-uploads" class="lib-tab hidden">
+                <i class="fas fa-cloud-upload-alt ml-1 text-accent"></i><span>منشوراتي</span>
+            </button>
         </div>
 
         <!-- حاويات المحتوى للتبويبات -->
         
-        <!-- 1. محتوى سجل القراءة -->
+        <!-- 1. محتوى سجل القراءة (آخر مانغا وفصل وصفحة) -->
         <div id="tabContent-history" class="lib-content active">
+            <div id="historyHeaderBar" class="hidden justify-between items-center mb-3 px-1">
+                <span class="text-xs font-black text-gray-300">سجل القراءة الأخير</span>
+                <button onclick="clearAllHistory()" class="text-[11px] text-red-400 hover:text-red-300 bg-red-950/30 border border-red-800/40 px-3 py-1 rounded-lg font-bold transition active:scale-95 flex items-center gap-1">
+                    <i class="fas fa-trash-alt text-[10px]"></i> <span>مسح السجل</span>
+                </button>
+            </div>
             <div id="historyGrid" class="flex flex-col gap-3">
-                <div class="text-center py-14 text-gray-500 text-xs font-bold">
+                <div class="text-center py-14 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800/80">
                     <i class="fas fa-history text-2xl mb-2 opacity-20 block"></i> لم تقرأ أي عمل مؤخراً.
                 </div>
             </div>
@@ -206,7 +223,7 @@
         <!-- 2. محتوى المفضلة -->
         <div id="tabContent-bookmarks" class="lib-content">
             <div id="bookmarksGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <div class="col-span-2 md:col-span-3 text-center py-14 text-gray-500 text-xs font-bold">
+                <div class="col-span-2 md:col-span-3 text-center py-14 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800/80">
                     <i class="far fa-bookmark text-2xl mb-2 opacity-20 block"></i> مفضلتك فارغة حالياً.
                 </div>
             </div>
@@ -215,7 +232,7 @@
         <!-- 3. محتوى الإعجابات -->
         <div id="tabContent-likes" class="lib-content">
             <div id="likesGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <div class="col-span-2 md:grid-cols-3 text-center py-14 text-gray-500 text-xs font-bold">
+                <div class="col-span-2 md:col-span-3 text-center py-14 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800/80">
                     <i class="far fa-heart text-2xl mb-2 opacity-20 block"></i> لم تعجب بأي عمل بعد.
                 </div>
             </div>
@@ -236,13 +253,13 @@
 
     </main>
 
-    <!-- الفوتر -->
+    <!-- الفوتر الموحد المرتبط بـ terms.html و dmca.html -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
             <div class="flex gap-4 text-sm font-bold text-gray-400">
                 <a href="index.html" class="hover:text-white transition">الرئيسية</a>
-                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
-                <a href="#" class="hover:text-white transition">DMCA</a>
+                <a href="terms.html" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="dmca.html" class="hover:text-white transition">DMCA</a>
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
                 جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع لأغراض القراءة المجانية. الموقع لا يستضيف أي ملفات على خوادمه.
@@ -262,8 +279,9 @@
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
         
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
+        let allApprovedMangas = [];
 
-        window.onload = () => {
+        window.onload = async () => {
             updateAuthUI();
             
             const urlParams = new URLSearchParams(window.location.search);
@@ -273,20 +291,41 @@
             if (currentUser) {
                 document.getElementById('profileName').innerText = currentUser.username || 'مستخدم';
                 document.getElementById('profileSettingsBtn').classList.remove('hidden');
-                document.getElementById('profileSettingsBtn').href = `profile.html?user=${currentUser.username}`;
+                document.getElementById('profileSettingsBtn').href = `profile.html?user=${encodeURIComponent(currentUser.username)}`;
                 checkUserRoleAndFetchUploads();
-                loadRealBookmarksAndLikes();
             } else {
                 document.getElementById('profileName').innerText = "الزائر الكريم";
                 document.getElementById('profileRole').innerText = "حساب زائر";
             }
+
+            await fetchMangasAndRenderLibrary();
         };
 
-        function updateAuthUI() {
+        // تحديث السجل والمفضلة فور العودة من صفحة القارئ أو المانغا
+        window.addEventListener('pageshow', () => {
+            loadReadingHistory();
+            if (allApprovedMangas.length > 0) renderBookmarksAndLikes();
+        });
+        window.addEventListener('focus', () => {
+            loadReadingHistory();
+            if (allApprovedMangas.length > 0) renderBookmarksAndLikes();
+        });
+
+        async function updateAuthUI() {
             const badge = document.getElementById('userBadge');
             const sidebarFooter = document.getElementById('sidebarFooterAccount');
 
             if (currentUser) {
+                try {
+                    const { data: profile } = await sbClient.from('profiles').select('*').eq('username', currentUser.username).single();
+                    if (profile) {
+                        currentUser.subscription_type = profile.subscription_type || currentUser.subscription_type;
+                        currentUser.avatar_url = profile.avatar_url || currentUser.avatar_url;
+                        currentUser.badges_history = profile.badges_history || currentUser.badges_history;
+                        localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                    }
+                } catch (e) {}
+
                 const subType = currentUser.subscription_type || 'free'; 
                 let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
                 let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
@@ -303,21 +342,18 @@
                 badge.innerHTML = badgeIcon + badgeText;
                 badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
 
-                // تطبيق التوهج الحقيقي على الاسم وصورة البروفيل في صندوق الحساب العلوي وفي السايدبار
                 document.getElementById('profileName').className = `text-lg font-black truncate ${nameGlowClass}`;
 
                 const avatarUrl = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `https://ui-avatars.com/api/?name=${currentUser.username}&background=18181b&color=fff&size=120`;
                 
-                // تحديث الصورة في الصندوق العلوي
                 document.getElementById('libraryAvatarBox').className = `w-14 h-14 rounded-full flex items-center justify-center border-2 ${avatarGlowClass} flex-shrink-0 overflow-hidden bg-black shadow-md`;
                 document.getElementById('libraryUserIcon').classList.add('hidden');
                 const imgEl = document.getElementById('libraryUserImg');
                 imgEl.src = avatarUrl;
                 imgEl.classList.remove('hidden');
 
-                // تحديث أسفل السايدبار بالبطاقة المتوهجة
                 sidebarFooter.innerHTML = `
-                    <a href="profile.html?user=${currentUser.username}" class="flex items-center justify-between p-2 rounded-xl bg-[#141418] hover:bg-[#1c1c22] border border-gray-800/80 transition active:scale-95 group">
+                    <a href="profile.html?user=${encodeURIComponent(currentUser.username)}" class="flex items-center justify-between p-2 rounded-xl bg-[#141418] hover:bg-[#1c1c22] border border-gray-800/80 transition active:scale-95 group">
                         <div class="flex items-center gap-3 overflow-hidden">
                             <img src="${avatarUrl}" class="w-11 h-11 rounded-full object-cover bg-black border-2 ${avatarGlowClass} flex-shrink-0">
                             <div class="flex flex-col items-start overflow-hidden">
@@ -360,6 +396,135 @@
             window.history.replaceState(null, '', `library.html?tab=${tabName}`);
         }
 
+        // تنسيق الوقت منذ آخر قراءة
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'مؤخراً';
+            const diffSec = Math.floor((Date.now() - timestamp) / 1000);
+            if (diffSec < 60) return 'منذ لحظات';
+            const diffMin = Math.floor(diffSec / 60);
+            if (diffMin < 60) return `منذ ${diffMin} دقيقة`;
+            const diffHr = Math.floor(diffMin / 60);
+            if (diffHr < 24) return `منذ ${diffHr} ساعة`;
+            const diffDays = Math.floor(diffHr / 24);
+            if (diffDays < 30) return `منذ ${diffDays} يوم`;
+            return new Date(timestamp).toLocaleDateString('ar-EG');
+        }
+
+        // --- تحميل وعرض سجل القراءة (آخر مانغا وفصل وصفحة) ---
+        function loadReadingHistory() {
+            const historyGrid = document.getElementById('historyGrid');
+            const headerBar = document.getElementById('historyHeaderBar');
+            const countBadge = document.getElementById('historyTabCount');
+
+            let history = JSON.parse(localStorage.getItem('futa_read_history') || '[]');
+
+            // استرجاع أي تقدم محفوظ في reading_progress_${id} إذا لم يكن مضافاً في القائمة بعد
+            if (allApprovedMangas.length > 0) {
+                allApprovedMangas.forEach(m => {
+                    const prog = JSON.parse(localStorage.getItem(`reading_progress_${m.id}`) || 'null');
+                    if (prog && !history.some(h => String(h.id) === String(m.id))) {
+                        history.push({
+                            id: m.id,
+                            title: m.title,
+                            cover_image_url: m.cover_image_url,
+                            last_chapter: prog.chapterNum || 1,
+                            last_page: (prog.pageIndex || 0) + 1,
+                            timestamp: prog.updatedAt || Date.now()
+                        });
+                    }
+                });
+                history.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                localStorage.setItem('futa_read_history', JSON.stringify(history));
+            }
+
+            countBadge.innerText = history.length;
+
+            if (history.length === 0) {
+                headerBar.classList.add('hidden');
+                headerBar.classList.remove('flex');
+                historyGrid.innerHTML = `
+                    <div class="text-center py-14 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800/80">
+                        <i class="fas fa-history text-2xl mb-2 opacity-20 block"></i> لم تقرأ أي عمل مؤخراً.
+                    </div>
+                `;
+                return;
+            }
+
+            headerBar.classList.remove('hidden');
+            headerBar.classList.add('flex');
+
+            historyGrid.innerHTML = history.map(item => {
+                // قراءة أحدث رقم صفحة وإجمالي الصفحات من مؤشر تقدم المانغا المباشر
+                const prog = JSON.parse(localStorage.getItem(`reading_progress_${item.id}`) || 'null');
+                const chapterNum = prog?.chapterNum || item.last_chapter || 1;
+                const pageNum = prog && typeof prog.pageIndex === 'number' ? (prog.pageIndex + 1) : (item.last_page || 1);
+                const totalPages = prog?.totalPages || null;
+                const progressPercent = totalPages ? Math.min(100, Math.round((pageNum / totalPages) * 100)) : 100;
+                const timeText = formatTimeAgo(prog?.updatedAt || item.timestamp);
+
+                return `
+                    <div class="bg-card p-3 rounded-2xl border border-gray-800/90 hover:border-gray-700 transition shadow-md flex items-center gap-3.5 relative">
+                        <!-- غلاف العمل ينقل لصفحة المانغا -->
+                        <a href="manga.html?id=${encodeURIComponent(item.id)}" onclick="localStorage.setItem('selectedMangaId', '${item.id}')" class="relative w-16 h-24 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-gray-700/60 shadow-sm block">
+                            <img src="${item.cover_image_url}" class="w-full h-full object-cover">
+                        </a>
+
+                        <!-- تفاصيل العمل والفصل والصفحة -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <a href="manga.html?id=${encodeURIComponent(item.id)}" onclick="localStorage.setItem('selectedMangaId', '${item.id}')" class="font-black text-sm text-white hover:text-accent transition truncate block">
+                                    ${item.title || 'بدون عنوان'}
+                                </a>
+                                <button onclick="removeFromHistory('${item.id}')" class="text-gray-500 hover:text-red-400 p-1 transition text-xs flex-shrink-0" title="حذف من السجل">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <!-- شارات الفصل والصفحة المتوقف عندها -->
+                            <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                <span class="text-[10px] font-black bg-purple-950/60 text-purple-300 border border-purple-700/50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                    <i class="fas fa-book-open text-[8px]"></i> الفصل ${chapterNum}
+                                </span>
+                                <span class="text-[10px] font-black bg-pink-950/60 text-accent border border-pink-700/50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                    <i class="fas fa-file-image text-[8px]"></i> صفحة ${pageNum}${totalPages ? ` من ${totalPages}` : ''}
+                                </span>
+                            </div>
+
+                            <!-- شريط تقدم القراءة وزر إكمال القراءة -->
+                            <div class="mt-2.5 flex items-center justify-between gap-3">
+                                <div class="flex-1">
+                                    <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full" style="width: ${progressPercent}%"></div>
+                                    </div>
+                                    <span class="text-[9px] text-gray-500 font-bold mt-1 block"><i class="far fa-clock ml-1"></i>${timeText}</span>
+                                </div>
+
+                                <a href="reader.html?id=${encodeURIComponent(item.id)}&chapter=${chapterNum}&resume=1" onclick="localStorage.setItem('selectedMangaId', '${item.id}')" class="bg-accent hover:bg-pink-600 text-white text-[11px] font-black px-3 py-1.5 rounded-xl transition active:scale-95 flex items-center gap-1.5 shadow-md shadow-pink-950/50 flex-shrink-0">
+                                    <span>إكمال</span> <i class="fas fa-play text-[8px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeFromHistory(mangaId) {
+            let history = JSON.parse(localStorage.getItem('futa_read_history') || '[]');
+            history = history.filter(item => String(item.id) !== String(mangaId));
+            localStorage.setItem('futa_read_history', JSON.stringify(history));
+            localStorage.removeItem(`reading_progress_${mangaId}`);
+            loadReadingHistory();
+        }
+
+        function clearAllHistory() {
+            if (!confirm('هل أنت متأكد من مسح سجل القراءة بالكامل؟')) return;
+            const history = JSON.parse(localStorage.getItem('futa_read_history') || '[]');
+            history.forEach(item => localStorage.removeItem(`reading_progress_${item.id}`));
+            localStorage.removeItem('futa_read_history');
+            loadReadingHistory();
+        }
+
         async function checkUserRoleAndFetchUploads() {
             if (!currentUser) return;
             try {
@@ -372,55 +537,90 @@
                 document.getElementById('sidebarUploadsLink').classList.remove('hidden');
                 document.getElementById('uploadsCounterBadge').classList.remove('hidden');
                 document.getElementById('uploadsCount').innerText = uploads ? uploads.length : 0;
-                document.getElementById('profileRole').innerText = uploads && uploads.length > 0 ? "رافع (Uploader)" : "مستخدم نشط";
+
+                const hasUploaderInDB = currentUser.subscription_type === 'uploader' || (Array.isArray(currentUser.badges_history) && currentUser.badges_history.includes('uploader'));
+                document.getElementById('profileRole').innerText = hasUploaderInDB ? "رافع معتمد (Uploader)" : "مستخدم مسجل";
                 document.getElementById('profileRole').className = "text-[9px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold border border-accent/50";
 
                 const uploadsGrid = document.getElementById('uploadsGrid');
                 if (!uploads || uploads.length === 0) {
-                    uploadsGrid.innerHTML = `<div class="text-center py-10 text-gray-500 text-xs font-bold">لم تقم بنشر أي أعمال بعد.</div>`;
+                    uploadsGrid.innerHTML = `<div class="text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800/80">لم تقم بنشر أي أعمال بعد.</div>`;
                     return;
                 }
 
-                uploadsGrid.innerHTML = uploads.map(manga => `
-                    <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-card p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-center shadow-md relative cursor-pointer">
-                        <img src="${manga.cover_image_url}" class="w-16 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
-                        <div class="flex-1 overflow-hidden">
-                            <h3 class="font-bold text-xs text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
-                            <div class="text-[10px] text-gray-500">بتاريخ: ${new Date(manga.created_at).toLocaleDateString('ar-EG')}</div>
-                        </div>
-                        <div class="text-gray-500 px-2"><i class="fas fa-chevron-left text-xs"></i></div>
-                    </a>
-                `).join('');
+                uploadsGrid.innerHTML = uploads.map(manga => {
+                    const statusColor = manga.status === 'approved' ? 'text-emerald-400 border-emerald-800/50 bg-emerald-950/30' : (manga.status === 'pending' ? 'text-yellow-400 border-yellow-800/50 bg-yellow-950/30' : 'text-red-400 border-red-800/50 bg-red-950/30');
+                    const statusText = manga.status === 'approved' ? 'منشور' : (manga.status === 'pending' ? 'قيد المراجعة' : 'مرفوض');
+
+                    return `
+                        <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-card p-3 rounded-xl border border-gray-800/80 hover:bg-[#222] transition items-center shadow-md relative cursor-pointer">
+                            <img src="${manga.cover_image_url}" class="w-16 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                            <div class="flex-1 overflow-hidden">
+                                <h3 class="font-bold text-xs text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                                <div class="text-[10px] text-gray-500 mb-1.5">بتاريخ: ${new Date(manga.created_at).toLocaleDateString('ar-EG')}</div>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full border ${statusColor}">${statusText}</span>
+                            </div>
+                            <div class="text-gray-500 px-2"><i class="fas fa-chevron-left text-xs"></i></div>
+                        </a>
+                    `;
+                }).join('');
             } catch (err) {}
         }
 
-        async function loadRealBookmarksAndLikes() {
+        async function fetchMangasAndRenderLibrary() {
+            loadReadingHistory();
             try {
                 const { data: mangas } = await sbClient.from('mangas').select('*').eq('status', 'approved');
-                if (!mangas) return;
-
-                const bookmarksGrid = document.getElementById('bookmarksGrid');
-                const likesGrid = document.getElementById('likesGrid');
-
-                const bookmarkedMangas = mangas.filter(m => localStorage.getItem(`bookmark_${m.id}`) === 'true');
-                const likedMangas = mangas.filter(m => localStorage.getItem(`like_${m.id}`) === 'true' || localStorage.getItem(`liked_${m.id}`) === 'true');
-
-                if (bookmarkedMangas.length > 0) {
-                    bookmarksGrid.innerHTML = bookmarkedMangas.map(m => renderGridCard(m)).join('');
-                }
-                if (likedMangas.length > 0) {
-                    likesGrid.innerHTML = likedMangas.map(m => renderGridCard(m)).join('');
+                if (mangas) {
+                    allApprovedMangas = mangas;
+                    loadReadingHistory();
+                    renderBookmarksAndLikes();
                 }
             } catch (e) {}
         }
 
+        function renderBookmarksAndLikes() {
+            const bookmarksGrid = document.getElementById('bookmarksGrid');
+            const likesGrid = document.getElementById('likesGrid');
+
+            const bookmarkedMangas = allApprovedMangas.filter(m => localStorage.getItem(`bookmark_${m.id}`) === 'true');
+            const likedMangas = allApprovedMangas.filter(m => localStorage.getItem(`like_${m.id}`) === 'true' || localStorage.getItem(`liked_${m.id}`) === 'true');
+
+            document.getElementById('bookmarksTabCount').innerText = bookmarkedMangas.length;
+            document.getElementById('likesTabCount').innerText = likedMangas.length;
+
+            if (bookmarkedMangas.length > 0) {
+                bookmarksGrid.innerHTML = bookmarkedMangas.map(m => renderGridCard(m)).join('');
+            } else {
+                bookmarksGrid.innerHTML = `<div class="col-span-2 md:col-span-3 text-center py-14 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800/80"><i class="far fa-bookmark text-2xl mb-2 opacity-20 block"></i> مفضلتك فارغة حالياً.</div>`;
+            }
+
+            if (likedMangas.length > 0) {
+                likesGrid.innerHTML = likedMangas.map(m => renderGridCard(m)).join('');
+            } else {
+                likesGrid.innerHTML = `<div class="col-span-2 md:col-span-3 text-center py-14 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800/80"><i class="far fa-heart text-2xl mb-2 opacity-20 block"></i> لم تعجب بأي عمل بعد.</div>`;
+            }
+        }
+
+        function getWorkTypeBadgeHTML(manga) {
+            const rawType = ((manga.work_type || manga.type || manga.category || manga.tags || '') + '').toLowerCase();
+            if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) {
+                return `<span class="bg-yellow-400 text-black text-[9px] font-black px-2 py-0.5 rounded shadow">مانها</span>`;
+            } else if (rawType.includes('comic') || rawType.includes('كوميكس') || rawType.includes('كوميك')) {
+                return `<span class="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded shadow">كوميكس</span>`;
+            }
+            return `<span class="bg-white text-black text-[9px] font-black px-2 py-0.5 rounded shadow">مانغا</span>`;
+        }
+
         function renderGridCard(manga) {
+            const typeBadge = getWorkTypeBadgeHTML(manga);
             return `
-                <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
+                <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-xl overflow-hidden border border-gray-800 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
                     <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
                         <img src="${manga.cover_image_url}" class="absolute top-0 left-0 w-full h-full object-cover">
+                        <div class="absolute bottom-2 right-2 z-20">${typeBadge}</div>
                     </div>
-                    <div class="p-2.5 pointer-events-none bg-[#111113]">
+                    <div class="p-2.5 pointer-events-none bg-[#141417]">
                         <h3 class="font-bold text-xs text-white line-clamp-1 leading-tight">${manga.title}</h3>
                     </div>
                 </a>
