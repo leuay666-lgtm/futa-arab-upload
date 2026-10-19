@@ -25,6 +25,42 @@
 
         /* تأثيرات توهج الشارات والأسماء والإطارات */
         .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
+        .textتم تحديث ملف **`manga.html`** بالكامل وبحذر شديد مع الحفاظ على جميع العناصر والميزات السابقة دون حذف أي سطر، وتطبيق التعديلات التالية بدقة:
+
+1. **التحويل المباشر إلى صفحة القراءة (`reader.html`):** تم إلغاء النافذة المنبثقة القديمة نهائياً، وعند الضغط على زر **"قراءة الآن / إكمال القراءة"** أو الضغط على أي فصل من قائمة الفصول، سينقلك المتصفح فوراً إلى صفحة `reader.html?id=...&chapter=...`، وعند الرجوع للخلف تتحدث حالة الفصل المقروء ورقم الصفحة تلقائياً.
+2. **تصحيح شرط ظهور شعار "رافع" (Uploader Badge):** لم يعد الشعار يظهر تلقائياً لمجرد أن الشخص رفع عملاً؛ بل يتحقق الكود أولاً من قاعدة البيانات (`profiles`) ليتأكد مما إذا كان الحساب يمتلك فعلياً رتبة `uploader` في `subscription_type` أو ضمن مصفوفة `badges_history` في قاعدة البيانات (سواء في خانة الرافع أو في التعليقات). إذا كان يمتلك اشتراكاً مدفوعاً ويمتلك معه شعار الرافع في قاعدة بياناته يظهران معاً، وإلا يظهر شعار اشتراكه الفعلي فقط (مثل `مجاني` أو `VIP`).
+3. **الحفاظ الكامل على جميع الميزات:** خلفية البلور للغلاف، شارة نوع العمل على الغلاف، التاغات التفاعلية، البحث برقم الفصل، تمييز الفصول المقروءة، التعليقات المتوهجة، والقائمة الجانبية الموحدة والفوتر.
+
+إليك الكود الكامل والنهائي لملف **`manga.html`**:
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <script src="[https://unpkg.com/@supabase/supabase-js@2](https://unpkg.com/@supabase/supabase-js@2)"></script>
+    <link href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css)" rel="stylesheet">
+    <title>تفاصيل العمل - Futa Arab</title>
+    <style>
+        body { background-color: #111113; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #18181b; }
+        .text-accent { color: #f472b6; }
+        .bg-accent { background-color: #f472b6; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #111113; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
+        #sidebarMenu { transition: transform 0.3s ease-in-out; }
+        .sidebar-link { display: flex; align-items: center; justify-content: flex-start; gap: 12px; color: #d1d5db; padding: 10px; border-radius: 8px; transition: all 0.3s ease; }
+        .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
+        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+        .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
+
+        /* تأثيرات توهج الشارات والأسماء والإطارات */
+        .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
         .text-glow-free { color: #ffffff; }
         .avatar-glow-free { border-color: #6b7280; box-shadow: 0 0 10px rgba(156, 163, 175, 0.3); }
         
@@ -153,7 +189,7 @@
         <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
             <a href="index.html" class="hover:text-white transition">الأحدث</a>
             <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
-            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+            <a href="[https://leuay666-lgtm.github.io/futa-arab-upload/upload.html](https://leuay666-lgtm.github.io/futa-arab-upload/upload.html)" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="subscription.html" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
             <a href="index.html#topSection" class="hover:text-white transition">الأكثر قراءة</a>
         </div>
@@ -162,7 +198,7 @@
     <!-- المحتوى الرئيسي لصفحة المانغا -->
     <main class="flex-1 w-full">
         
-        <!-- قسم الغلاف مع خلفية البلور المصححة -->
+        <!-- قسم الغلاف مع خلفية البلور -->
         <div class="relative w-full overflow-hidden pt-8 pb-6 px-4 border-b border-gray-800/60">
             <!-- طبقة صورة البلور الخلفية -->
             <img id="coverBlurBg" src="" alt="" class="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-45 pointer-events-none z-0 transition-opacity duration-500">
@@ -193,7 +229,7 @@
                         <i class="far fa-bookmark" id="bookmarkIcon"></i>
                     </button>
 
-                    <button id="mainReadBtn" onclick="continueOrStartReading()" class="flex-1 h-12 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-black rounded-xl shadow-lg shadow-pink-900/40 flex items-center justify-center gap-2 transition active:scale-95 text-sm px-3">
+                    <button id="mainReadBtn" onclick="continueOrStartReading()" class="flex-1 h-12 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-black rounded-xl shadow-lg shadow-pink-900/40 flex items-center justify-center gap-2 transition active:scale-95 text-sm px-3 cursor-pointer">
                         <i class="fas fa-book-open"></i>
                         <span id="mainReadBtnText">قراءة الآن</span>
                     </button>
@@ -221,7 +257,7 @@
                     <div id="mangaTagsList" class="flex flex-wrap gap-1.5"></div>
                 </div>
 
-                <!-- الرافع مع الشارات المزدوجة والرابط لملفه الشخصي -->
+                <!-- الرافع مع الشارات الفعلية من قاعدة البيانات والرابط لملفه الشخصي -->
                 <div class="flex items-center gap-3">
                     <span class="text-xs font-bold text-gray-400 whitespace-nowrap">الرافع:</span>
                     <div id="uploaderIdentityBox" class="inline-flex items-center gap-2"></div>
@@ -249,7 +285,7 @@
                 </div>
 
                 <div id="chaptersListContainer" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
-                    <!-- يتم ملء الفصول هنا -->
+                    <!-- يتم ملء الفصول هنا وعند النقر توجه إلى reader.html -->
                 </div>
             </div>
 
@@ -291,25 +327,6 @@
         </div>
     </main>
 
-    <!-- نافذة القارئ المدمج (Reader Modal) مع الحفظ التلقائي للصفحة -->
-    <div id="readerModal" class="fixed inset-0 bg-[#070709] z-[120] hidden flex-col">
-        <div class="bg-[#121214]/95 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex justify-between items-center sticky top-0 z-30">
-            <div class="flex items-center gap-2 overflow-hidden">
-                <button onclick="closeReader()" class="text-gray-300 hover:text-white bg-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 active:scale-95">
-                    <i class="fas fa-arrow-right"></i> <span>رجوع</span>
-                </button>
-                <span id="readerChapterTitle" class="text-xs font-black text-white truncate">Oneshot</span>
-            </div>
-            <div class="text-[11px] font-bold text-accent bg-pink-950/40 border border-pink-800/40 px-2.5 py-1 rounded-lg">
-                صفحة <span id="readerCurrentPageNum">1</span> / <span id="readerTotalPagesNum">1</span>
-            </div>
-        </div>
-
-        <div id="readerPagesScrollContainer" class="flex-1 overflow-y-auto flex flex-col items-center bg-black">
-            <!-- صور الفصل تظهر هنا -->
-        </div>
-    </div>
-
     <!-- الفوتر -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
@@ -330,7 +347,7 @@
     </button>
 
     <script>
-        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseUrl = '[https://vosnoijtrovgtvpxnzsr.supabase.co](https://vosnoijtrovgtvpxnzsr.supabase.co)';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -338,7 +355,6 @@
         let currentMangaId = null;
         let currentMangaData = null;
         let allChaptersList = [];
-        let activeChapterNum = 1;
 
         window.onload = async () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -356,6 +372,20 @@
             await loadSimilarMangas();
             loadComments();
         };
+
+        // تحديث حالة الفصول وزر إكمال القراءة فور العودة من صفحة reader.html
+        window.addEventListener('pageshow', () => {
+            if (currentMangaId && allChaptersList.length > 0) {
+                renderChaptersList(allChaptersList);
+                updateContinueReadingButton();
+            }
+        });
+        window.addEventListener('focus', () => {
+            if (currentMangaId && allChaptersList.length > 0) {
+                renderChaptersList(allChaptersList);
+                updateContinueReadingButton();
+            }
+        });
 
         // --- دوال مساعدة لرسم الشارات والألوان حسب الرتبة ---
         function getSubStyleInfo(subType) {
@@ -413,6 +443,23 @@
             return `<span class="text-[9px] font-black px-1.5 py-0.5 rounded border border-red-500 bg-red-900/40 text-red-400 glow-uploader inline-flex items-center gap-1"><i class="fas fa-upload text-[8px]"></i>رافع</span>`;
         }
 
+        // فحص هل المستخدم يمتلك فعلياً شعار "رافع" في قاعدة بياناته
+        function ownsUploaderBadgeInDB(subType, badgesHistory) {
+            const historyArr = Array.isArray(badgesHistory) ? badgesHistory : [];
+            return subType === 'uploader' || historyArr.includes('uploader');
+        }
+
+        // تحديد شارة نوع العمل (مانغا أبيض، مانها أصفر، كوميكس أحمر)
+        function getWorkTypeBadgeHTML(manga) {
+            const rawType = ((manga.work_type || manga.type || manga.category || manga.tags || '') + '').toLowerCase();
+            if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) {
+                return `<span class="bg-yellow-400 text-black text-[10px] font-black px-2.5 py-0.5 rounded shadow-md">مانها</span>`;
+            } else if (rawType.includes('comic') || rawType.includes('كوميكس') || rawType.includes('كوميك')) {
+                return `<span class="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded shadow-md">كوميكس</span>`;
+            }
+            return `<span class="bg-white text-black text-[10px] font-black px-2.5 py-0.5 rounded shadow-md">مانغا</span>`;
+        }
+
         // --- تحديث السايدبار والنافبار مثل الصفحة الرئيسية تماماً ---
         async function updateAuthUI() {
             const topBadge = document.getElementById('userBadge');
@@ -432,9 +479,9 @@
                 const subType = currentUser.subscription_type || 'free';
                 const styleInfo = getSubStyleInfo(subType);
 
-                topBadge.outerHTML = `<span id="userBadge" class=" cursor-pointer">${styleInfo.badgeHtml}</span>`;
+                topBadge.outerHTML = `<span id="userBadge" class="cursor-pointer">${styleInfo.badgeHtml}</span>`;
 
-                const avatarUrl = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `https://ui-avatars.com/api/?name=${currentUser.username}&background=18181b&color=fff&size=120`;
+                const avatarUrl = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `[https://ui-avatars.com/api/?name=$](https://ui-avatars.com/api/?name=$){currentUser.username}&background=18181b&color=fff&size=120`;
 
                 sidebarFooter.innerHTML = `
                     <a href="profile.html?user=${encodeURIComponent(currentUser.username)}" class="flex items-center justify-between p-2 rounded-xl bg-[#141418] hover:bg-[#1c1c22] border border-gray-800/80 transition active:scale-95 group">
@@ -467,9 +514,10 @@
                 if (error || !manga) throw new Error("لم يتم العثور على العمل");
                 currentMangaData = manga;
 
-                // 1. الغلاف وخلفية البلور
+                // 1. الغلاف وخلفية البلور وشارة النوع
                 document.getElementById('mangaCoverImg').src = manga.cover_image_url;
                 document.getElementById('coverBlurBg').src = manga.cover_image_url;
+                document.getElementById('coverWorkTypeBadge').innerHTML = getWorkTypeBadgeHTML(manga);
 
                 // 2. العناوين والوصف
                 document.getElementById('mangaTitleAr').innerText = manga.title || 'بدون عنوان';
@@ -489,7 +537,7 @@
                     `).join('');
                 }
 
-                // 4. عرض اسم الرافع مع شعاره المدفوع + شعار الرافع + رابط لملفه الشخصي
+                // 4. عرض اسم الرافع مع شعاره الفعلي في قاعدة البيانات فقط
                 await renderUploaderIdentity(manga.uploader_name || 'مجهول');
 
                 // 5. التقييم واللايكات والمفضلة
@@ -504,6 +552,7 @@
             }
         }
 
+        // عرض هوية الرافع بناءً على ما يمتلكه في قاعدة البيانات فقط
         async function renderUploaderIdentity(uploaderName) {
             const box = document.getElementById('uploaderIdentityBox');
             if (!uploaderName || uploaderName === 'مجهول') {
@@ -511,30 +560,37 @@
                 return;
             }
 
-            let subType = 'uploader';
-            let hasUploaderBadge = true;
+            let subType = 'free';
+            let badgesHistory = [];
 
             try {
-                const { data: upProfile } = await sbClient.from('profiles').select('*').eq('username', uploaderName).single();
-                if (upProfile && upProfile.subscription_type) {
-                    subType = upProfile.subscription_type;
-                    const history = upProfile.badges_history || [];
-                    hasUploaderBadge = true; // لأنه رافع العمل فعلياً
+                const { data: upProfile } = await sbClient.from('profiles').select('subscription_type, badges_history').eq('username', uploaderName).single();
+                if (upProfile) {
+                    subType = upProfile.subscription_type || 'free';
+                    badgesHistory = Array.isArray(upProfile.badges_history) ? upProfile.badges_history : [];
                 } else if (currentUser && currentUser.username === uploaderName) {
-                    subType = currentUser.subscription_type || 'uploader';
+                    subType = currentUser.subscription_type || 'free';
+                    badgesHistory = Array.isArray(currentUser.badges_history) ? currentUser.badges_history : [];
                 }
-            } catch (e) {}
+            } catch (e) {
+                if (currentUser && currentUser.username === uploaderName) {
+                    subType = currentUser.subscription_type || 'free';
+                    badgesHistory = Array.isArray(currentUser.badges_history) ? currentUser.badges_history : [];
+                }
+            }
 
             const styleInfo = getSubStyleInfo(subType);
-            // إذا كان يمتلك اشتراكاً مدفوعاً (مثل VIP أو ULTRA)، نعرض شعار اشتراكه المدفوع وبجانبه شعار "رافع"
-            const dualBadgesHtml = (subType !== 'uploader' && subType !== 'free')
+            const hasUploaderInDB = ownsUploaderBadgeInDB(subType, badgesHistory);
+
+            // يظهر شعار الاشتراك الحالي، ولا يظهر شعار "رافع" بجانبه إلا إذا كان يمتلكه فعلاً في قاعدة البيانات
+            const badgesHtml = (hasUploaderInDB && subType !== 'uploader')
                 ? `${styleInfo.badgeHtml} ${getUploaderExtraBadgeHTML()}`
-                : (subType === 'free' ? getUploaderExtraBadgeHTML() : styleInfo.badgeHtml);
+                : styleInfo.badgeHtml;
 
             box.innerHTML = `
                 <a href="profile.html?user=${encodeURIComponent(uploaderName)}" class="inline-flex items-center gap-2 bg-[#141418] hover:bg-[#1e1e24] border border-gray-800 px-3 py-1.5 rounded-xl transition active:scale-95 group">
                     <span class="font-black text-xs ${styleInfo.nameClass} group-hover:underline">${uploaderName}</span>
-                    <div class="flex items-center gap-1">${dualBadgesHtml}</div>
+                    <div class="flex items-center gap-1">${badgesHtml}</div>
                 </a>
             `;
         }
@@ -631,9 +687,8 @@
             updateBookmarkButtonUI();
         }
 
-        // --- الفصول + البحث برقم الفصل + إكمال القراءة + تمييز المقروء ---
+        // --- الفصول + البحث برقم الفصل + إكمال القراءة + التوجيه لـ reader.html ---
         async function setupChaptersAndProgress() {
-            // إذا كان لديك جدول فصول مستقبلاً أو Oneshot افتراضي حالياً
             allChaptersList = [
                 { number: 1, title: 'Oneshot - الفصل 1' }
             ];
@@ -664,6 +719,7 @@
         function renderChaptersList(chapters) {
             const container = document.getElementById('chaptersListContainer');
             const readMap = getReadChaptersMap();
+            const progress = getLastReadingProgress();
 
             if (!chapters || chapters.length === 0) {
                 container.innerHTML = `<div class="text-center py-6 text-xs text-gray-500 font-bold">لا يوجد فصل بهذا الرقم.</div>`;
@@ -671,7 +727,7 @@
             }
 
             container.innerHTML = chapters.map(ch => {
-                const readInfo = readMap[ch.number];
+                const readInfo = readMap[ch.number] || (progress && progress.chapterNum === ch.number ? { lastPage: (progress.pageIndex || 0) + 1 } : null);
                 const isRead = Boolean(readInfo);
                 const cardStyle = isRead ? 'chapter-read' : 'chapter-unread';
                 const statusBadge = isRead
@@ -679,13 +735,13 @@
                     : `<span class="text-[10px] text-gray-500 font-bold">جاهز للقراءة</span>`;
 
                 return `
-                    <div onclick="openReader(${ch.number}, false)" class="p-3.5 rounded-xl border ${cardStyle} hover:border-accent transition flex justify-between items-center cursor-pointer active:scale-[0.99]">
+                    <a href="reader.html?id=${encodeURIComponent(currentMangaId)}&chapter=${ch.number}" onclick="openReader(${ch.number}, false); return false;" class="p-3.5 rounded-xl border ${cardStyle} hover:border-accent transition flex justify-between items-center cursor-pointer active:scale-[0.99] block">
                         <div class="flex flex-col">
                             <span class="font-black text-sm">${ch.title}</span>
                             ${statusBadge}
                         </div>
                         <i class="fas fa-chevron-left text-xs text-accent"></i>
-                    </div>
+                    </a>
                 `;
             }).join('');
         }
@@ -711,92 +767,17 @@
             }
         }
 
-        async function openReader(chapterNum = 1, resumeLastPage = false) {
-            activeChapterNum = chapterNum;
-            const modal = document.getElementById('readerModal');
-            const pagesContainer = document.getElementById('readerPagesScrollContainer');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.style.overflow = 'hidden';
-
-            document.getElementById('readerChapterTitle').innerText = `الفصل ${chapterNum}`;
-            pagesContainer.innerHTML = `<div class="text-center py-20 text-gray-400 text-sm"><i class="fas fa-spinner fa-spin text-2xl text-accent mb-2 block"></i>جاري تحميل صفحات الفصل...</div>`;
-
-            // تسجيل الفصل كمقروء
+        // توجيه مباشر ومضمون إلى صفحة reader.html مع تسجيل الفصل كمقروء
+        function openReader(chapterNum = 1, resumeLastPage = false) {
             const readMap = getReadChaptersMap();
             const prevLastPage = readMap[chapterNum]?.lastPage || 1;
             readMap[chapterNum] = { readAt: Date.now(), lastPage: prevLastPage };
             localStorage.setItem(`read_chapters_${currentMangaId}`, JSON.stringify(readMap));
 
-            try {
-                const { data: pages, error } = await sbClient
-                    .from('manga_pages')
-                    .select('*')
-                    .eq('manga_id', currentMangaId)
-                    .order('page_number', { ascending: true });
-
-                const pageList = (pages && pages.length > 0)
-                    ? pages
-                    : [{ page_number: 1, image_url: currentMangaData?.cover_image_url || '' }];
-
-                document.getElementById('readerTotalPagesNum').innerText = pageList.length;
-
-                pagesContainer.innerHTML = pageList.map((p, idx) => `
-                    <img src="${p.image_url}" data-page-index="${idx}" class="reader-page-img w-full max-w-2xl h-auto object-contain select-none border-b border-gray-900" loading="lazy">
-                `).join('');
-
-                // استعادة آخر صفحة وصل إليها القارئ
-                const progress = getLastReadingProgress();
-                const targetPageIdx = (resumeLastPage && progress && progress.chapterNum === chapterNum) ? (progress.pageIndex || 0) : 0;
-
-                setTimeout(() => {
-                    const targetImg = pagesContainer.querySelector(`img[data-page-index="${targetPageIdx}"]`);
-                    if (targetImg && targetPageIdx > 0) {
-                        targetImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                    document.getElementById('readerCurrentPageNum').innerText = targetPageIdx + 1;
-                }, 250);
-
-                // مراقبة التمرير لحفظ الصفحة الحالية تلقائياً
-                pagesContainer.onscroll = () => {
-                    const imgs = pagesContainer.querySelectorAll('.reader-page-img');
-                    let currentIdx = 0;
-                    const viewportMid = window.innerHeight / 2;
-                    imgs.forEach((img, idx) => {
-                        const rect = img.getBoundingClientRect();
-                        if (rect.top <= viewportMid) currentIdx = idx;
-                    });
-                    document.getElementById('readerCurrentPageNum').innerText = currentIdx + 1;
-
-                    localStorage.setItem(`reading_progress_${currentMangaId}`, JSON.stringify({
-                        chapterNum: activeChapterNum,
-                        pageIndex: currentIdx,
-                        totalPages: pageList.length,
-                        updatedAt: Date.now()
-                    }));
-
-                    const updatedReadMap = getReadChaptersMap();
-                    updatedReadMap[activeChapterNum] = { readAt: Date.now(), lastPage: currentIdx + 1 };
-                    localStorage.setItem(`read_chapters_${currentMangaId}`, JSON.stringify(updatedReadMap));
-                };
-
-                renderChaptersList(allChaptersList);
-                updateContinueReadingButton();
-            } catch (e) {
-                pagesContainer.innerHTML = `<div class="text-center py-20 text-red-400 text-sm">حدث خطأ أثناء تحميل الصفحات.</div>`;
-            }
+            window.location.href = `reader.html?id=${encodeURIComponent(currentMangaId)}&chapter=${chapterNum}${resumeLastPage ? '&resume=1' : ''}`;
         }
 
-        function closeReader() {
-            const modal = document.getElementById('readerModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.style.overflow = 'auto';
-            renderChaptersList(allChaptersList);
-            updateContinueReadingButton();
-        }
-
-        // --- نظام التعليقات (إخفاء الاسم للمسجلين + التوهج الكامل للتعليق) ---
+        // --- نظام التعليقات (إخفاء الاسم للمسجلين + التوهج الكامل للتعليق + فحص شعار الرافع من الداتابيز) ---
         function setupCommentIdentityUI() {
             const guestBox = document.getElementById('guestCommentNameBox');
             const loggedBar = document.getElementById('loggedCommentIdentityBar');
@@ -809,8 +790,8 @@
 
                 const subType = currentUser.subscription_type || 'free';
                 const styleInfo = getSubStyleInfo(subType);
-                const isUploader = (parseInt(localStorage.getItem(`uploads_count_${currentUser.username}`) || '0') > 0) || (currentUser.badges_history || []).includes('uploader');
-                const extraUploader = (isUploader && subType !== 'uploader' && subType !== 'free') ? getUploaderExtraBadgeHTML() : '';
+                const hasUploaderInDB = ownsUploaderBadgeInDB(subType, currentUser.badges_history);
+                const extraUploader = (hasUploaderInDB && subType !== 'uploader') ? getUploaderExtraBadgeHTML() : '';
 
                 preview.innerHTML = `
                     <span class="font-black text-xs ${styleInfo.nameClass}">${currentUser.username}</span>
@@ -835,7 +816,7 @@
             container.innerHTML = saved.map(c => {
                 const subType = c.subType || 'free';
                 const styleInfo = getSubStyleInfo(subType);
-                const extraUploader = (c.isUploader && subType !== 'uploader' && subType !== 'free') ? getUploaderExtraBadgeHTML() : '';
+                const extraUploader = (c.hasUploaderBadge && subType !== 'uploader') ? getUploaderExtraBadgeHTML() : '';
                 const badgesDisplay = c.isRegistered ? `${styleInfo.badgeHtml} ${extraUploader}` : '';
 
                 const nameElement = c.isRegistered
@@ -865,13 +846,13 @@
             let author = 'مجهول';
             let subType = 'free';
             let isRegistered = false;
-            let isUploader = false;
+            let hasUploaderBadge = false;
 
             if (currentUser && currentUser.username) {
                 author = currentUser.username;
                 subType = currentUser.subscription_type || 'free';
                 isRegistered = true;
-                isUploader = (parseInt(localStorage.getItem(`uploads_count_${currentUser.username}`) || '0') > 0) || (currentUser.badges_history || []).includes('uploader');
+                hasUploaderBadge = ownsUploaderBadgeInDB(subType, currentUser.badges_history);
             } else {
                 const guestName = document.getElementById('commentNameInput').value.trim();
                 author = guestName || 'مجهول';
@@ -882,7 +863,7 @@
                 text,
                 subType,
                 isRegistered,
-                isUploader,
+                hasUploaderBadge,
                 date: new Date().toLocaleDateString('ar-EG')
             };
 
@@ -921,6 +902,37 @@
         function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
         function openSearch() { const modal = document.getElementById('searchModal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
         function closeSearch() { const modal = document.getElementById('searchModal'); modal.classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300); }
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            const resultsContainer = document.getElementById('searchResults');
+            if (query.length < 2) {
+                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
+                return;
+            }
+            resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
+                    if (error || !data || data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>';
+                        return;
+                    }
+                    resultsContainer.innerHTML = data.map(manga => `
+                        <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
+                            <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                            <div class="flex-1 overflow-hidden">
+                                <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                            </div>
+                        </a>
+                    `).join('');
+                } catch (err) {
+                    resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>';
+                }
+            }, 600);
+        });
 
         async function goToRandomManga() {
             try {
