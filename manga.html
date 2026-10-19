@@ -161,9 +161,8 @@
     <!-- المحتوى الرئيسي لصفحة المانغا -->
     <main class="flex-1 w-full">
         
-        <!-- قسم الغلاف مع خلفية البلور القوية -->
+        <!-- قسم الغلاف مع خلفية البلور -->
         <div class="relative w-full overflow-hidden pt-8 pb-6 px-4 border-b border-gray-800/60">
-            <!-- طبقة صورة البلور الخلفية -->
             <div id="coverBlurDiv" class="absolute inset-0 bg-cover bg-center blur-2xl scale-125 opacity-45 pointer-events-none z-0 transition-all duration-500"></div>
             <img id="coverBlurBg" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" class="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-0 pointer-events-none z-0 transition-opacity duration-500">
             <div class="absolute inset-0 bg-gradient-to-b from-[#111113]/40 via-[#111113]/75 to-[#111113] z-0 pointer-events-none"></div>
@@ -194,19 +193,27 @@
                     </p>
                 </div>
 
-                <!-- أزرار التفاعل (مفضلة + قراءة الآن / إكمال القراءة + إعجاب) -->
-                <div class="flex items-center gap-3 w-full max-w-md mt-5">
-                    <button id="bookmarkBtn" onclick="toggleBookmark()" class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 flex items-center justify-center text-lg transition active:scale-95 shadow-lg">
-                        <i class="far fa-bookmark" id="bookmarkIcon"></i>
-                    </button>
+                <!-- أزرار التفاعل (مفضلة + قراءة الآن + تحميل ZIP + إعجاب) -->
+                <div class="flex flex-col w-full max-w-md mt-5 gap-2.5">
+                    <div class="flex items-center gap-2.5 w-full">
+                        <button id="bookmarkBtn" onclick="toggleBookmark()" class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 flex items-center justify-center text-lg transition active:scale-95 shadow-lg flex-shrink-0" title="حفظ في المفضلة">
+                            <i class="far fa-bookmark" id="bookmarkIcon"></i>
+                        </button>
 
-                    <button id="mainReadBtn" onclick="continueOrStartReading()" class="flex-1 h-12 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-black rounded-xl shadow-lg shadow-pink-900/40 flex items-center justify-center gap-2 transition active:scale-95 text-sm px-3 cursor-pointer">
-                        <i class="fas fa-book-open"></i>
-                        <span id="mainReadBtnText">قراءة الآن</span>
-                    </button>
+                        <button id="mainReadBtn" onclick="continueOrStartReading()" class="flex-1 h-12 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-black rounded-xl shadow-lg shadow-pink-900/40 flex items-center justify-center gap-2 transition active:scale-95 text-sm px-3 cursor-pointer">
+                            <i class="fas fa-book-open"></i>
+                            <span id="mainReadBtnText">قراءة الآن</span>
+                        </button>
 
-                    <button id="likeBtn" onclick="toggleLike()" class="w-12 h-12 rounded-xl bg-pink-600/20 border border-pink-500/50 text-pink-400 flex items-center justify-center text-lg transition active:scale-95 shadow-lg">
-                        <i class="far fa-heart" id="likeIcon"></i>
+                        <button id="likeBtn" onclick="toggleLike()" class="w-12 h-12 rounded-xl bg-pink-600/20 border border-pink-500/50 text-pink-400 flex items-center justify-center text-lg transition active:scale-95 shadow-lg flex-shrink-0" title="إعجاب بالعمل">
+                            <i class="far fa-heart" id="likeIcon"></i>
+                        </button>
+                    </div>
+
+                    <!-- زر تحميل المانغا (ZIP) الموجه لصفحة التحميل -->
+                    <button onclick="goToDownloadPage(1)" class="w-full h-11 bg-[#18181b] hover:bg-[#222227] border border-purple-500/50 text-purple-300 hover:text-white font-black rounded-xl shadow-md flex items-center justify-center gap-2 transition active:scale-95 text-xs cursor-pointer">
+                        <i class="fas fa-file-archive text-purple-400 text-sm"></i>
+                        <span>تحميل العمل بصيغة ZIP (مع حفظ الحقوق)</span>
                     </button>
                 </div>
             </div>
@@ -241,7 +248,7 @@
                 <p id="mangaDescription" class="text-xs text-gray-300 leading-relaxed whitespace-pre-line font-semibold">لا يوجد وصف متاح لهذا العمل.</p>
             </div>
 
-            <!-- الفصول مع البحث برقم الفصل وتمييز الفصول المقروءة -->
+            <!-- الفصول مع البحث برقم الفصل وتمييز الفصول المقروءة وزر التحميل -->
             <div class="bg-card border border-gray-800/90 rounded-2xl p-5 shadow-lg space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
@@ -296,13 +303,13 @@
         </div>
     </main>
 
-    <!-- الفوتر -->
+    <!-- الفوتر المربوط بصفحتي terms.html و dmca.html -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
-            <div class="flex gap-4 text-sm font-bold text-gray-400">
+            <div class="flex gap-5 text-sm font-bold text-gray-400">
                 <a href="index.html" class="hover:text-white transition">الرئيسية</a>
-                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
-                <a href="#" class="hover:text-white transition">DMCA</a>
+                <a href="terms.html" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="dmca.html" class="hover:text-white transition">DMCA</a>
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
                 جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.
@@ -329,7 +336,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             currentMangaId = urlParams.get('id') || localStorage.getItem('selectedMangaId');
 
-            // تشغيل تحديث الهوية والتعليقات فوراً دون تعطيل تحميل المانغا
             updateAuthUI();
             setupCommentIdentityUI();
 
@@ -402,7 +408,6 @@
             return `<span class="text-[9px] font-black px-1.5 py-0.5 rounded border border-red-500 bg-red-900/40 text-red-400 glow-uploader inline-flex items-center gap-1"><i class="fas fa-upload text-[8px]"></i>رافع</span>`;
         }
 
-        // التحقق مما إذا كان المستخدم يمتلك فعلاً شعار "رافع" في قاعدة البيانات
         function ownsUploaderBadgeInDB(subType, badgesHistory) {
             const historyArr = Array.isArray(badgesHistory) ? badgesHistory : [];
             return subType === 'uploader' || historyArr.includes('uploader');
@@ -470,6 +475,13 @@
             window.location.href = `tags.html?tag=${encodeURIComponent(tagName)}`;
         }
 
+        // التوجه إلى صفحة التحميل المستقلة download.html
+        function goToDownloadPage(chapterNum = 1, event = null) {
+            if (event) event.stopPropagation();
+            if (!currentMangaId) return;
+            window.location.href = `download.html?id=${encodeURIComponent(currentMangaId)}&chapter=${chapterNum}`;
+        }
+
         async function loadMangaDetails() {
             try {
                 let manga = null;
@@ -479,7 +491,6 @@
                     if (!error && data) manga = data;
                 }
 
-                // إذا لم يُعثر على المعرف في الرابط، نجلب آخر عمل منشور تلقائياً حتى لا تتوقف الصفحة
                 if (!manga) {
                     const { data: fallbackList } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false }).limit(1);
                     if (fallbackList && fallbackList.length > 0) {
@@ -497,7 +508,6 @@
 
                 currentMangaData = manga;
 
-                // 1. الغلاف وخلفية البلور
                 const coverImg = document.getElementById('mangaCoverImg');
                 const blurImg = document.getElementById('coverBlurBg');
                 const blurDiv = document.getElementById('coverBlurDiv');
@@ -513,12 +523,10 @@
 
                 document.getElementById('coverWorkTypeBadge').innerHTML = getWorkTypeBadgeHTML(manga);
 
-                // 2. العناوين والوصف
                 document.getElementById('mangaTitleAr').innerText = manga.title || 'بدون عنوان';
                 document.getElementById('mangaTitleEn').innerText = manga.title_en || '';
                 document.getElementById('mangaDescription').innerText = manga.description || 'لا يوجد ملخص مضاف لهذا العمل.';
 
-                // 3. التاغات القابلة للنقر
                 const tagsContainer = document.getElementById('mangaTagsList');
                 const rawTags = manga.tags ? manga.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
                 tagsContainer.innerHTML = '';
@@ -535,12 +543,9 @@
                     });
                 }
 
-                // 4. التقييم والمفضلة والفصول (تظهر فوراً)
                 renderStarsAndLikes();
                 updateBookmarkButtonUI();
                 await setupChaptersAndProgress();
-
-                // 5. عرض اسم الرافع وشعاره الفعلي من قاعدة البيانات
                 await renderUploaderIdentity(manga.uploader_name || 'مجهول');
 
             } catch (err) {
@@ -634,10 +639,10 @@
             const likeBtn = document.getElementById('likeBtn');
             const likeIcon = document.getElementById('likeIcon');
             if (isLiked) {
-                likeBtn.className = "w-12 h-12 rounded-xl bg-pink-600 text-white flex items-center justify-center text-lg transition active:scale-95 shadow-lg shadow-pink-600/30";
+                likeBtn.className = "w-12 h-12 rounded-xl bg-pink-600 text-white flex items-center justify-center text-lg transition active:scale-95 shadow-lg shadow-pink-600/30 flex-shrink-0";
                 likeIcon.className = "fas fa-heart";
             } else {
-                likeBtn.className = "w-12 h-12 rounded-xl bg-pink-600/20 border border-pink-500/50 text-pink-400 flex items-center justify-center text-lg transition active:scale-95 shadow-lg";
+                likeBtn.className = "w-12 h-12 rounded-xl bg-pink-600/20 border border-pink-500/50 text-pink-400 flex items-center justify-center text-lg transition active:scale-95 shadow-lg flex-shrink-0";
                 likeIcon.className = "far fa-heart";
             }
         }
@@ -666,10 +671,10 @@
             const btn = document.getElementById('bookmarkBtn');
             const icon = document.getElementById('bookmarkIcon');
             if (isBookmarked) {
-                btn.className = "w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg transition active:scale-95 shadow-lg shadow-emerald-600/30";
+                btn.className = "w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg transition active:scale-95 shadow-lg shadow-emerald-600/30 flex-shrink-0";
                 icon.className = "fas fa-bookmark";
             } else {
-                btn.className = "w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 flex items-center justify-center text-lg transition active:scale-95 shadow-lg";
+                btn.className = "w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 flex items-center justify-center text-lg transition active:scale-95 shadow-lg flex-shrink-0";
                 icon.className = "far fa-bookmark";
             }
         }
@@ -684,7 +689,6 @@
             updateBookmarkButtonUI();
         }
 
-        // --- الفصول + البحث برقم الفصل + إكمال القراءة + التوجيه لـ reader.html ---
         async function setupChaptersAndProgress() {
             allChaptersList = [
                 { number: 1, title: 'Oneshot' }
@@ -737,7 +741,12 @@
                             <span class="font-black text-sm">${ch.title}</span>
                             ${statusBadge}
                         </div>
-                        <i class="fas fa-chevron-left text-xs text-accent"></i>
+                        <div class="flex items-center gap-2.5">
+                            <button onclick="goToDownloadPage(${ch.number}, event)" class="bg-[#1a1c23] hover:bg-purple-600 text-purple-400 hover:text-white px-2.5 py-1.5 rounded-lg border border-gray-700 hover:border-purple-500 text-[11px] font-bold transition flex items-center gap-1" title="تحميل الفصل ZIP">
+                                <i class="fas fa-download text-[10px]"></i> <span>ZIP</span>
+                            </button>
+                            <i class="fas fa-chevron-left text-xs text-accent"></i>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -764,7 +773,6 @@
             }
         }
 
-        // الانتقال المباشر إلى صفحة reader.html
         function openReader(chapterNum = 1, resumeLastPage = false) {
             if (!currentMangaId) return;
             const readMap = getReadChaptersMap();
@@ -775,7 +783,6 @@
             window.location.href = `reader.html?id=${encodeURIComponent(currentMangaId)}&chapter=${chapterNum}${resumeLastPage ? '&resume=1' : ''}`;
         }
 
-        // --- نظام التعليقات ---
         function setupCommentIdentityUI() {
             const guestBox = document.getElementById('guestCommentNameBox');
             const loggedBar = document.getElementById('loggedCommentIdentityBar');
