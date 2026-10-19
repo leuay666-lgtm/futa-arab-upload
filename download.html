@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>مركز تحميل المانغا - Futa Arab</title>
+    <style>
+        body { background-color: #111113; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #18181b; }
+        .text-accent { color: #f472b6; }
+        .bg-accent { background-color: #f472b6; }
+
+        .body-glow {
+            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
+            background: radial-gradient(circle, rgba(244,114,182,0.06) 0%, rgba(17,17,19,0) 70%);
+            z-index: -1; pointer-events: none;
+        }
+
+        .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
+        .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; }
+        .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; }
+        .badge-glow-vip { border-color: #eab308; color: #eab308; box-shadow: 0 0 15px rgba(234,179,8,0.6); }
+        .badge-glow-pro { border-color: #f97316; color: #f97316; box-shadow: 0 0 15px rgba(249,115,22,0.6); }
+        .badge-glow-ultra { border-color: #d946ef; color: #d946ef; box-shadow: 0 0 15px rgba(217,70,239,0.7); }
+
+        .ad-slot-box {
+            background: repeating-linear-gradient(45deg, #141418, #141418 10px, #18181d 10px, #18181d 20px);
+            border: 1px dashed #3f3f46;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col">
+
+    <div class="body-glow"></div>
+
+    <!-- شريط علوي مبسط -->
+    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+            <button onclick="goBackToManga()" class="bg-[#18181b] hover:bg-gray-800 text-gray-300 hover:text-white px-3.5 py-1.5 rounded-xl border border-gray-700 text-xs font-bold transition active:scale-95 flex items-center gap-1.5">
+                <i class="fas fa-arrow-right text-accent"></i>
+                <span>العودة للعمل</span>
+            </button>
+            <a href="index.html" class="text-xl font-black tracking-wider text-accent">Futa Arab</a>
+            <span id="userTierBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2.5 py-1 rounded-md border border-gray-600 glow-free">مجاني</span>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي لصفحة التحميل -->
+    <main class="flex-1 max-w-xl mx-auto px-4 py-8 w-full flex flex-col items-center justify-center space-y-5">
+
+        <!-- مساحة إعلانية علوية (تختفي تلقائياً لمشتركي VIP فما فوق) -->
+        <div id="topAdSlot" class="w-full ad-slot-box rounded-2xl p-4 text-center space-y-1">
+            <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest block">مساحة إعلانية (Ad Space)</span>
+            <p class="text-xs text-gray-300 font-bold">اشترك في باقة <a href="subscription.html" class="text-yellow-400 underline">VIP</a> لتخطي الإعلانات والانتظار والتحميل المباشر الفوري!</p>
+        </div>
+
+        <!-- بطاقة العمل والتجهيز -->
+        <div class="bg-card border border-gray-800 rounded-3xl p-6 w-full shadow-2xl space-y-5 text-center relative overflow-hidden">
+            
+            <!-- معلومات العمل -->
+            <div class="flex items-center gap-4 bg-[#111113] p-3.5 rounded-2xl border border-gray-800/80 text-right">
+                <img id="mangaCover" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="w-16 h-22 object-cover rounded-xl bg-black border border-gray-700 flex-shrink-0">
+                <div class="flex-1 overflow-hidden">
+                    <span class="text-[10px] bg-purple-950/60 text-purple-300 border border-purple-700/50 px-2 py-0.5 rounded font-bold">ملف مضغوط ZIP</span>
+                    <h1 id="mangaTitle" class="text-sm sm:text-base font-black text-white truncate mt-1">جاري جلب بيانات العمل...</h1>
+                    <p id="chapterInfo" class="text-xs text-gray-400 font-bold mt-0.5">الفصل 1 • <span id="pagesCountText">...</span> صفحة</p>
+                </div>
+            </div>
+
+            <!-- إشعار ميزة الاشتراك -->
+            <div id="tierPrivilegeNotice" class="text-xs font-bold p-3 rounded-xl border bg-[#141418] border-gray-800 text-gray-300">
+                جاري فحص نوع حسابك...
+            </div>
+
+            <!-- خيار حصري لـ VIP PRO و ULTRA للتحكم بالعلامة المائية -->
+            <div id="proWatermarkToggleBox" class="hidden items-center justify-between bg-purple-950/25 border border-purple-500/40 p-3 rounded-xl text-right">
+                <div>
+                    <span class="text-xs font-black text-purple-300 block"><i class="fas fa-crown text-yellow-400 ml-1"></i>ميزة PRO / ULTRA الحصرية</span>
+                    <span class="text-[10px] text-gray-400 font-bold">إبقاء العلامة المائية الخفيفة لحفظ الحقوق أو إزالتها</span>
+                </div>
+                <select id="watermarkModeSelect" class="bg-[#111113] text-white text-xs font-bold px-2.5 py-1.5 rounded-lg border border-purple-500/50 outline-none">
+                    <option value="light">علامة مائية خفيفة</option>
+                    <option value="none">بدون علامة مائية (صافي)</option>
+                </select>
+            </div>
+
+            <!-- منطقة العداد (5 ثوانٍ) والأزرار المتتالية -->
+            <div id="countdownSection" class="py-4 space-y-4">
+                <div id="timerCircle" class="w-20 h-20 rounded-full border-4 border-accent/30 border-t-accent mx-auto flex items-center justify-center shadow-lg shadow-pink-950/30">
+                    <span id="timerNumber" class="text-2xl font-black text-white">5</span>
+                </div>
+                <p id="stepStatusText" class="text-xs font-bold text-gray-300">يرجى الانتظار 5 ثوانٍ لتجهيز رابط التحميل...</p>
+
+                <!-- زر الانتقال للخطوة الثانية أو بدء التحميل -->
+                <button id="actionStepBtn" onclick="handleStepAction()" disabled class="w-full bg-gray-800 text-gray-500 font-black py-3.5 rounded-2xl text-sm transition cursor-not-allowed flex items-center justify-center gap-2">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span>يرجى الانتظار...</span>
+                </button>
+            </div>
+
+            <!-- شريط تقدم ضغط الـ ZIP ودمج العلامة المائية -->
+            <div id="zipProgressSection" class="hidden space-y-3 py-2">
+                <div class="flex justify-between text-xs font-bold">
+                    <span id="zipStatusLabel" class="text-accent"><i class="fas fa-cog fa-spin ml-1"></i> جاري دمج العلامة المائية وضغط الصور...</span>
+                    <span id="zipPercentLabel" class="text-white">0%</span>
+                </div>
+                <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                    <div id="zipProgressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-200" style="width: 0%"></div>
+                </div>
+                <p class="text-[10px] text-gray-500 font-bold">يتم الآن تجهيز ملف الـ ZIP بنفس اسم العمل مع العلامة المائية الخاصة بـ Futa Arab.</p>
+            </div>
+
+        </div>
+
+        <!-- مساحة إعلانية سفلية (تختفي تلقائياً لمشتركي VIP فما فوق) -->
+        <div id="bottomAdSlot" class="w-full ad-slot-box rounded-2xl p-4 text-center space-y-1">
+            <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest block">إعلان راعٍ (Sponsored Ad)</span>
+            <p class="text-xs text-gray-400 font-bold">هل ترغب في دعم المترجمين؟ يمكنك الترقية لرتبة <a href="subscription.html" class="text-accent underline">VIP أو ULTRA</a>.</p>
+        </div>
+
+    </main>
+
+    <!-- الفوتر الموحد -->
+    <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-6 px-4 text-center w-full">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-3">
+            <div class="flex gap-5 text-xs font-bold text-gray-400">
+                <a href="index.html" class="hover:text-white transition">الرئيسية</a>
+                <a href="terms.html" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="dmca.html" class="hover:text-white transition">DMCA</a>
+            </div>
+            <p class="text-[10px] text-gray-600 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
+        const urlParams = new URLSearchParams(window.location.search);
+        const mangaId = urlParams.get('id') || localStorage.getItem('selectedMangaId');
+        const chapterNum = parseInt(urlParams.get('chapter')) || 1;
+
+        let mangaData = null;
+        let pagesList = [];
+        let userSubType = 'free';
+        let totalRequiredSteps = 2; // المجاني: خطوتان (كل خطوة 5 ثوانٍ) | LITE/رافع: خطوة واحدة (5 ثوانٍ) | VIP+: 0 ثانية (فوري)
+        let currentStep = 1;
+        let countdownInterval = null;
+
+        window.onload = async () => {
+            await verifyUserTier();
+            await fetchMangaAndPagesForDownload();
+            initDownloadFlowByTier();
+        };
+
+        function goBackToManga() {
+            if (mangaId) window.location.href = `manga.html?id=${encodeURIComponent(mangaId)}`;
+            else window.location.href = 'index.html';
+        }
+
+        // التحقق من اشتراك المستخدم وتحديث الواجهة
+        async function verifyUserTier() {
+            const badge = document.getElementById('userTierBadge');
+            if (!currentUser) {
+                userSubType = 'free';
+                return;
+            }
+
+            try {
+                const { data: profile } = await sbClient.from('profiles').select('subscription_type').eq('username', currentUser.username).single();
+                if (profile && profile.subscription_type) {
+                    userSubType = profile.subscription_type;
+                    currentUser.subscription_type = userSubType;
+                    localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                } else {
+                    userSubType = currentUser.subscription_type || 'free';
+                }
+            } catch (e) {
+                userSubType = currentUser.subscription_type || 'free';
+            }
+
+            if (userSubType === 'vip_lite') {
+                badge.innerText = 'LITE ⭐';
+                badge.className = 'bg-cyan-950/60 text-cyan-400 text-[10px] font-black px-2.5 py-1 rounded-md border glow-cyan';
+            } else if (userSubType === 'uploader') {
+                badge.innerText = 'رافع 📤';
+                badge.className = 'bg-red-950/60 text-red-400 text-[10px] font-black px-2.5 py-1 rounded-md border glow-uploader';
+            } else if (userSubType === 'vip') {
+                badge.innerText = 'VIP 👑';
+                badge.className = 'bg-yellow-950/60 text-yellow-400 text-[10px] font-black px-2.5 py-1 rounded-md border badge-glow-vip';
+            } else if (userSubType === 'vip_pro') {
+                badge.innerText = 'VIP PRO 🔥';
+                badge.className = 'bg-orange-950/60 text-orange-400 text-[10px] font-black px-2.5 py-1 rounded-md border badge-glow-pro';
+            } else if (userSubType === 'vip_ultra') {
+                badge.innerText = 'ULTRA 💎';
+                badge.className = 'bg-purple-950/60 text-purple-300 text-[10px] font-black px-2.5 py-1 rounded-md border badge-glow-ultra';
+            }
+        }
+
+        async function fetchMangaAndPagesForDownload() {
+            if (!mangaId) {
+                document.getElementById('mangaTitle').innerText = 'لم يتم تحديد العمل!';
+                return;
+            }
+            try {
+                const { data: manga } = await sbClient.from('mangas').select('*').eq('id', mangaId).single();
+                if (manga) {
+                    mangaData = manga;
+                    document.getElementById('mangaTitle').innerText = manga.title;
+                    document.getElementById('mangaCover').src = manga.cover_image_url;
+                }
+
+                const { data: pages } = await sbClient.from('manga_pages').select('*').eq('manga_id', mangaId).order('page_number', { ascending: true });
+                pagesList = (pages && pages.length > 0) ? pages : (manga ? [{ page_number: 1, image_url: manga.cover_image_url }] : []);
+                document.getElementById('pagesCountText').innerText = pagesList.length;
+                document.getElementById('chapterInfo').innerHTML = `الفصل ${chapterNum} • <span id="pagesCountText">${pagesList.length}</span> صفحة`;
+            } catch (e) {}
+        }
+
+        // ضبط مسار التحميل بناءً على باقة المستخدم
+        function initDownloadFlowByTier() {
+            const notice = document.getElementById('tierPrivilegeNotice');
+            const topAd = document.getElementById('topAdSlot');
+            const bottomAd = document.getElementById('bottomAdSlot');
+            const timerCircle = document.getElementById('timerCircle');
+            const stepText = document.getElementById('stepStatusText');
+            const btn = document.getElementById('actionStepBtn');
+            const proToggle = document.getElementById('proWatermarkToggleBox');
+
+            // 1. مشتركو VIP و VIP PRO و ULTRA (تخطي فوري بدون انتظار وبدون إعلانات)
+            if (['vip', 'vip_pro', 'vip_ultra'].includes(userSubType)) {
+                totalRequiredSteps = 0;
+                topAd.classList.add('hidden');
+                bottomAd.classList.add('hidden');
+                timerCircle.classList.add('hidden');
+
+                if (userSubType === 'vip_pro' || userSubType === 'vip_ultra') {
+                    proToggle.classList.remove('hidden');
+                    proToggle.classList.add('flex');
+                }
+
+                notice.className = 'text-xs font-bold p-3 rounded-xl border bg-yellow-950/30 border-yellow-600/50 text-yellow-300';
+                notice.innerHTML = `<i class="fas fa-bolt ml-1"></i> ميزة اشتراكك (${userSubType.toUpperCase()}) مفعلة: تم إخفاء الإعلانات وتخطي عداد الانتظار!`;
+
+                stepText.innerText = 'ملف الـ ZIP جاهز للتوليد والتنزيل المباشر فوراً.';
+                btn.disabled = false;
+                btn.className = 'w-full bg-gradient-to-r from-amber-500 to-pink-600 hover:opacity-95 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg cursor-pointer flex items-center justify-center gap-2';
+                btn.innerHTML = `<i class="fas fa-download"></i> <span>تحميل ملف الـ ZIP مباشرة الآن</span>`;
+                return;
+            }
+
+            // 2. مشتركو LITE أو رتبة رافع (مرحلة واحدة فقط 5 ثوانٍ)
+            if (['vip_lite', 'uploader'].includes(userSubType)) {
+                totalRequiredSteps = 1;
+                bottomAd.classList.add('hidden');
+                notice.className = 'text-xs font-bold p-3 rounded-xl border bg-cyan-950/30 border-cyan-600/50 text-cyan-300';
+                notice.innerHTML = `<i class="fas fa-star ml-1"></i> ميزة حسابك: تم تقليص خطوات الإعلانات إلى خطوة سريعة واحدة فقط (5 ثوانٍ).`;
+                startFiveSecondTimer(1, 1);
+                return;
+            }
+
+            // 3. الزوار وأصحاب الحساب المجاني (مرحلتان إعلانيتان - كل مرحلة 5 ثوانٍ)
+            totalRequiredSteps = 2;
+            notice.className = 'text-xs font-bold p-3 rounded-xl border bg-[#141418] border-gray-800 text-gray-400';
+            notice.innerHTML = `أنت تستخدم التحميل المجاني (يمر عبر خطوتين مدة كل خطوة 5 ثوانٍ مع علامة مائية).`;
+            startFiveSecondTimer(1, 2);
+        }
+
+        function startFiveSecondTimer(step, maxSteps) {
+            currentStep = step;
+            let timeLeft = 5;
+            const timerNum = document.getElementById('timerNumber');
+            const stepText = document.getElementById('stepStatusText');
+            const btn = document.getElementById('actionStepBtn');
+
+            btn.disabled = true;
+            btn.className = 'w-full bg-gray-800 text-gray-500 font-black py-3.5 rounded-2xl text-sm transition cursor-not-allowed flex items-center justify-center gap-2';
+            btn.innerHTML = `<i class="fas fa-hourglass-half"></i> <span>يرجى الانتظار (${timeLeft} ثوانٍ)...</span>`;
+            timerNum.innerText = timeLeft;
+            stepText.innerText = `الخطوة (${step} من ${maxSteps}): جاري تجهيز رابط التحميل خلال ${timeLeft} ثوانٍ...`;
+
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    timerNum.innerText = timeLeft;
+                    stepText.innerText = `الخطوة (${step} من ${maxSteps}): جاري تجهيز رابط التحميل خلال ${timeLeft} ثوانٍ...`;
+                    btn.innerHTML = `<i class="fas fa-hourglass-half"></i> <span>يرجى الانتظار (${timeLeft} ثوانٍ)...</span>`;
+                } else {
+                    clearInterval(countdownInterval);
+                    timerNum.innerHTML = '<i class="fas fa-check text-emerald-400"></i>';
+                    btn.disabled = false;
+                    btn.className = 'w-full bg-accent hover:bg-pink-600 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-pink-950/50 cursor-pointer flex items-center justify-center gap-2';
+
+                    if (step < maxSteps) {
+                        stepText.innerText = 'اكتملت الخطوة الأولى! اضغط للانتقال إلى صفحة الرابط النهائي.';
+                        btn.innerHTML = `<span>الانتقال للخطوة التالية (2/2)</span> <i class="fas fa-arrow-left"></i>`;
+                    } else {
+                        stepText.innerText = 'الرابط جاهز الآن! اضغط لبدء تحميل ملف الـ ZIP.';
+                        btn.innerHTML = `<i class="fas fa-file-archive"></i> <span>تجهيز وتحميل ملف الـ ZIP الآن</span>`;
+                    }
+                }
+            }, 1000);
+        }
+
+        function handleStepAction() {
+            if (totalRequiredSteps === 2 && currentStep === 1) {
+                // تحديث الإعلان والبدء بالخطوة الثانية (5 ثوانٍ)
+                document.getElementById('topAdSlot').classList.toggle('border-pink-500/50');
+                startFiveSecondTimer(2, 2);
+            } else {
+                // بدء إنشاء ملف الـ ZIP مع العلامة المائية
+                generateWatermarkedZip();
+            }
+        }
+
+        // دالة رسم العلامة المائية الخاصة بموقع Futa Arab على كل صورة
+        function applyWatermarkToImage(imageUrl, watermarkMode = 'full') {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+
+                        // رسم الصورة الأصلية
+                        ctx.drawImage(img, 0, 0);
+
+                        if (watermarkMode !== 'none') {
+                            const fontSize = Math.max(16, Math.round(canvas.width * 0.032));
+                            const padding = Math.max(10, Math.round(canvas.width * 0.02));
+
+                            // 1. شارة سفلية أنيقة لحفظ الحقوق (Futa Arab)
+                            ctx.save();
+                            ctx.font = `900 ${fontSize}px system-ui, sans-serif`;
+                            const text = 'Futa Arab • موقع فوتا عرب';
+                            const textWidth = ctx.measureText(text).width;
+                            const boxW = textWidth + padding * 1.6;
+                            const boxH = fontSize + padding * 1.1;
+                            const posX = canvas.width - boxW - padding;
+                            const posY = canvas.height - boxH - padding;
+
+                            ctx.globalAlpha = watermarkMode === 'light' ? 0.55 : 0.82;
+                            ctx.fillStyle = '#111113';
+                            ctx.beginPath();
+                            ctx.roundRect(posX, posY, boxW, boxH, 8);
+                            ctx.fill();
+
+                            ctx.strokeStyle = '#f472b6';
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+
+                            ctx.fillStyle = '#f472b6';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(text, posX + (padding * 0.8), posY + (boxH / 2));
+                            ctx.restore();
+
+                            // 2. علامة مائية شفافة إضافية في الأعلى للمستخدمين المجانيين
+                            if (watermarkMode === 'full') {
+                                ctx.save();
+                                ctx.globalAlpha = 0.22;
+                                ctx.font = `900 ${Math.round(fontSize * 1.1)}px system-ui, sans-serif`;
+                                ctx.fillStyle = '#f472b6';
+                                ctx.fillText('Futa Arab', padding, fontSize + padding);
+                                ctx.restore();
+                            }
+                        }
+
+                        canvas.toBlob((blob) => {
+                            if (blob) resolve(blob);
+                            else fetchRawBlobFallback(imageUrl).then(resolve);
+                        }, 'image/jpeg', 0.9);
+                    } catch (err) {
+                        fetchRawBlobFallback(imageUrl).then(resolve);
+                    }
+                };
+                img.onerror = () => {
+                    fetchRawBlobFallback(imageUrl).then(resolve);
+                };
+                img.src = imageUrl;
+            });
+        }
+
+        async function fetchRawBlobFallback(url) {
+            try {
+                const res = await fetch(url);
+                return await res.blob();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function generateWatermarkedZip() {
+            if (!pagesList || pagesList.length === 0) {
+                alert('⚠️ لا توجد صفحات متاحة للتحميل في هذا الفصل.');
+                return;
+            }
+
+            document.getElementById('countdownSection').classList.add('hidden');
+            const progressSection = document.getElementById('zipProgressSection');
+            const progressBar = document.getElementById('zipProgressBar');
+            const percentLabel = document.getElementById('zipPercentLabel');
+            const statusLabel = document.getElementById('zipStatusLabel');
+            progressSection.classList.remove('hidden');
+
+            // تحديد درجة العلامة المائية حسب الاشتراك
+            let wmMode = 'full';
+            if (['vip'].includes(userSubType)) {
+                wmMode = 'light';
+            } else if (['vip_pro', 'vip_ultra'].includes(userSubType)) {
+                wmMode = document.getElementById('watermarkModeSelect').value || 'light';
+            }
+
+            const zip = new JSZip();
+            const safeTitle = (mangaData?.title || `Manga_${mangaId}`).replace(/[\\/:*?"<>|]/g, '_').trim();
+            const folder = zip.folder(`${safeTitle} - الفصل ${chapterNum}`);
+
+            for (let i = 0; i < pagesList.length; i++) {
+                const page = pagesList[i];
+                const percent = Math.round(((i + 1) / pagesList.length) * 90);
+                statusLabel.innerHTML = `<i class="fas fa-cog fa-spin ml-1"></i> تجهيز ودمج العلامة المائية للصفحة (${i + 1}/${pagesList.length})...`;
+                percentLabel.innerText = `${percent}%`;
+                progressBar.style.width = `${percent}%`;
+
+                const imgBlob = await applyWatermarkToImage(page.image_url, wmMode);
+                if (imgBlob) {
+                    const pageNumPadded = String(i + 1).padStart(3, '0');
+                    folder.file(`FutaArab_${pageNumPadded}.jpg`, imgBlob);
+                }
+            }
+
+            statusLabel.innerHTML = `<i class="fas fa-file-archive fa-bounce ml-1"></i> جاري ضغط ملف الـ ZIP النهائي...`;
+            percentLabel.innerText = `98%`;
+            progressBar.style.width = `98%`;
+
+            const zipContent = await zip.generateAsync({ type: 'blob' });
+            const downloadUrl = URL.createObjectURL(zipContent);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `${safeTitle} - الفصل ${chapterNum} [Futa Arab].zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(downloadUrl), 5000);
+
+            percentLabel.innerText = `100%`;
+            progressBar.style.width = `100%`;
+            statusLabel.innerHTML = `<i class="fas fa-check-circle text-emerald-400 ml-1"></i> تم تجهيز وتنزيل ملف الـ ZIP بنجاح!`;
+        }
+    </script>
+</body>
+</html>
