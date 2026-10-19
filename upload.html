@@ -9,12 +9,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <title>رفع عمل جديد - Futa Arab</title>
+    <style>
+        .upload-mode-btn { transition: all 0.25s ease; }
+        .upload-mode-btn.active { background: #f472b6; color: white; border-color: #f472b6; box-shadow: 0 0 12px rgba(244,114,182,0.4); }
+    </style>
 </head>
 <body class="bg-[#0b0c10] text-white min-h-screen p-4 py-10 flex flex-col items-center justify-center">
 
     <div class="bg-[#12141d] p-6 rounded-3xl border border-gray-800 shadow-2xl max-w-md w-full relative">
         
-        <!-- زر العودة للصفحة الرئيسية المصحح -->
+        <!-- زر العودة للصفحة الرئيسية -->
         <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-800/80">
             <a href="index.html" onclick="goBackHome(event)" class="inline-flex items-center gap-2 bg-[#1a1c23] hover:bg-gray-800 text-gray-300 hover:text-white px-3.5 py-2 rounded-xl border border-gray-700 text-xs font-bold transition active:scale-95 cursor-pointer">
                 <i class="fas fa-arrow-right text-purple-400"></i>
@@ -31,7 +35,7 @@
         </h1>
         
         <div class="space-y-4">
-            <!-- 1. اسم الرافع (يُملأ تلقائياً ويُقفل إذا كان مسجلاً) -->
+            <!-- 1. اسم الرافع (يُملأ تلقائياً) -->
             <div>
                 <label class="text-sm text-gray-400 mb-1 flex justify-between items-center">
                     <span>اسم الرافع / المترجم</span>
@@ -43,7 +47,37 @@
 
             <div class="h-px w-full bg-gray-800 my-2"></div>
 
-            <!-- 2. تحديد نوع العمل (مانغا / مانها / كوميكس) -->
+            <!-- 2. خيار نوع النشر (وان شوت / متعدد فصول) -->
+            <div>
+                <label class="text-sm text-gray-400 mb-2 block">نوع الإصدار <span class="text-red-500">*</span></label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="setPublishMode('oneshot')" id="modeBtn_oneshot" class="upload-mode-btn py-2.5 px-3 rounded-xl font-black text-xs border border-gray-700 bg-[#1a1c23] text-gray-300 active:scale-95 active">
+                        <i class="fas fa-file-alt ml-1"></i> وان شوت (Oneshot)
+                    </button>
+                    <button type="button" onclick="setPublishMode('multi')" id="modeBtn_multi" class="upload-mode-btn py-2.5 px-3 rounded-xl font-black text-xs border border-gray-700 bg-[#1a1c23] text-gray-300 active:scale-95">
+                        <i class="fas fa-layer-group ml-1"></i> متعدد الفصول
+                    </button>
+                </div>
+            </div>
+
+            <!-- خيارات متعدد الفصول (تظهر فقط عند اختيار متعدد الفصول) -->
+            <div id="multiChapterSubOptions" class="hidden space-y-3 bg-[#161821] p-3.5 rounded-2xl border border-gray-800">
+                <label class="text-xs text-purple-400 font-bold block">إلى أين تريد إضافة هذا الفصل؟</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="setMultiSubMode('existing')" id="subModeBtn_existing" class="py-2 px-2 rounded-xl text-xs font-bold border border-gray-700 bg-[#1a1c23] text-gray-300 transition">إضافة لعمل موجود</button>
+                    <button type="button" onclick="setMultiSubMode('new')" id="subModeBtn_new" class="py-2 px-2 rounded-xl text-xs font-bold border border-gray-700 bg-purple-600 text-white transition">إنشاء عمل جديد</button>
+                </div>
+
+                <!-- حقل البحث عن مانغا موجودة مسبقاً -->
+                <div id="existingMangaSelectContainer" class="hidden pt-2">
+                    <label class="text-xs text-gray-400 mb-1 block">ابحث عن اسم العمل الموجود:</label>
+                    <select id="existingMangaSelect" class="w-full bg-[#111113] p-2.5 rounded-xl border border-gray-700 text-xs text-white outline-none font-bold">
+                        <option value="">-- اختر العمل المراد اضافة الفصل له --</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 3. تحديد نوع العمل (مانغا / مانها / كوميكس) -->
             <div>
                 <label class="text-sm text-gray-400 mb-2 block">نوع العمل <span class="text-red-500">*</span></label>
                 <div class="grid grid-cols-3 gap-2" id="workTypeContainer">
@@ -59,42 +93,49 @@
                 </div>
             </div>
 
-            <!-- 3. العناوين (إجباري / اختياري) -->
-            <div>
-                <label class="text-sm text-gray-400 mb-1 block">عنوان العمل (بالعربية) <span class="text-red-500">*</span></label>
-                <input id="mangaTitle" type="text" maxlength="100" placeholder="اكتب العنوان هنا..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
-            </div>
-            
-            <div>
-                <label class="text-sm text-gray-400 mb-1 block">العنوان (بالإنجليزية) (اختياري)</label>
-                <input id="mangaTitleEn" type="text" maxlength="100" dir="ltr" placeholder="Manga Title..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
-            </div>
+            <!-- 4. العناوين (تختفي إذا كان الفصل سيضاف لعمل موجود) -->
+            <div id="titleSectionFields" class="space-y-4">
+                <div>
+                    <label class="text-sm text-gray-400 mb-1 block">عنوان العمل (بالعربية) <span class="text-red-500">*</span></label>
+                    <input id="mangaTitle" type="text" maxlength="100" placeholder="اكتب العنوان هنا..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
+                </div>
+                
+                <div>
+                    <label class="text-sm text-gray-400 mb-1 block">العنوان (بالإنجليزية) (اختياري)</label>
+                    <input id="mangaTitleEn" type="text" maxlength="100" dir="ltr" placeholder="Manga Title..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
+                </div>
 
-            <!-- 4. الوصف (اختياري) -->
-            <div>
-                <label class="text-sm text-gray-400 mb-1 block">وصف القصة (اختياري)</label>
-                <textarea id="mangaDesc" maxlength="500" rows="3" placeholder="نبذة مختصرة عن القصة (حد أقصى 500 حرف)..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm resize-none"></textarea>
-            </div>
+                <div>
+                    <label class="text-sm text-gray-400 mb-1 block">وصف القصة (اختياري)</label>
+                    <textarea id="mangaDesc" maxlength="500" rows="3" placeholder="نبذة مختصرة عن القصة (حد أقصى 500 حرف)..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm resize-none"></textarea>
+                </div>
 
-            <!-- 5. التصنيفات (Tags) -->
-            <div>
-                <label class="text-sm text-gray-400 mb-2 block flex justify-between items-center">
-                    <span>التصنيفات والفئة</span>
-                </label>
-                <div id="tagsContainer" class="flex flex-wrap gap-2">
-                    <span class="text-xs text-gray-500"><i class="fas fa-spinner fa-spin"></i> جاري جلب التصنيفات...</span>
+                <!-- التصنيفات -->
+                <div>
+                    <label class="text-sm text-gray-400 mb-2 block flex justify-between items-center">
+                        <span>التصنيفات والفئة</span>
+                    </label>
+                    <div id="tagsContainer" class="flex flex-wrap gap-2">
+                        <span class="text-xs text-gray-500"><i class="fas fa-spinner fa-spin"></i> جاري جلب التصنيفات...</span>
+                    </div>
+                </div>
+
+                <div class="h-px w-full bg-gray-800 my-2"></div>
+
+                <!-- الغلاف (يختفي إذا كان العمل موجوداً مسبقاً) -->
+                <div id="coverContainerField">
+                    <label class="text-sm text-gray-400 mb-1 block">الغلاف الرسمي (صورة واحدة) <span class="text-red-500">*</span></label>
+                    <input id="mangaCover" type="file" accept="image/*" class="w-full bg-[#1a1c23] p-2 rounded-xl border-2 border-dashed border-gray-700 text-gray-400 text-sm">
                 </div>
             </div>
 
-            <div class="h-px w-full bg-gray-800 my-2"></div>
-
-            <!-- 6. الغلاف -->
-            <div>
-                <label class="text-sm text-gray-400 mb-1 block">الغلاف الرسمي (صورة واحدة) <span class="text-red-500">*</span></label>
-                <input id="mangaCover" type="file" accept="image/*" class="w-full bg-[#1a1c23] p-2 rounded-xl border-2 border-dashed border-gray-700 text-gray-400 text-sm">
+            <!-- رقم الفصل (يظهر فقط في وضع متعدد الفصول) -->
+            <div id="chapterNumberField" class="hidden">
+                <label class="text-sm text-purple-300 mb-1 block font-bold">رقم الفصل المراد إضافته <span class="text-red-500">*</span></label>
+                <input id="chapterNumberInput" type="number" min="1" value="1" placeholder="مثال: 2" class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm font-bold">
             </div>
 
-            <!-- 7. صفحات الفصل -->
+            <!-- 5. صفحات الفصل -->
             <div class="bg-indigo-900/20 p-4 rounded-xl border border-indigo-900/50">
                 <label class="text-sm text-indigo-300 mb-1 block font-bold">
                     ملف الفصل (ZIP, CBZ, PDF, أو صور) <span class="text-red-500">*</span>
@@ -127,34 +168,84 @@
 
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
         let selectedWorkType = 'مانغا';
+        let publishMode = 'oneshot'; // 'oneshot' أو 'multi'
+        let multiSubMode = 'new';    // 'new' أو 'existing'
+        let existingMangasCache = [];
+
         const selectedTags = new Set();
         const tagsContainer = document.getElementById('tagsContainer');
 
-        // دالة العودة الذكية والمضمونة للصفحة الرئيسية
         async function goBackHome(e) {
             e.preventDefault();
             try {
                 const res = await fetch('index.html', { method: 'HEAD' });
-                if (res.ok) {
-                    window.location.href = 'index.html';
-                    return;
-                }
+                if (res.ok) { window.location.href = 'index.html'; return; }
             } catch (err) {}
-
-            if (document.referrer && document.referrer.includes(window.location.hostname) && !document.referrer.includes('upload.html')) {
+            if (document.referrer && document.referrer.includes(window.location.hostname)) {
                 window.location.href = document.referrer;
                 return;
             }
-
-            if (window.history.length > 1) {
-                window.history.back();
-                return;
-            }
-
             window.location.href = 'https://leuay666-lgtm.github.io/';
         }
 
-        // دالة اختيار نوع العمل وتلوين الزر حسب الهوية البصرية
+        // التحكم في وضع النشر (وان شوت / متعدد فصول)
+        function setPublishMode(mode) {
+            publishMode = mode;
+            const btnOneshot = document.getElementById('modeBtn_oneshot');
+            const btnMulti = document.getElementById('modeBtn_multi');
+            const multiSubContainer = document.getElementById('multiChapterSubOptions');
+            const chapterNumField = document.getElementById('chapterNumberField');
+
+            if (mode === 'oneshot') {
+                btnOneshot.classList.add('active', 'bg-pink-500', 'border-pink-500', 'text-white');
+                btnMulti.classList.remove('active', 'bg-pink-500', 'border-pink-500', 'text-white');
+                multiSubContainer.classList.add('hidden');
+                chapterNumField.classList.add('hidden');
+                setMultiSubMode('new');
+            } else {
+                btnMulti.classList.add('active', 'bg-pink-500', 'border-pink-500', 'text-white');
+                btnOneshot.classList.remove('active', 'bg-pink-500', 'border-pink-500', 'text-white');
+                multiSubContainer.classList.remove('hidden');
+                chapterNumField.classList.remove('hidden');
+            }
+        }
+
+        function setMultiSubMode(subMode) {
+            multiSubMode = subMode;
+            const btnExisting = document.getElementById('subModeBtn_existing');
+            const btnNew = document.getElementById('subModeBtn_new');
+            const selectContainer = document.getElementById('existingMangaSelectContainer');
+            const titleFields = document.getElementById('titleSectionFields');
+            const coverField = document.getElementById('coverContainerField');
+
+            if (subMode === 'existing') {
+                btnExisting.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-purple-500 bg-purple-600 text-white transition';
+                btnNew.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-gray-700 bg-[#1a1c23] text-gray-300 transition';
+                selectContainer.classList.remove('hidden');
+                titleFields.classList.add('hidden');
+                loadExistingMangasForSelect();
+            } else {
+                btnNew.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-purple-500 bg-purple-600 text-white transition';
+                btnExisting.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-gray-700 bg-[#1a1c23] text-gray-300 transition';
+                selectContainer.classList.add('hidden');
+                titleFields.classList.remove('hidden');
+            }
+        }
+
+        async function loadExistingMangasForSelect() {
+            const selectEl = document.getElementById('existingMangaSelect');
+            selectEl.innerHTML = `<option value="">جاري جلب الأعمال...</option>`;
+            try {
+                const { data, error } = await sbClient.from('mangas').select('id, title').order('title');
+                if (error) throw error;
+                existingMangasCache = data || [];
+                selectEl.innerHTML = `<option value="">-- اختر العمل المراد اضافة الفصل له --</option>` +
+                    existingMangasCache.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+            } catch (e) {
+                selectEl.innerHTML = `<option value="">فشل جلب الأعمال</option>`;
+            }
+        }
+
         function selectWorkType(type) {
             selectedWorkType = type;
             const btnManga = document.getElementById('typeBtn_مانغا');
@@ -175,7 +266,6 @@
             }
         }
 
-        // تهيئة حساب المستخدم المسجل وحساب عدد مرفوعاته
         async function setupLoggedUploader() {
             const uploaderInput = document.getElementById('uploaderName');
             const loggedBadge = document.getElementById('loggedAccountBadge');
@@ -188,9 +278,7 @@
                 uploaderInput.classList.add('bg-[#14161f]', 'text-purple-300', 'font-black', 'border-purple-500/50', 'cursor-not-allowed');
                 loggedBadge.classList.remove('hidden');
                 statsBadge.classList.remove('hidden');
-                uploaderHint.innerText = 'يتم احتساب كافة أعمالك المرفوعة تلقائياً في ملفك الشخصي لترقية حسابك.';
-                uploaderHint.classList.replace('text-gray-500', 'text-purple-400/80');
-
+                uploaderHint.innerText = 'يتم احتساب كافة أعمالك المرفوعة تلقائياً في ملفك الشخصي.';
                 await refreshUserUploadsCount();
             }
         }
@@ -202,30 +290,21 @@
             counterEl.innerText = localCount;
 
             try {
-                const { count, error } = await sbClient
-                    .from('mangas')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('uploader_name', currentUser.username);
-
-                if (!error && count !== null) {
-                    const finalCount = Math.max(count, localCount);
-                    counterEl.innerText = finalCount;
-                    localStorage.setItem(`uploads_count_${currentUser.username}`, finalCount.toString());
+                const { count } = await sbClient.from('mangas').select('*', { count: 'exact', head: true }).eq('uploader_name', currentUser.username);
+                if (count !== null) {
+                    counterEl.innerText = Math.max(count, localCount);
                 }
             } catch (e) {}
         }
 
         async function fetchTags() {
             try {
-                const { data, error } = await sbClient.from('tags').select('*').order('name');
-                if (error) throw error;
-                
+                const { data } = await sbClient.from('tags').select('*').order('name');
                 tagsContainer.innerHTML = '';
-                if (data.length === 0) {
-                    tagsContainer.innerHTML = '<span class="text-xs text-gray-500">لا توجد تصنيفات حالياً.</span>';
+                if (!data || data.length === 0) {
+                    tagsContainer.innerHTML = '<span class="text-xs text-gray-500">لا توجد تصنيفات.</span>';
                     return;
                 }
-
                 data.forEach(tag => {
                     const btn = document.createElement('button');
                     btn.type = 'button';
@@ -236,24 +315,21 @@
                             selectedTags.delete(tag.name);
                             btn.classList.replace('bg-purple-600', 'bg-[#1a1c23]');
                             btn.classList.replace('text-white', 'text-gray-400');
-                            btn.classList.replace('border-purple-500', 'border-gray-700');
                         } else {
                             selectedTags.add(tag.name);
                             btn.classList.replace('bg-[#1a1c23]', 'bg-purple-600');
                             btn.classList.replace('text-gray-400', 'text-white');
-                            btn.classList.replace('border-gray-700', 'border-purple-500');
                         }
                     };
                     tagsContainer.appendChild(btn);
                 });
-            } catch (error) {
-                tagsContainer.innerHTML = '<span class="text-xs text-red-500">فشل جلب التصنيفات!</span>';
-            }
+            } catch (e) {}
         }
 
         window.onload = () => {
             setupLoggedUploader();
             fetchTags();
+            setPublishMode('oneshot');
         };
 
         const COOLDOWN_MINUTES = 5;
@@ -263,7 +339,7 @@
                 const elapsedMinutes = (Date.now() - parseInt(lastUploadTime)) / (1000 * 60);
                 if (elapsedMinutes < COOLDOWN_MINUTES) {
                     const remaining = Math.ceil(COOLDOWN_MINUTES - elapsedMinutes);
-                    return alert(`⚠️ يرجى الانتظار ${remaining} دقيقة قبل رفع عمل جديد.`);
+                    return alert(`⚠️ يرجى الانتظار ${remaining} دقيقة قبل رفع فصل جديد.`);
                 }
             }
             uploadFullManga();
@@ -288,7 +364,7 @@
                         resolve(new File([blob], `img_${Date.now()}.webp`, { type: 'image/webp' }));
                     }, 'image/webp', quality);
                 };
-                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذر قراءة صورة، قد تكون الصيغة غير مدعومة بالمتصفح')); };
+                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذر قراءة الصورة')); };
                 img.src = url;
             });
         }
@@ -306,59 +382,39 @@
             });
         }
 
-        // دالة فحص البصمة الرقمية لمعرفة هل الملف صورة حقيقية مهما كان اسمه أو امتداده
         async function isImageFile(blob) {
             try {
                 const buffer = await blob.slice(0, 12).arrayBuffer();
                 const bytes = new Uint8Array(buffer);
-                if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return true; // JPEG
-                if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return true; // PNG
-                if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) return true; // GIF
-                if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
-                    bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return true; // WEBP
+                if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return true;
+                if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return true;
+                if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) return true;
                 return false;
-            } catch (e) {
-                return false;
-            }
+            } catch (e) { return false; }
         }
 
         async function prepareChapterTasks(fileList, updateStatus) {
             const tasks = [], directImages = [], files = Array.from(fileList);
             for (const file of files) {
                 const ext = file.name.split('.').pop().toLowerCase();
-                
                 if (['zip', 'cbz', 'epub'].includes(ext)) {
-                    updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> جاري فحص ملف الـ ZIP بالكامل...`);
+                    updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> فحص ملف الـ ZIP...`);
                     const zip = await JSZip.loadAsync(file);
                     const validEntries = [];
-                    
-                    const entries = Object.values(zip.files).filter(entry => !entry.dir && !entry.name.includes('__MACOSX') && !entry.name.includes('.DS_Store'));
-                    
-                    for (let i = 0; i < entries.length; i++) {
-                        const entry = entries[i];
+                    const entries = Object.values(zip.files).filter(entry => !entry.dir && !entry.name.includes('__MACOSX'));
+                    for (let entry of entries) {
                         const blob = await entry.async('blob');
-                        const hasImgExt = /\.(jpe?g|png|webp|gif|avif|bmp|heic|heif)$/i.test(entry.name);
-                        
-                        // الفحص الذكي: يقبل الملف إذا كان اسمه صورة، أو إذا كانت بصمته الرقمية صورة
-                        if (hasImgExt || (await isImageFile(blob))) {
+                        if (/\.(jpe?g|png|webp|gif|avif)$/i.test(entry.name) || (await isImageFile(blob))) {
                             validEntries.push({ name: entry.name, blob: blob });
                         }
                     }
-
-                    if (validEntries.length === 0) {
-                        throw new Error('تعذر العثور على صور داخل الملف المضغوط! تأكد أن الملف ليس RAR تم تغيير امتداده فقط.');
-                    }
-
                     validEntries.sort((a, b) => naturalSort.compare(a.name, b.name));
-                    validEntries.forEach(item => {
-                        tasks.push({ getWebP: async () => compressImage(item.blob, 0.70) });
-                    });
-                
+                    validEntries.forEach(item => tasks.push({ getWebP: async () => compressImage(item.blob, 0.70) }));
                 } else if (ext === 'pdf') {
-                    updateStatus(`<i class="fas fa-file-pdf fa-bounce"></i> تحليل صفحات PDF...`);
+                    updateStatus(`<i class="fas fa-file-pdf fa-bounce"></i> تحليل PDF...`);
                     const pdfDoc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
                     for (let p = 1; p <= pdfDoc.numPages; p++) tasks.push({ getWebP: async () => renderPdfPageToWebP(pdfDoc, p, 0.70) });
-                } else if (file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i.test(file.name)) {
+                } else if (file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|avif)$/i.test(file.name)) {
                     directImages.push(file);
                 }
             }
@@ -377,65 +433,67 @@
         }
 
         async function uploadFullManga() {
-            const title = document.getElementById('mangaTitle').value.trim();
-            const titleEn = document.getElementById('mangaTitleEn').value.trim() || null;
-            const desc = document.getElementById('mangaDesc').value.trim() || null;
             const uploader = (currentUser && currentUser.username) ? currentUser.username : (document.getElementById('uploaderName').value.trim() || 'مجهول');
-            const coverFile = document.getElementById('mangaCover').files[0];
             const pageFiles = document.getElementById('mangaPages').files;
             const btn = document.getElementById('uploadBtn');
             const statusDiv = document.getElementById('statusDiv');
 
-            if (!title || !coverFile || pageFiles.length === 0) return alert('⚠️ يرجى تعبئة الحقول الإجبارية (العنوان، الغلاف، ملف الفصل)!');
+            if (pageFiles.length === 0) return alert('⚠️ يرجى اختيار ملفات الفصل!');
+
+            let targetMangaId = null;
+
+            // إذا كان متعدد الفصول ومضاف لعمل موجود مسبقاً
+            if (publishMode === 'multi' && multiSubMode === 'existing') {
+                targetMangaId = document.getElementById('existingMangaSelect').value;
+                if (!targetMangaId) return alert('⚠️ يرجى اختيار العمل الموجود من القائمة!');
+            } else {
+                const title = document.getElementById('mangaTitle').value.trim();
+                const coverFile = document.getElementById('mangaCover').files[0];
+                if (!title || !coverFile) return alert('⚠️ يرجى كتابة عنوان العمل واختيار الغلاف!');
+            }
 
             btn.disabled = true;
             statusDiv.classList.remove('hidden');
             statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-blue-900 bg-blue-900/20 text-blue-400 space-y-2';
-            
+
             try {
                 const pageTasks = await prepareChapterTasks(pageFiles, (msg) => updateProgressUI(msg, 5));
                 if (pageTasks.length === 0) throw new Error('لم يتم العثور على صور صالحة!');
 
-                updateProgressUI('<i class="fas fa-compress-arrows-alt"></i> جاري رفع الغلاف...', 10);
-                const coverName = `cover_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
-                const { error: coverErr } = await sbClient.storage.from('manga-covers').upload(coverName, await compressImage(coverFile, 0.75));
-                if (coverErr) throw coverErr;
-                const coverUrl = sbClient.storage.from('manga-covers').getPublicUrl(coverName).data.publicUrl;
+                if (!targetMangaId) {
+                    // إنشاء عمل جديد
+                    const title = document.getElementById('mangaTitle').value.trim();
+                    const titleEn = document.getElementById('mangaTitleEn').value.trim() || null;
+                    const desc = document.getElementById('mangaDesc').value.trim() || null;
+                    const coverFile = document.getElementById('mangaCover').files[0];
 
-                updateProgressUI('<i class="fas fa-spinner fa-spin"></i> جاري تسجيل البيانات...', 15);
-                
-                const finalTagsArray = [selectedWorkType, ...Array.from(selectedTags)];
-                const baseMangaData = { 
-                    title: title, 
-                    title_en: titleEn,
-                    description: desc,
-                    uploader_name: uploader,
-                    tags: finalTagsArray.join(','),
-                    cover_image_url: coverUrl, 
-                    status: 'pending' 
-                };
+                    updateProgressUI('<i class="fas fa-compress-arrows-alt"></i> رفع الغلاف...', 10);
+                    const coverName = `cover_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
+                    const { error: coverErr } = await sbClient.storage.from('manga-covers').upload(coverName, await compressImage(coverFile, 0.75));
+                    if (coverErr) throw coverErr;
+                    const coverUrl = sbClient.storage.from('manga-covers').getPublicUrl(coverName).data.publicUrl;
 
-                let newManga = null;
-                const { data: tryManga, error: tryErr } = await sbClient.from('mangas').insert([{ ...baseMangaData, work_type: selectedWorkType }]).select();
-                if (tryErr) {
-                    const { data: fallbackManga, error: mangaErr } = await sbClient.from('mangas').insert([baseMangaData]).select();
-                    if (mangaErr) throw mangaErr;
-                    newManga = fallbackManga;
-                } else {
-                    newManga = tryManga;
+                    const finalTagsArray = [selectedWorkType, ...Array.from(selectedTags)];
+                    const mangaData = { 
+                        title, title_en: titleEn, description: desc, uploader_name: uploader,
+                        tags: finalTagsArray.join(','), cover_image_url: coverUrl, status: 'pending', work_type: selectedWorkType 
+                    };
+
+                    const { data: newM, error: mErr } = await sbClient.from('mangas').insert([mangaData]).select();
+                    if (mErr) throw mErr;
+                    targetMangaId = newM[0].id;
                 }
 
-                const mangaId = newManga[0].id;
-
+                // رفع صفحات الفصل
                 const totalPages = pageTasks.length;
                 for (let i = 0; i < totalPages; i++) {
                     updateProgressUI(`<i class="fas fa-cloud-upload-alt"></i> رفع صفحة (${i + 1}/${totalPages})...`, Math.round(15 + ((i + 1) / totalPages) * 85));
-                    const pageName = `page_${mangaId}_${i + 1}_${Math.random().toString(36).substring(2, 7)}.webp`;
+                    const pageName = `page_${targetMangaId}_${i + 1}_${Math.random().toString(36).substring(2, 7)}.webp`;
                     const { error: pErr } = await sbClient.storage.from('manga-pages').upload(pageName, await pageTasks[i].getWebP());
                     if (pErr) throw pErr;
                     
                     await sbClient.from('manga_pages').insert([{
-                        manga_id: mangaId,
+                        manga_id: targetMangaId,
                         image_url: sbClient.storage.from('manga-pages').getPublicUrl(pageName).data.publicUrl,
                         page_number: i + 1
                     }]);
@@ -447,18 +505,14 @@
                     const currentCount = parseInt(localStorage.getItem(`uploads_count_${currentUser.username}`) || '0') + 1;
                     localStorage.setItem(`uploads_count_${currentUser.username}`, currentCount.toString());
                     document.getElementById('userUploadsCounter').innerText = currentCount;
-                    try {
-                        await sbClient.from('profiles').update({ uploads_count: currentCount }).eq('username', currentUser.username);
-                    } catch (e) {}
+                    try { await sbClient.from('profiles').update({ uploads_count: currentCount }).eq('username', currentUser.username); } catch (e) {}
                 }
 
                 statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-green-900 bg-green-900/20 text-green-400 space-y-2';
-                updateProgressUI(`<i class="fas fa-check-circle"></i> تم رفع العمل بنجاح! ننتظر موافقة الإدارة.`, 100);
+                updateProgressUI(`<i class="fas fa-check-circle"></i> تم رفع الفصل بنجاح!`, 100);
                 
                 document.querySelectorAll('input:not([readonly]), textarea').forEach(el => el.value = '');
                 selectedTags.clear();
-                selectWorkType('مانغا');
-                fetchTags();
 
             } catch (error) {
                 statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-red-900 bg-red-900/20 text-red-400 space-y-2';
