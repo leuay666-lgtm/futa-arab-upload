@@ -2,157 +2,71 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <title>رفع عمل جديد - Futa Arab</title>
+    <title>قارئ المانغا - Futa Arab</title>
     <style>
-        .upload-mode-btn { transition: all 0.25s ease; }
-        .upload-mode-btn.active { background: #f472b6; color: white; border-color: #f472b6; box-shadow: 0 0 12px rgba(244,114,182,0.4); }
+        body { background-color: #070709; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; } /* إخفاء شريط التمرير لقراءة نظيفة */
+        
+        /* شريط التنقل العلوي مع تأثير الإخفاء والظهور عند التمرير */
+        #readerNavbar { transition: transform 0.3s ease-in-out; }
+        .nav-hidden { transform: translateY(-100%); }
+
+        /* حاوية الصور */
+        .reader-page { width: 100%; max-w-3xl; margin: 0 auto; display: block; object-fit: contain; }
+        
+        /* عداد الصفحات العائم */
+        .floating-counter { background: rgba(17, 17, 19, 0.85); backdrop-filter: blur(8px); border: 1px solid rgba(244, 114, 182, 0.4); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
     </style>
 </head>
-<body class="bg-[#0b0c10] text-white min-h-screen p-4 py-10 flex flex-col items-center justify-center">
+<body class="relative min-h-screen flex flex-col items-center">
 
-    <div class="bg-[#12141d] p-6 rounded-3xl border border-gray-800 shadow-2xl max-w-md w-full relative">
-        
-        <!-- زر العودة للصفحة الرئيسية -->
-        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-800/80">
-            <a href="index.html" onclick="goBackHome(event)" class="inline-flex items-center gap-2 bg-[#1a1c23] hover:bg-gray-800 text-gray-300 hover:text-white px-3.5 py-2 rounded-xl border border-gray-700 text-xs font-bold transition active:scale-95 cursor-pointer">
-                <i class="fas fa-arrow-right text-purple-400"></i>
-                <span>العودة للرئيسية</span>
-            </a>
-            <span id="uploaderStatsBadge" class="hidden text-[11px] font-bold bg-purple-900/30 text-purple-300 border border-purple-700/50 px-2.5 py-1 rounded-lg">
-                مرفوعاتك: <span id="userUploadsCounter">0</span>
-            </span>
+    <!-- شريط التنقل العلوي -->
+    <nav id="readerNavbar" class="fixed top-0 left-0 w-full bg-[#121214]/95 backdrop-blur-md border-b border-gray-800/80 shadow-lg z-50 flex justify-between items-center px-4 py-3">
+        <div class="flex items-center gap-3">
+            <button onclick="goBack()" class="bg-[#1a1c23] hover:bg-gray-800 text-gray-300 hover:text-white px-3 py-1.5 rounded-xl border border-gray-700 text-xs font-bold transition active:scale-95 flex items-center gap-2">
+                <i class="fas fa-arrow-right"></i> <span>رجوع</span>
+            </button>
         </div>
+        <div class="flex-1 text-center overflow-hidden px-4">
+            <h1 id="mangaTitleDisplay" class="text-sm font-black text-white truncate">جاري التحميل...</h1>
+            <p id="chapterNumDisplay" class="text-[10px] text-accent font-bold mt-0.5">الفصل 1</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button class="text-gray-400 hover:text-white p-2 active:scale-95 transition">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </nav>
 
-        <h1 class="text-2xl font-black mb-6 text-center text-purple-400">
-            <i class="fas fa-cloud-upload-alt mb-2 block text-3xl"></i>
-            منصة رفع الأعمال والمساهمة
-        </h1>
-        
-        <div class="space-y-4">
-            <!-- 1. اسم الرافع (يُملأ تلقائياً) -->
-            <div>
-                <label class="text-sm text-gray-400 mb-1 flex justify-between items-center">
-                    <span>اسم الرافع / المترجم</span>
-                    <span id="loggedAccountBadge" class="hidden text-[10px] text-emerald-400 font-bold"><i class="fas fa-check-circle ml-1"></i>حساب مسجل (تلقائي)</span>
-                </label>
-                <input id="uploaderName" type="text" maxlength="50" placeholder="إذا تُرك فارغاً سيتم تسجيلك كمجهول" class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm transition">
-                <p id="uploaderHint" class="text-[10px] text-gray-500 mt-1 font-bold">سجل دخولك لحفظ التحميلات في حسابك والاستفادة من عرض الرافع.</p>
-            </div>
+    <!-- عداد الصفحات العائم -->
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 floating-counter px-4 py-1.5 rounded-full text-xs font-black text-white flex items-center gap-2">
+        <span id="currentPageNum">1</span>
+        <span class="text-gray-500">/</span>
+        <span id="totalPagesNum" class="text-gray-400">?</span>
+    </div>
 
-            <div class="h-px w-full bg-gray-800 my-2"></div>
+    <!-- حاوية الصور (القارئ) -->
+    <div id="pagesContainer" class="w-full max-w-3xl mx-auto flex flex-col items-center min-h-screen pt-16 pb-24 bg-[#070709]">
+        <div class="text-center py-32 text-gray-500 text-sm font-bold">
+            <i class="fas fa-spinner fa-spin text-4xl text-accent mb-4 block"></i>
+            جاري تحميل صفحات الفصل...
+        </div>
+    </div>
 
-            <!-- 2. خيار نوع النشر (وان شوت / متعدد فصول) -->
-            <div>
-                <label class="text-sm text-gray-400 mb-2 block">نوع الإصدار <span class="text-red-500">*</span></label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="setPublishMode('oneshot')" id="modeBtn_oneshot" class="upload-mode-btn py-2.5 px-3 rounded-xl font-black text-xs border border-gray-700 bg-[#1a1c23] text-gray-300 active:scale-95 active">
-                        <i class="fas fa-file-alt ml-1"></i> وان شوت (Oneshot)
-                    </button>
-                    <button type="button" onclick="setPublishMode('multi')" id="modeBtn_multi" class="upload-mode-btn py-2.5 px-3 rounded-xl font-black text-xs border border-gray-700 bg-[#1a1c23] text-gray-300 active:scale-95">
-                        <i class="fas fa-layer-group ml-1"></i> متعدد الفصول
-                    </button>
-                </div>
-            </div>
-
-            <!-- خيارات متعدد الفصول (تظهر فقط عند اختيار متعدد الفصول) -->
-            <div id="multiChapterSubOptions" class="hidden space-y-3 bg-[#161821] p-3.5 rounded-2xl border border-gray-800">
-                <label class="text-xs text-purple-400 font-bold block">إلى أين تريد إضافة هذا الفصل؟</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="setMultiSubMode('existing')" id="subModeBtn_existing" class="py-2 px-2 rounded-xl text-xs font-bold border border-gray-700 bg-[#1a1c23] text-gray-300 transition">إضافة لعمل موجود</button>
-                    <button type="button" onclick="setMultiSubMode('new')" id="subModeBtn_new" class="py-2 px-2 rounded-xl text-xs font-bold border border-gray-700 bg-purple-600 text-white transition">إنشاء عمل جديد</button>
-                </div>
-
-                <!-- حقل البحث عن مانغا موجودة مسبقاً -->
-                <div id="existingMangaSelectContainer" class="hidden pt-2">
-                    <label class="text-xs text-gray-400 mb-1 block">ابحث عن اسم العمل الموجود:</label>
-                    <select id="existingMangaSelect" class="w-full bg-[#111113] p-2.5 rounded-xl border border-gray-700 text-xs text-white outline-none font-bold">
-                        <option value="">-- اختر العمل المراد اضافة الفصل له --</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- 3. تحديد نوع العمل (مانغا / مانها / كوميكس) -->
-            <div>
-                <label class="text-sm text-gray-400 mb-2 block">نوع العمل <span class="text-red-500">*</span></label>
-                <div class="grid grid-cols-3 gap-2" id="workTypeContainer">
-                    <button type="button" onclick="selectWorkType('مانغا')" id="typeBtn_مانغا" class="work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-white text-black border-white shadow-md">
-                        <i class="fas fa-book-open text-[10px]"></i> <span>مانغا</span>
-                    </button>
-                    <button type="button" onclick="selectWorkType('مانها')" id="typeBtn_مانها" class="work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-[#1a1c23] text-gray-400 border-gray-700 hover:border-yellow-400">
-                        <i class="fas fa-scroll text-[10px]"></i> <span>مانها</span>
-                    </button>
-                    <button type="button" onclick="selectWorkType('كوميكس')" id="typeBtn_كوميكس" class="work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-[#1a1c23] text-gray-400 border-gray-700 hover:border-red-500">
-                        <i class="fas fa-mask text-[10px]"></i> <span>كوميكس</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 4. العناوين (تختفي إذا كان الفصل سيضاف لعمل موجود) -->
-            <div id="titleSectionFields" class="space-y-4">
-                <div>
-                    <label class="text-sm text-gray-400 mb-1 block">عنوان العمل (بالعربية) <span class="text-red-500">*</span></label>
-                    <input id="mangaTitle" type="text" maxlength="100" placeholder="اكتب العنوان هنا..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
-                </div>
-                
-                <div>
-                    <label class="text-sm text-gray-400 mb-1 block">العنوان (بالإنجليزية) (اختياري)</label>
-                    <input id="mangaTitleEn" type="text" maxlength="100" dir="ltr" placeholder="Manga Title..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm">
-                </div>
-
-                <div>
-                    <label class="text-sm text-gray-400 mb-1 block">وصف القصة (اختياري)</label>
-                    <textarea id="mangaDesc" maxlength="500" rows="3" placeholder="نبذة مختصرة عن القصة (حد أقصى 500 حرف)..." class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm resize-none"></textarea>
-                </div>
-
-                <!-- التصنيفات -->
-                <div>
-                    <label class="text-sm text-gray-400 mb-2 block flex justify-between items-center">
-                        <span>التصنيفات والفئة</span>
-                    </label>
-                    <div id="tagsContainer" class="flex flex-wrap gap-2">
-                        <span class="text-xs text-gray-500"><i class="fas fa-spinner fa-spin"></i> جاري جلب التصنيفات...</span>
-                    </div>
-                </div>
-
-                <div class="h-px w-full bg-gray-800 my-2"></div>
-
-                <!-- الغلاف (يختفي إذا كان العمل موجوداً مسبقاً) -->
-                <div id="coverContainerField">
-                    <label class="text-sm text-gray-400 mb-1 block">الغلاف الرسمي (صورة واحدة) <span class="text-red-500">*</span></label>
-                    <input id="mangaCover" type="file" accept="image/*" class="w-full bg-[#1a1c23] p-2 rounded-xl border-2 border-dashed border-gray-700 text-gray-400 text-sm">
-                </div>
-            </div>
-
-            <!-- رقم الفصل (يظهر فقط في وضع متعدد الفصول) -->
-            <div id="chapterNumberField" class="hidden">
-                <label class="text-sm text-purple-300 mb-1 block font-bold">رقم الفصل المراد إضافته <span class="text-red-500">*</span></label>
-                <input id="chapterNumberInput" type="number" min="1" value="1" placeholder="مثال: 2" class="w-full bg-[#1a1c23] p-3 rounded-xl border border-gray-700 outline-none text-white focus:border-purple-500 text-sm font-bold">
-            </div>
-
-            <!-- 5. صفحات الفصل -->
-            <div class="bg-indigo-900/20 p-4 rounded-xl border border-indigo-900/50">
-                <label class="text-sm text-indigo-300 mb-1 block font-bold">
-                    ملف الفصل (ZIP, CBZ, PDF, أو صور) <span class="text-red-500">*</span>
-                </label>
-                <input id="mangaPages" type="file" accept=".zip,.cbz,.epub,.pdf,image/*" multiple class="w-full bg-[#1a1c23] p-2 rounded-xl border-2 border-dashed border-indigo-700 text-gray-400 text-sm">
-            </div>
-
-            <!-- شريط التقدم والحالة -->
-            <div id="statusDiv" class="hidden text-center text-sm font-bold p-3 rounded-xl bg-[#1a1c23] border border-gray-700 space-y-2">
-                <div id="statusText">جاري الرفع...</div>
-                <div id="progressBarContainer" class="w-full bg-gray-800 rounded-full h-2 overflow-hidden hidden">
-                    <div id="progressBarFill" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 transition-all duration-300" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <button onclick="checkCooldownAndUpload()" id="uploadBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 font-bold py-3 rounded-xl transition hover:opacity-90 active:scale-95 shadow-lg shadow-purple-900/50">
-                رفع العمل للمراجعة
+    <!-- أزرار التنقل في أسفل الفصل -->
+    <div id="chapterFooterNav" class="w-full max-w-3xl mx-auto px-4 pb-12 hidden flex-col items-center gap-4">
+        <div class="h-px w-full bg-gray-800/60 mb-2"></div>
+        <h3 class="text-sm font-black text-gray-400">نهاية الفصل</h3>
+        <div class="flex w-full gap-3 justify-center">
+            <button onclick="goToNextChapter()" class="flex-1 bg-[#1a1c23] hover:bg-gray-800 border border-gray-700 text-white font-bold py-3 rounded-xl transition active:scale-95 flex items-center justify-center gap-2 text-xs">
+                <span>الفصل التالي</span> <i class="fas fa-chevron-left"></i>
+            </button>
+            <button onclick="goToPrevChapter()" class="flex-1 bg-[#1a1c23] hover:bg-gray-800 border border-gray-700 text-white font-bold py-3 rounded-xl transition active:scale-95 flex items-center justify-center gap-2 text-xs">
+                <i class="fas fa-chevron-right"></i> <span>الفصل السابق</span>
             </button>
         </div>
     </div>
@@ -162,363 +76,149 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        if (window['pdfjs-dist/build/pdf']) {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        }
+        const urlParams = new URLSearchParams(window.location.search);
+        const mangaId = urlParams.get('id');
+        const chapterNum = parseInt(urlParams.get('chapter')) || 1;
+        
+        let mangaData = null;
+        let totalPages = 0;
+        let lastScrollY = window.scrollY;
+        const navbar = document.getElementById('readerNavbar');
 
-        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
-        let selectedWorkType = 'مانغا';
-        let publishMode = 'oneshot'; // 'oneshot' أو 'multi'
-        let multiSubMode = 'new';    // 'new' أو 'existing'
-        let existingMangasCache = [];
-
-        const selectedTags = new Set();
-        const tagsContainer = document.getElementById('tagsContainer');
-
-        async function goBackHome(e) {
-            e.preventDefault();
-            try {
-                const res = await fetch('index.html', { method: 'HEAD' });
-                if (res.ok) { window.location.href = 'index.html'; return; }
-            } catch (err) {}
-            if (document.referrer && document.referrer.includes(window.location.hostname)) {
-                window.location.href = document.referrer;
+        window.onload = async () => {
+            if (!mangaId) {
+                document.getElementById('pagesContainer').innerHTML = '<div class="text-red-500 py-20 text-center font-bold">خطأ: لم يتم تحديد العمل!</div>';
                 return;
             }
-            window.location.href = 'https://leuay666-lgtm.github.io/';
-        }
-
-        // التحكم في وضع النشر (وان شوت / متعدد فصول)
-        function setPublishMode(mode) {
-            publishMode = mode;
-            const btnOneshot = document.getElementById('modeBtn_oneshot');
-            const btnMulti = document.getElementById('modeBtn_multi');
-            const multiSubContainer = document.getElementById('multiChapterSubOptions');
-            const chapterNumField = document.getElementById('chapterNumberField');
-
-            if (mode === 'oneshot') {
-                btnOneshot.classList.add('active', 'bg-pink-500', 'border-pink-500', 'text-white');
-                btnMulti.classList.remove('active', 'bg-pink-500', 'border-pink-500', 'text-white');
-                multiSubContainer.classList.add('hidden');
-                chapterNumField.classList.add('hidden');
-                setMultiSubMode('new');
-            } else {
-                btnMulti.classList.add('active', 'bg-pink-500', 'border-pink-500', 'text-white');
-                btnOneshot.classList.remove('active', 'bg-pink-500', 'border-pink-500', 'text-white');
-                multiSubContainer.classList.remove('hidden');
-                chapterNumField.classList.remove('hidden');
-            }
-        }
-
-        function setMultiSubMode(subMode) {
-            multiSubMode = subMode;
-            const btnExisting = document.getElementById('subModeBtn_existing');
-            const btnNew = document.getElementById('subModeBtn_new');
-            const selectContainer = document.getElementById('existingMangaSelectContainer');
-            const titleFields = document.getElementById('titleSectionFields');
-            const coverField = document.getElementById('coverContainerField');
-
-            if (subMode === 'existing') {
-                btnExisting.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-purple-500 bg-purple-600 text-white transition';
-                btnNew.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-gray-700 bg-[#1a1c23] text-gray-300 transition';
-                selectContainer.classList.remove('hidden');
-                titleFields.classList.add('hidden');
-                loadExistingMangasForSelect();
-            } else {
-                btnNew.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-purple-500 bg-purple-600 text-white transition';
-                btnExisting.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-gray-700 bg-[#1a1c23] text-gray-300 transition';
-                selectContainer.classList.add('hidden');
-                titleFields.classList.remove('hidden');
-            }
-        }
-
-        async function loadExistingMangasForSelect() {
-            const selectEl = document.getElementById('existingMangaSelect');
-            selectEl.innerHTML = `<option value="">جاري جلب الأعمال...</option>`;
-            try {
-                const { data, error } = await sbClient.from('mangas').select('id, title').order('title');
-                if (error) throw error;
-                existingMangasCache = data || [];
-                selectEl.innerHTML = `<option value="">-- اختر العمل المراد اضافة الفصل له --</option>` +
-                    existingMangasCache.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
-            } catch (e) {
-                selectEl.innerHTML = `<option value="">فشل جلب الأعمال</option>`;
-            }
-        }
-
-        function selectWorkType(type) {
-            selectedWorkType = type;
-            const btnManga = document.getElementById('typeBtn_مانغا');
-            const btnManhwa = document.getElementById('typeBtn_مانها');
-            const btnComics = document.getElementById('typeBtn_كوميكس');
-
-            const defaultClass = 'work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-[#1a1c23] text-gray-400 border-gray-700';
-            btnManga.className = defaultClass + ' hover:border-white';
-            btnManhwa.className = defaultClass + ' hover:border-yellow-400';
-            btnComics.className = defaultClass + ' hover:border-red-500';
-
-            if (type === 'مانغا') {
-                btnManga.className = 'work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-white text-black border-white shadow-md';
-            } else if (type === 'مانها') {
-                btnManhwa.className = 'work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-yellow-400 text-black border-yellow-400 shadow-md';
-            } else if (type === 'كوميكس') {
-                btnComics.className = 'work-type-btn py-2.5 px-3 rounded-xl font-black text-xs border-2 transition flex items-center justify-center gap-1.5 bg-red-600 text-white border-red-500 shadow-md';
-            }
-        }
-
-        async function setupLoggedUploader() {
-            const uploaderInput = document.getElementById('uploaderName');
-            const loggedBadge = document.getElementById('loggedAccountBadge');
-            const uploaderHint = document.getElementById('uploaderHint');
-            const statsBadge = document.getElementById('uploaderStatsBadge');
-
-            if (currentUser && currentUser.username) {
-                uploaderInput.value = currentUser.username;
-                uploaderInput.readOnly = true;
-                uploaderInput.classList.add('bg-[#14161f]', 'text-purple-300', 'font-black', 'border-purple-500/50', 'cursor-not-allowed');
-                loggedBadge.classList.remove('hidden');
-                statsBadge.classList.remove('hidden');
-                uploaderHint.innerText = 'يتم احتساب كافة أعمالك المرفوعة تلقائياً في ملفك الشخصي.';
-                await refreshUserUploadsCount();
-            }
-        }
-
-        async function refreshUserUploadsCount() {
-            if (!currentUser || !currentUser.username) return;
-            const counterEl = document.getElementById('userUploadsCounter');
-            const localCount = parseInt(localStorage.getItem(`uploads_count_${currentUser.username}`) || '0');
-            counterEl.innerText = localCount;
-
-            try {
-                const { count } = await sbClient.from('mangas').select('*', { count: 'exact', head: true }).eq('uploader_name', currentUser.username);
-                if (count !== null) {
-                    counterEl.innerText = Math.max(count, localCount);
-                }
-            } catch (e) {}
-        }
-
-        async function fetchTags() {
-            try {
-                const { data } = await sbClient.from('tags').select('*').order('name');
-                tagsContainer.innerHTML = '';
-                if (!data || data.length === 0) {
-                    tagsContainer.innerHTML = '<span class="text-xs text-gray-500">لا توجد تصنيفات.</span>';
-                    return;
-                }
-                data.forEach(tag => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.innerText = tag.name;
-                    btn.className = 'px-3 py-1 rounded-full text-xs font-bold border transition-colors bg-[#1a1c23] border-gray-700 text-gray-400 hover:bg-gray-800';
-                    btn.onclick = () => {
-                        if (selectedTags.has(tag.name)) {
-                            selectedTags.delete(tag.name);
-                            btn.classList.replace('bg-purple-600', 'bg-[#1a1c23]');
-                            btn.classList.replace('text-white', 'text-gray-400');
-                        } else {
-                            selectedTags.add(tag.name);
-                            btn.classList.replace('bg-[#1a1c23]', 'bg-purple-600');
-                            btn.classList.replace('text-gray-400', 'text-white');
-                        }
-                    };
-                    tagsContainer.appendChild(btn);
-                });
-            } catch (e) {}
-        }
-
-        window.onload = () => {
-            setupLoggedUploader();
-            fetchTags();
-            setPublishMode('oneshot');
+            document.getElementById('chapterNumDisplay').innerText = `الفصل ${chapterNum}`;
+            await fetchMangaAndPages();
         };
 
-        const COOLDOWN_MINUTES = 5;
-        function checkCooldownAndUpload() {
-            const lastUploadTime = localStorage.getItem('lastUploadTime');
-            if (lastUploadTime) {
-                const elapsedMinutes = (Date.now() - parseInt(lastUploadTime)) / (1000 * 60);
-                if (elapsedMinutes < COOLDOWN_MINUTES) {
-                    const remaining = Math.ceil(COOLDOWN_MINUTES - elapsedMinutes);
-                    return alert(`⚠️ يرجى الانتظار ${remaining} دقيقة قبل رفع فصل جديد.`);
-                }
-            }
-            uploadFullManga();
+        function goBack() {
+            window.location.href = `manga.html?id=${mangaId}`;
         }
 
-        const naturalSort = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-
-        function compressImage(fileOrBlob, quality = 0.75, maxWidth = 1200) {
-            return new Promise((resolve, reject) => {
-                const url = URL.createObjectURL(fileOrBlob);
-                const img = new Image();
-                img.onload = () => {
-                    URL.revokeObjectURL(url);
-                    const canvas = document.createElement('canvas');
-                    let width = img.width; let height = img.height;
-                    if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        if (!blob) return reject(new Error('فشل ضغط الصورة'));
-                        resolve(new File([blob], `img_${Date.now()}.webp`, { type: 'image/webp' }));
-                    }, 'image/webp', quality);
-                };
-                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذر قراءة الصورة')); };
-                img.src = url;
-            });
+        function goToNextChapter() {
+            window.location.href = `reader.html?id=${mangaId}&chapter=${chapterNum + 1}`;
         }
 
-        async function renderPdfPageToWebP(pdfDoc, pageNum, quality = 0.75, maxWidth = 1200) {
-            const page = await pdfDoc.getPage(pageNum);
-            const initialViewport = page.getViewport({ scale: 2.0 });
-            let scale = initialViewport.width > maxWidth ? (maxWidth / initialViewport.width) * 2.0 : 2.0;
-            const canvas = document.createElement('canvas');
-            const viewport = page.getViewport({ scale: scale });
-            canvas.width = viewport.width; canvas.height = viewport.height;
-            await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
-            return new Promise((resolve, reject) => {
-                canvas.toBlob((blob) => blob ? resolve(new File([blob], `pdf_${pageNum}.webp`, { type: 'image/webp' })) : reject(new Error('فشل PDF')), 'image/webp', quality);
-            });
-        }
-
-        async function isImageFile(blob) {
-            try {
-                const buffer = await blob.slice(0, 12).arrayBuffer();
-                const bytes = new Uint8Array(buffer);
-                if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return true;
-                if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return true;
-                if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) return true;
-                return false;
-            } catch (e) { return false; }
-        }
-
-        async function prepareChapterTasks(fileList, updateStatus) {
-            const tasks = [], directImages = [], files = Array.from(fileList);
-            for (const file of files) {
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (['zip', 'cbz', 'epub'].includes(ext)) {
-                    updateStatus(`<i class="fas fa-file-archive fa-bounce"></i> فحص ملف الـ ZIP...`);
-                    const zip = await JSZip.loadAsync(file);
-                    const validEntries = [];
-                    const entries = Object.values(zip.files).filter(entry => !entry.dir && !entry.name.includes('__MACOSX'));
-                    for (let entry of entries) {
-                        const blob = await entry.async('blob');
-                        if (/\.(jpe?g|png|webp|gif|avif)$/i.test(entry.name) || (await isImageFile(blob))) {
-                            validEntries.push({ name: entry.name, blob: blob });
-                        }
-                    }
-                    validEntries.sort((a, b) => naturalSort.compare(a.name, b.name));
-                    validEntries.forEach(item => tasks.push({ getWebP: async () => compressImage(item.blob, 0.70) }));
-                } else if (ext === 'pdf') {
-                    updateStatus(`<i class="fas fa-file-pdf fa-bounce"></i> تحليل PDF...`);
-                    const pdfDoc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-                    for (let p = 1; p <= pdfDoc.numPages; p++) tasks.push({ getWebP: async () => renderPdfPageToWebP(pdfDoc, p, 0.70) });
-                } else if (file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|avif)$/i.test(file.name)) {
-                    directImages.push(file);
-                }
-            }
-            if (directImages.length > 0) {
-                directImages.sort((a, b) => naturalSort.compare(a.name, b.name));
-                directImages.forEach(img => tasks.push({ getWebP: async () => compressImage(img, 0.70) }));
-            }
-            return tasks;
-        }
-
-        function updateProgressUI(text, percentage = null) {
-            document.getElementById('statusText').innerHTML = text;
-            const container = document.getElementById('progressBarContainer');
-            if (percentage !== null) { container.classList.remove('hidden'); document.getElementById('progressBarFill').style.width = `${percentage}%`; } 
-            else container.classList.add('hidden');
-        }
-
-        async function uploadFullManga() {
-            const uploader = (currentUser && currentUser.username) ? currentUser.username : (document.getElementById('uploaderName').value.trim() || 'مجهول');
-            const pageFiles = document.getElementById('mangaPages').files;
-            const btn = document.getElementById('uploadBtn');
-            const statusDiv = document.getElementById('statusDiv');
-
-            if (pageFiles.length === 0) return alert('⚠️ يرجى اختيار ملفات الفصل!');
-
-            let targetMangaId = null;
-
-            // إذا كان متعدد الفصول ومضاف لعمل موجود مسبقاً
-            if (publishMode === 'multi' && multiSubMode === 'existing') {
-                targetMangaId = document.getElementById('existingMangaSelect').value;
-                if (!targetMangaId) return alert('⚠️ يرجى اختيار العمل الموجود من القائمة!');
+        function goToPrevChapter() {
+            if (chapterNum > 1) {
+                window.location.href = `reader.html?id=${mangaId}&chapter=${chapterNum - 1}`;
             } else {
-                const title = document.getElementById('mangaTitle').value.trim();
-                const coverFile = document.getElementById('mangaCover').files[0];
-                if (!title || !coverFile) return alert('⚠️ يرجى كتابة عنوان العمل واختيار الغلاف!');
+                alert('أنت في الفصل الأول بالفعل.');
             }
+        }
 
-            btn.disabled = true;
-            statusDiv.classList.remove('hidden');
-            statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-blue-900 bg-blue-900/20 text-blue-400 space-y-2';
+        // إخفاء/إظهار النافبار عند التمرير
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > lastScrollY && window.scrollY > 100) {
+                navbar.classList.add('nav-hidden');
+            } else {
+                navbar.classList.remove('nav-hidden');
+            }
+            lastScrollY = window.scrollY;
+        });
 
+        // تسجيل العمل في "سجل القراءة" (History)
+        function updateReadingHistory(pageIndex) {
+            if (!mangaData) return;
+            let history = JSON.parse(localStorage.getItem('futa_read_history') || '[]');
+            
+            // إزالة النسخة القديمة إن وجدت لرفعها للأعلى
+            history = history.filter(item => item.id !== mangaData.id);
+            
+            history.unshift({
+                id: mangaData.id,
+                title: mangaData.title,
+                cover_image_url: mangaData.cover_image_url,
+                last_chapter: chapterNum,
+                last_page: pageIndex + 1,
+                timestamp: Date.now()
+            });
+
+            // الاحتفاظ بآخر 50 عمل فقط لعدم إثقال الذاكرة
+            if (history.length > 50) history.pop();
+            localStorage.setItem('futa_read_history', JSON.stringify(history));
+
+            // تحديث مؤشر القراءة العام لصفحة manga.html لتعرف من أين تكمل
+            localStorage.setItem(`reading_progress_${mangaId}`, JSON.stringify({
+                chapterNum: chapterNum,
+                pageIndex: pageIndex,
+                updatedAt: Date.now()
+            }));
+        }
+
+        async function fetchMangaAndPages() {
             try {
-                const pageTasks = await prepareChapterTasks(pageFiles, (msg) => updateProgressUI(msg, 5));
-                if (pageTasks.length === 0) throw new Error('لم يتم العثور على صور صالحة!');
+                // جلب تفاصيل المانغا
+                const { data: manga, error: mangaErr } = await sbClient.from('mangas').select('*').eq('id', mangaId).single();
+                if (mangaErr) throw mangaErr;
+                mangaData = manga;
+                document.getElementById('mangaTitleDisplay').innerText = manga.title;
 
-                if (!targetMangaId) {
-                    // إنشاء عمل جديد
-                    const title = document.getElementById('mangaTitle').value.trim();
-                    const titleEn = document.getElementById('mangaTitleEn').value.trim() || null;
-                    const desc = document.getElementById('mangaDesc').value.trim() || null;
-                    const coverFile = document.getElementById('mangaCover').files[0];
+                // جلب الصفحات (في المستقبل سنضيف فلتر eq('chapter_number', chapterNum))
+                const { data: pages, error: pagesErr } = await sbClient
+                    .from('manga_pages')
+                    .select('*')
+                    .eq('manga_id', mangaId)
+                    .order('page_number', { ascending: true });
 
-                    updateProgressUI('<i class="fas fa-compress-arrows-alt"></i> رفع الغلاف...', 10);
-                    const coverName = `cover_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
-                    const { error: coverErr } = await sbClient.storage.from('manga-covers').upload(coverName, await compressImage(coverFile, 0.75));
-                    if (coverErr) throw coverErr;
-                    const coverUrl = sbClient.storage.from('manga-covers').getPublicUrl(coverName).data.publicUrl;
-
-                    const finalTagsArray = [selectedWorkType, ...Array.from(selectedTags)];
-                    const mangaData = { 
-                        title, title_en: titleEn, description: desc, uploader_name: uploader,
-                        tags: finalTagsArray.join(','), cover_image_url: coverUrl, status: 'pending', work_type: selectedWorkType 
-                    };
-
-                    const { data: newM, error: mErr } = await sbClient.from('mangas').insert([mangaData]).select();
-                    if (mErr) throw mErr;
-                    targetMangaId = newM[0].id;
+                if (pagesErr || !pages || pages.length === 0) {
+                    document.getElementById('pagesContainer').innerHTML = '<div class="text-gray-500 py-32 text-center font-bold">هذا الفصل لا يحتوي على صفحات بعد.</div>';
+                    return;
                 }
 
-                // رفع صفحات الفصل
-                const totalPages = pageTasks.length;
-                for (let i = 0; i < totalPages; i++) {
-                    updateProgressUI(`<i class="fas fa-cloud-upload-alt"></i> رفع صفحة (${i + 1}/${totalPages})...`, Math.round(15 + ((i + 1) / totalPages) * 85));
-                    const pageName = `page_${targetMangaId}_${i + 1}_${Math.random().toString(36).substring(2, 7)}.webp`;
-                    const { error: pErr } = await sbClient.storage.from('manga-pages').upload(pageName, await pageTasks[i].getWebP());
-                    if (pErr) throw pErr;
-                    
-                    await sbClient.from('manga_pages').insert([{
-                        manga_id: targetMangaId,
-                        image_url: sbClient.storage.from('manga-pages').getPublicUrl(pageName).data.publicUrl,
-                        page_number: i + 1
-                    }]);
+                totalPages = pages.length;
+                document.getElementById('totalPagesNum').innerText = totalPages;
+
+                const pagesContainer = document.getElementById('pagesContainer');
+                pagesContainer.innerHTML = pages.map((p, idx) => `
+                    <img src="${p.image_url}" data-index="${idx}" class="reader-page w-full object-cover border-b border-gray-900" loading="lazy" alt="Page ${idx + 1}">
+                `).join('');
+
+                document.getElementById('chapterFooterNav').classList.remove('hidden');
+                document.getElementById('chapterFooterNav').classList.add('flex');
+
+                setupIntersectionObserver();
+
+                // التمرير التلقائي لآخر صفحة توقف عندها في هذا الفصل إن وجدت
+                const progress = JSON.parse(localStorage.getItem(`reading_progress_${mangaId}`));
+                if (progress && progress.chapterNum === chapterNum && progress.pageIndex > 0) {
+                    setTimeout(() => {
+                        const targetImg = document.querySelector(`img[data-index="${progress.pageIndex}"]`);
+                        if (targetImg) targetImg.scrollIntoView({ behavior: 'smooth' });
+                    }, 500);
+                } else {
+                    updateReadingHistory(0); // تسجيل البداية
                 }
-
-                localStorage.setItem('lastUploadTime', Date.now().toString());
-
-                if (currentUser && currentUser.username) {
-                    const currentCount = parseInt(localStorage.getItem(`uploads_count_${currentUser.username}`) || '0') + 1;
-                    localStorage.setItem(`uploads_count_${currentUser.username}`, currentCount.toString());
-                    document.getElementById('userUploadsCounter').innerText = currentCount;
-                    try { await sbClient.from('profiles').update({ uploads_count: currentCount }).eq('username', currentUser.username); } catch (e) {}
-                }
-
-                statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-green-900 bg-green-900/20 text-green-400 space-y-2';
-                updateProgressUI(`<i class="fas fa-check-circle"></i> تم رفع الفصل بنجاح!`, 100);
-                
-                document.querySelectorAll('input:not([readonly]), textarea').forEach(el => el.value = '');
-                selectedTags.clear();
 
             } catch (error) {
-                statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-red-900 bg-red-900/20 text-red-400 space-y-2';
-                updateProgressUI('<i class="fas fa-times-circle"></i> خطأ: ' + error.message, null);
+                document.getElementById('pagesContainer').innerHTML = '<div class="text-red-500 py-32 text-center font-bold">حدث خطأ أثناء الاتصال بالخادم.</div>';
             }
-            btn.disabled = false;
+        }
+
+        // مراقب ذكي لمعرفة أي صفحة يقرأها المستخدم حالياً
+        function setupIntersectionObserver() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.5 // عندما تظهر 50% من الصورة في الشاشة
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const pageIndex = parseInt(entry.target.getAttribute('data-index'));
+                        document.getElementById('currentPageNum').innerText = pageIndex + 1;
+                        updateReadingHistory(pageIndex);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reader-page').forEach(img => {
+                observer.observe(img);
+            });
         }
     </script>
 </body>
