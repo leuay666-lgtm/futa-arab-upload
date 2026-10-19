@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>حقوق الملكية DMCA - Futa Arab</title>
+    <style>
+        body { background-color: #111113; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #18181b; }
+        .text-accent { color: #f472b6; }
+        .bg-accent { background-color: #f472b6; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #111113; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        .body-glow {
+            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
+            background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(17,17,19,0) 70%);
+            z-index: -1; pointer-events: none;
+        }
+
+        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
+        #sidebarMenu { transition: transform 0.3s ease-in-out; }
+        .sidebar-link { display: flex; align-items: center; justify-content: flex-start; gap: 12px; color: #d1d5db; padding: 10px; border-radius: 8px; transition: all 0.3s ease; }
+        .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
+        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+        .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
+
+        /* تأثيرات توهج الشارات والأسماء والإطارات */
+        .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
+        .text-glow-free { color: #ffffff; }
+        .avatar-glow-free { border-color: #6b7280; box-shadow: 0 0 10px rgba(156, 163, 175, 0.3); }
+        
+        .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+        .text-glow-uploader { color: #ef4444; text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+        .avatar-glow-uploader { border-color: #ef4444; box-shadow: 0 0 14px rgba(239, 68, 68, 0.6); }
+
+        .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
+        .text-glow-cyan { color: #06b6d4; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+        .avatar-glow-cyan { border-color: #06b6d4; box-shadow: 0 0 14px rgba(6, 182, 212, 0.6); }
+        
+        .badge-glow-vip { animation: badgeGold 2s infinite alternate; border-color: #eab308; color: #eab308; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
+        .text-glow-vip { color: #facc15; animation: textGold 2s infinite alternate; }
+        .avatar-glow-vip { border-color: #eab308; animation: badgeGold 2s infinite alternate; }
+        @keyframes badgeGold { 0% { box-shadow: 0 0 5px rgba(234,179,8,0.5), inset 0 0 2px rgba(234,179,8,0.5); } 100% { box-shadow: 0 0 15px rgba(234,179,8,0.8), inset 0 0 6px rgba(234,179,8,0.8); } }
+        @keyframes textGold { 0% { text-shadow: 0 0 5px rgba(234,179,8,0.5); } 100% { text-shadow: 0 0 15px rgba(234,179,8,0.8); } }
+        
+        .badge-glow-pro { animation: badgePro 2s infinite alternate; border-color: #f97316; color: #f97316; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6); }
+        .text-glow-pro { color: #f97316; animation: textPro 2s infinite alternate; }
+        .avatar-glow-pro { border-color: #f97316; animation: badgePro 2s infinite alternate; }
+        @keyframes badgePro { 0% { box-shadow: 0 0 5px rgba(249,115,22,0.5), inset 0 0 2px rgba(249,115,22,0.5); } 100% { box-shadow: 0 0 15px rgba(239,68,68,0.8), inset 0 0 6px rgba(239,68,68,0.8); border-color:#ef4444; } }
+        @keyframes textPro { 0% { text-shadow: 0 0 5px rgba(249,115,22,0.5); } 100% { color: #ef4444; text-shadow: 0 0 15px rgba(239,68,68,0.8); } }
+        
+        .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: #d946ef; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
+        .text-glow-ultra { color: #d946ef; animation: textUltra 3s infinite linear; }
+        .avatar-glow-ultra { border-color: #d946ef; animation: badgeUltra 3s infinite linear; }
+        @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
+        @keyframes textUltra { 0% { filter: hue-rotate(0deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } 100% { filter: hue-rotate(360deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col">
+
+    <div class="body-glow"></div>
+
+    <!-- نافذة البحث الذكية -->
+    <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
+        <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
+            <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
+            <div class="relative flex-1">
+                <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
+                <input type="text" id="searchInput" placeholder="ابحث عن مانغا أو تصنيف..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
+            </div>
+        </div>
+        <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>
+        </div>
+    </div>
+
+    <!-- القائمة الجانبية الموحدة (Sidebar) -->
+    <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
+    <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
+            <button onclick="closeSidebar()" class="absolute right-4 top-6 text-gray-500 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-times"></i></button>
+            <div class="w-full text-left pl-2">
+                <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
+                <p class="text-[11px] text-gray-500 mt-0.5 font-semibold">Manga • Manhwa • Doujinshi</p>
+            </div>
+        </div>
+        <div class="flex-1 py-6 flex flex-col gap-8 px-6">
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
+                    <li><a href="index.html#latestSection" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
+                    <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
+                </ul>
+            </div>
+            <div class="h-[1px] w-full bg-gray-800/50"></div>
+            <div>
+                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
+                <ul class="space-y-1.5">
+                    <li><a href="library.html?tab=bookmarks" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح المفضلة.'); return false; }" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="library.html?tab=history" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح السجل.'); return false; }" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="library.html?tab=likes" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول لفتح هذه القائمة.'); return false; }" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="subscription.html" class="sidebar-link"><i class="fas fa-crown text-yellow-500"></i><span class="text-yellow-500">اشتراكي</span></a></li>
+                </ul>
+            </div>
+        </div>
+        <div id="sidebarFooterAccount" class="p-4 border-t border-gray-800/70 bg-[#0d0d10]">
+            <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px] py-2">
+                <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- شريط التنقل العلوي -->
+    <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
+                <a href="subscription.html" class="active:scale-95 transition cursor-pointer" title="ترقية الاشتراك">
+                    <span id="userBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free">مجاني</span>
+                </a>
+            </div>
+            
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl transition active:scale-95" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
+                <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
+            <a href="index.html" class="hover:text-white transition">الأحدث</a>
+            <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
+            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+            <a href="subscription.html" class="hover:text-white transition text-yellow-500">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+            <a href="index.html#topSection" class="hover:text-white transition">الأكثر مشاهدة</a>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي لصفحة DMCA -->
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-8 space-y-6 w-full">
+        
+        <!-- ترويسة الصفحة -->
+        <div class="bg-card border border-gray-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <div class="inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/40 text-purple-300 text-xs font-black px-3 py-1 rounded-full mb-3">
+                    <i class="fas fa-shield-alt"></i> <span>حماية حقوق الملكية الفكرية</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-white">سياسة <span class="text-accent">DMCA</span> وإخلاء المسؤولية</h1>
+                <p class="text-xs text-gray-400 font-bold mt-1">إجراءات الإبلاغ عن المحتوى المحمي بحقوق الطبع والنشر وطلبات الإزالة.</p>
+            </div>
+            <i class="fas fa-balance-scale text-4xl text-accent/40 hidden sm:block"></i>
+        </div>
+
+        <!-- البيان بالعربية -->
+        <div class="bg-card border border-gray-800/90 rounded-2xl p-5 shadow-lg space-y-3">
+            <h2 class="text-base font-black text-white flex items-center gap-2">
+                <i class="fas fa-info-circle text-accent"></i>
+                <span>إخلاء المسؤولية القانونية (Disclaimer)</span>
+            </h2>
+            <p class="text-xs text-gray-300 leading-relaxed font-semibold">
+                موقع <b>Futa Arab</b> هو منصة مجتمعية تتيح للمستخدمين والمترجمين الهواة مشاركة الفصول والقصص المصورة لأغراض القراءة الترفيهية. لا يدّعي الموقع ملكية أي من الأعمال الأصلية المعروضة، وتعود كافة حقوق الشخصيات والرسوم لمؤلفيها وناشريها الأصليين.
+            </p>
+            <p class="text-xs text-gray-300 leading-relaxed font-semibold">
+                نحن نحترم قانون الألفية للملكية الرقمية (DMCA) وحقوق المؤلفين. إذا كنت المالك الحقيقي لحقوق أي عمل معروض على موقعنا ولا ترغب في تواجده، يرجى تقديم طلب إزالة عبر النموذج أدناه، وسنقوم بحذف العمل نهائياً خلال <b>24 إلى 48 ساعة</b>.
+            </p>
+        </div>
+
+        <!-- البيان القانوني بالإنجليزية (مطلوب لحماية الدومين والاستضافة دولياً) -->
+        <div class="bg-[#141418] border border-gray-800 rounded-2xl p-5 shadow-lg space-y-2 text-left" dir="ltr">
+            <h3 class="text-sm font-black text-accent uppercase tracking-wider">DMCA Safe Harbor & Copyright Takedown Notice</h3>
+            <p class="text-xs text-gray-400 leading-relaxed font-semibold">
+                <b>Futa Arab</b> respects the intellectual property rights of others and complies with the Digital Millennium Copyright Act (DMCA). All content on this website is uploaded by independent third-party users and community translators. We do not host copyrighted files on our primary servers without user initiation.
+            </p>
+            <p class="text-xs text-gray-400 leading-relaxed font-semibold">
+                If you are a copyright owner or an authorized agent and believe that any user-submitted content infringes upon your copyrights, please submit a takedown request using the form below with the exact URL(s) of the work. All valid requests are processed and removed within 24–48 hours.
+            </p>
+        </div>
+
+        <!-- متطلبات تقديم طلب الإزالة -->
+        <div class="bg-card border border-gray-800/90 rounded-2xl p-5 shadow-lg space-y-3">
+            <h2 class="text-sm font-black text-white">المعلومات المطلوبة في بلاغ الإزالة:</h2>
+            <ul class="list-disc list-inside text-xs text-gray-400 space-y-1.5 pr-2 font-semibold">
+                <li>اسم صاحب الحقوق أو الوكيل القانوني المعتمد، مع بريد إلكتروني رسمي للتواصل.</li>
+                <li>الرابط المباشر (URL) للعمل أو الفصل المطلوب إزالته من موقع Futa Arab.</li>
+                <li>إثبات ملكية العمل الأصلي أو رابط النشر الرسمي للعمل.</li>
+            </ul>
+        </div>
+
+        <!-- نموذج إرسال طلب إزالة DMCA المباشر -->
+        <div class="bg-card border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
+            <h2 class="text-base font-black text-white flex items-center gap-2">
+                <i class="fas fa-paper-plane text-accent"></i>
+                <span>نموذج إرسال طلب إزالة محتوى (DMCA Takedown Form)</span>
+            </h2>
+
+            <form id="dmcaForm" onsubmit="submitDmcaRequest(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1.5">الاسم الكامل / جهة النشر <span class="text-red-500">*</span></label>
+                        <input type="text" id="dmcaName" required placeholder="مثال: Studio / Author Name" class="w-full bg-[#111113] text-white text-xs p-3 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1.5">البريد الإلكتروني الرسمي <span class="text-red-500">*</span></label>
+                        <input type="email" id="dmcaEmail" required dir="ltr" placeholder="copyright@example.com" class="w-full bg-[#111113] text-white text-xs p-3 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1.5">رابط العمل المراد إزالته من الموقع (URL) <span class="text-red-500">*</span></label>
+                    <input type="url" id="dmcaUrl" required dir="ltr" placeholder="https://.../manga.html?id=..." class="w-full bg-[#111113] text-white text-xs p-3 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1.5">تفاصيل الطلب وإثبات الملكية <span class="text-red-500">*</span></label>
+                    <textarea id="dmcaDetails" rows="4" required placeholder="يرجى كتابة تفاصيل المطالبة ورابط العمل الأصلي..." class="w-full bg-[#111113] text-white text-xs p-3 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold resize-none"></textarea>
+                </div>
+
+                <label class="flex items-start gap-2.5 cursor-pointer">
+                    <input type="checkbox" required class="mt-0.5 accent-pink-500 w-4 h-4">
+                    <span class="text-[11px] text-gray-400 font-bold leading-relaxed">
+                        أقرّ بحسن نية أنني مالك حقوق الطبع والنشر للعمل المذكور أو مفوض رسمياً بالتصرف نيابة عنه، وأن البيانات المدخلة صحيحة ودقيقة.
+                    </span>
+                </label>
+
+                <div id="dmcaSuccessAlert" class="hidden bg-emerald-950/50 border border-emerald-600/60 text-emerald-300 text-xs font-bold p-3.5 rounded-xl text-center">
+                    <i class="fas fa-check-circle ml-1"></i> تم استلام طلب الإزالة بنجاح! ستقوم الإدارة بمراجعة الرابط وإزالته خلال 24-48 ساعة.
+                </div>
+
+                <button type="submit" id="dmcaSubmitBtn" class="w-full bg-accent hover:bg-pink-600 text-white font-black py-3 rounded-xl transition active:scale-95 text-sm shadow-lg shadow-pink-900/30">
+                    إرسال طلب الإزالة الرسمي
+                </button>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- الفوتر الموحد -->
+    <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
+            <div class="flex gap-5 text-sm font-bold text-gray-400">
+                <a href="index.html" class="hover:text-white transition">الرئيسية</a>
+                <a href="terms.html" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="dmca.html" class="text-accent transition">DMCA</a>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
+                جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.
+            </p>
+            <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
+        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
+
+        window.onload = () => {
+            updateAuthUI();
+        };
+
+        async function submitDmcaRequest(e) {
+            e.preventDefault();
+            const btn = document.getElementById('dmcaSubmitBtn');
+            const alertBox = document.getElementById('dmcaSuccessAlert');
+            btn.disabled = true;
+            btn.innerText = 'جاري إرسال البلاغ...';
+
+            const report = {
+                name: document.getElementById('dmcaName').value.trim(),
+                email: document.getElementById('dmcaEmail').value.trim(),
+                url: document.getElementById('dmcaUrl').value.trim(),
+                details: document.getElementById('dmcaDetails').value.trim(),
+                created_at: new Date().toISOString()
+            };
+
+            // حفظ البلاغ محلياً ومحاولة إرساله إلى جدول dmca_reports في Supabase إن وجد
+            const savedReports = JSON.parse(localStorage.getItem('futa_dmca_reports') || '[]');
+            savedReports.unshift(report);
+            localStorage.setItem('futa_dmca_reports', JSON.stringify(savedReports));
+
+            try {
+                await sbClient.from('dmca_reports').insert([report]);
+            } catch (err) {}
+
+            setTimeout(() => {
+                alertBox.classList.remove('hidden');
+                document.getElementById('dmcaForm').reset();
+                btn.disabled = false;
+                btn.innerText = 'إرسال طلب الإزالة الرسمي';
+            }, 600);
+        }
+
+        async function updateAuthUI() {
+            const topBadge = document.getElementById('userBadge');
+            const sidebarFooter = document.getElementById('sidebarFooterAccount');
+
+            if (currentUser) {
+                try {
+                    const { data: profile } = await sbClient.from('profiles').select('*').eq('username', currentUser.username).single();
+                    if (profile) {
+                        currentUser.subscription_type = profile.subscription_type || currentUser.subscription_type;
+                        currentUser.avatar_url = profile.avatar_url || currentUser.avatar_url;
+                        localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                    }
+                } catch (e) {}
+
+                const subType = currentUser.subscription_type || 'free'; 
+                let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
+                let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
+                let badgeText = "مجاني";
+                let nameGlowClass = "text-glow-free";
+                let avatarGlowClass = "avatar-glow-free";
+
+                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; nameGlowClass = "text-glow-cyan"; avatarGlowClass = "avatar-glow-cyan"; }
+                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; nameGlowClass = "text-glow-vip"; avatarGlowClass = "avatar-glow-vip"; }
+                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; nameGlowClass = "text-glow-pro"; avatarGlowClass = "avatar-glow-pro"; }
+                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; nameGlowClass = "text-glow-ultra"; avatarGlowClass = "avatar-glow-ultra"; }
+                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; nameGlowClass = "text-glow-uploader"; avatarGlowClass = "avatar-glow-uploader"; }
+
+                topBadge.innerHTML = badgeIcon + badgeText;
+                topBadge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
+
+                const avatarUrl = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `https://ui-avatars.com/api/?name=${currentUser.username}&background=18181b&color=fff&size=120`;
+
+                sidebarFooter.innerHTML = `
+                    <a href="profile.html?user=${encodeURIComponent(currentUser.username)}" class="flex items-center justify-between p-2 rounded-xl bg-[#141418] hover:bg-[#1c1c22] border border-gray-800/80 transition active:scale-95 group">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <img src="${avatarUrl}" class="w-11 h-11 rounded-full object-cover bg-black border-2 ${avatarGlowClass} flex-shrink-0">
+                            <div class="flex flex-col items-start overflow-hidden">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-black text-sm truncate ${nameGlowClass}">${currentUser.username}</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${badgeClass}">${badgeIcon}${badgeText}</span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 font-bold mt-0.5 group-hover:text-gray-300 transition">إعدادات الحساب والملف الشخصي</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-left text-xs text-gray-500 group-hover:text-accent transition mr-1"></i>
+                    </a>
+                `;
+            }
+        }
+
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
+        function openSearch() { const modal = document.getElementById('searchModal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
+        function closeSearch() { const modal = document.getElementById('searchModal'); modal.classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300); }
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            const resultsContainer = document.getElementById('searchResults');
+            if (query.length < 2) {
+                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
+                return;
+            }
+            resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
+                    if (error || !data || data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>';
+                        return;
+                    }
+                    resultsContainer.innerHTML = data.map(manga => `
+                        <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
+                            <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                            <div class="flex-1 overflow-hidden">
+                                <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                            </div>
+                        </a>
+                    `).join('');
+                } catch (err) {
+                    resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>';
+                }
+            }, 600);
+        });
+
+        async function goToRandomManga() {
+            try {
+                const { data } = await sbClient.from('mangas').select('id').eq('status', 'approved');
+                if (data && data.length > 0) {
+                    const randomId = data[Math.floor(Math.random() * data.length)].id;
+                    localStorage.setItem('selectedMangaId', randomId);
+                    window.location.href = `manga.html?id=${randomId}`;
+                }
+            } catch (e) {}
+        }
+    </script>
+</body>
+</html>
