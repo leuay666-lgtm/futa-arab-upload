@@ -62,7 +62,7 @@
         @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
         @keyframes textUltra { 0% { filter: hue-rotate(0deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } 100% { filter: hue-rotate(360deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } }
 
-        /* أزرار التاغات */
+        /* أزرار التاغات الثابتة */
         .tag-btn {
             background-color: #121215;
             border: 1px solid #27272a;
@@ -71,8 +71,9 @@
             border-radius: 9999px;
             font-size: 12px;
             font-weight: 800;
-            transition: all 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
+            user-select: none;
         }
         .tag-btn:hover {
             border-color: #f472b6;
@@ -83,6 +84,47 @@
             border-color: #f472b6;
             color: #ffffff;
             box-shadow: 0 0 12px rgba(244, 114, 182, 0.45);
+        }
+
+        /* أزرار ترقيم الصفحات (Pagination) المطابقة للصورة */
+        .page-num-btn {
+            width: 42px;
+            height: 42px;
+            background-color: #1a1f29;
+            border: 1px solid #262c3a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .page-num-btn:hover:not(:disabled) {
+            background-color: #242b38;
+            border-color: #f472b6;
+            color: #ffffff;
+        }
+        .page-num-btn.active {
+            background-color: #161b24;
+            border-color: #38bdf8;
+            color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+        .page-num-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* المساحات الإعلانية (Banners) */
+        .ad-banner-slot {
+            background: linear-gradient(135deg, rgba(24, 24, 27, 0.9), rgba(20, 16, 24, 0.95));
+            border: 1px dashed rgba(244, 114, 182, 0.35);
+            position: relative;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -104,7 +146,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) الموحدة مع بطاقة البروفيل المتوهجة أسفلها -->
+    <!-- القائمة الجانبية (Sidebar) الموحدة -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -135,7 +177,6 @@
                 </ul>
             </div>
         </div>
-        <!-- أسفل السايدبار: صورة البروفيل الدائرية المتوهجة واسم المستخدم والشعار -->
         <div id="sidebarFooterAccount" class="p-4 border-t border-gray-800/70 bg-[#0d0d10]">
             <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px] py-2">
                 <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
@@ -171,18 +212,26 @@
     </nav>
 
     <!-- المحتوى الرئيسي لصفحة التصنيفات -->
-    <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-6 w-full">
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-5 w-full">
         
         <div class="text-right">
             <h1 class="text-2xl font-black text-white">تصفح حسب <span class="text-accent">التصنيف</span></h1>
             <p class="text-xs text-gray-400 font-bold mt-1">اختر تصنيفاً أو أكثر لفلترة الأعمال التي تناسب ذوقك.</p>
         </div>
 
-        <!-- صندوق أزرار التاغات -->
+        <!-- صندوق أزرار التاغات الثابتة (لا تتغير أو تتحرك عند الضغط عليها) -->
         <div class="bg-card border border-gray-800/90 rounded-2xl p-5 shadow-lg">
             <div id="tagsFilterContainer" class="flex flex-wrap gap-2.5 justify-center sm:justify-start">
-                <span class="text-xs text-gray-500 font-bold py-4"><i class="fas fa-spinner fa-spin ml-1"></i> جاري جلب التصنيفات...</span>
+                <!-- يتم بناء الأزرار مرة واحدة فقط هنا وتبقى ثابتة -->
             </div>
+        </div>
+
+        <!-- مساحة إعلانية علوية أسفل التصنيفات -->
+        <div class="site-ad-slot ad-banner-slot rounded-2xl p-3.5 text-center shadow-md">
+            <span class="text-[9px] text-pink-400/80 font-black uppercase tracking-widest block mb-1">إعلان ممول • TAGS BANNER AD</span>
+            <a href="subscription.html" class="block py-1.5 text-xs font-bold text-gray-300 hover:text-white transition">
+                <i class="fas fa-bullhorn text-accent ml-1"></i> مساحة إعلانية مخصصة — <span class="text-yellow-400 underline">اشترك في VIP لإخفاء كافة الإعلانات</span>
+            </a>
         </div>
 
         <!-- شريط عدد النتائج وزر إعادة الضبط -->
@@ -195,22 +244,35 @@
             </button>
         </div>
 
-        <!-- شبكة عرض الأعمال المفلترة -->
+        <!-- شبكة عرض الأعمال المفلترة + إعلانات الأغلفة -->
         <div id="filteredResults" class="grid grid-cols-2 md:grid-cols-3 gap-3">
             <div class="col-span-2 md:col-span-3 text-center py-12 text-gray-500 text-sm">
                 <i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>جاري تحميل الأعمال...
             </div>
         </div>
 
+        <!-- شريط أرقام الصفحات (Pagination) المطابق للصورة -->
+        <div id="paginationContainer" class="pt-4 pb-2 flex items-center justify-center gap-2 flex-wrap" dir="ltr">
+            <!-- يتم توليد أزرار الأرقام هنا: « < 5 4 3 2 1 > » -->
+        </div>
+
+        <!-- مساحة إعلانية سفلية فوق الفوتر -->
+        <div class="site-ad-slot ad-banner-slot rounded-2xl p-3.5 text-center shadow-md">
+            <span class="text-[9px] text-pink-400/80 font-black uppercase tracking-widest block mb-1">إعلان ممول • FOOTER BANNER AD</span>
+            <a href="subscription.html" class="block py-1.5 text-xs font-bold text-gray-300 hover:text-white transition">
+                <i class="fas fa-crown text-yellow-400 ml-1"></i> مساحة إعلانية سفلية — <span class="text-accent underline">تصفح وحمّل مباشرة مع باقات VIP</span>
+            </a>
+        </div>
+
     </main>
 
-    <!-- الفوتر -->
+    <!-- الفوتر الموحد المرتبط بـ terms.html و dmca.html -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
-            <div class="flex gap-4 text-sm font-bold text-gray-400">
+            <div class="flex gap-5 text-sm font-bold text-gray-400">
                 <a href="index.html" class="hover:text-white transition">الرئيسية</a>
-                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
-                <a href="#" class="hover:text-white transition">DMCA</a>
+                <a href="terms.html" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="dmca.html" class="hover:text-white transition">DMCA</a>
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
                 جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.
@@ -230,13 +292,33 @@
 
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
         let allMangas = [];
-        let allAvailableTags = [];
+        let filteredMangasList = [];
+        let fixedAvailableTags = [];
         let selectedTags = new Set();
+
+        // إعدادات ترقيم الصفحات (Pagination) وإعلانات الأغلفة
+        const ITEMS_PER_PAGE = 6; // عدد المانغا في كل صفحة مرقمة
+        let currentPage = 1;
+        const COVER_AD_FREQUENCY = 3; // وضع غلاف إعلاني بين الأغلفة كل 3 أعمال
+        const nativeCoverAdsPool = [
+            {
+                title: 'اشترك في باقة VIP وتصفح بدون إعلانات!',
+                subtitle: 'ترقية الحساب',
+                link: 'subscription.html',
+                image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500'
+            },
+            {
+                title: 'مساحة إعلانية ممولة - أعلن معنا الآن',
+                subtitle: 'إعلان راعٍ',
+                link: 'subscription.html',
+                image: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=500'
+            }
+        ];
 
         window.onload = async () => {
             updateAuthUI();
 
-            // قراءة التاغ القادم من صفحة تعريف المانغا (إن وجد) لتفعيله أوتوماتيكياً
+            // قراءة التاغ القادم من صفحة المانغا إن وجد
             const urlParams = new URLSearchParams(window.location.search);
             const urlTag = urlParams.get('tag') || localStorage.getItem('selectedTag');
             if (urlTag) {
@@ -247,7 +329,20 @@
             await loadTagsAndMangas();
         };
 
-        // --- تحديث السايدبار والنافبار بالبطاقة المتوهجة ---
+        function isUserAdFree() {
+            if (!currentUser) return false;
+            return ['vip', 'vip_pro', 'vip_ultra'].includes(currentUser.subscription_type);
+        }
+
+        function updateBannerAdsVisibility() {
+            const adSlots = document.querySelectorAll('.site-ad-slot');
+            if (isUserAdFree()) {
+                adSlots.forEach(slot => slot.classList.add('hidden'));
+            } else {
+                adSlots.forEach(slot => slot.classList.remove('hidden'));
+            }
+        }
+
         async function updateAuthUI() {
             const topBadge = document.getElementById('userBadge');
             const sidebarFooter = document.getElementById('sidebarFooterAccount');
@@ -269,37 +364,11 @@
                 let nameGlowClass = "text-glow-free";
                 let avatarGlowClass = "avatar-glow-free";
 
-                if(subType === 'vip_lite') {
-                    badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan";
-                    badgeIcon = '<i class="fas fa-star text-[8px]"></i> ';
-                    badgeText = "LITE";
-                    nameGlowClass = "text-glow-cyan";
-                    avatarGlowClass = "avatar-glow-cyan";
-                } else if(subType === 'vip') {
-                    badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip";
-                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
-                    badgeText = "VIP";
-                    nameGlowClass = "text-glow-vip";
-                    avatarGlowClass = "avatar-glow-vip";
-                } else if(subType === 'vip_pro') {
-                    badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro";
-                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
-                    badgeText = "PRO";
-                    nameGlowClass = "text-glow-pro";
-                    avatarGlowClass = "avatar-glow-pro";
-                } else if(subType === 'vip_ultra') {
-                    badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra";
-                    badgeIcon = '<i class="fas fa-crown text-[8px]"></i> ';
-                    badgeText = "ULTRA";
-                    nameGlowClass = "text-glow-ultra";
-                    avatarGlowClass = "avatar-glow-ultra";
-                } else if(subType === 'uploader') {
-                    badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader";
-                    badgeIcon = '<i class="fas fa-upload text-[8px]"></i> ';
-                    badgeText = "رافع";
-                    nameGlowClass = "text-glow-uploader";
-                    avatarGlowClass = "avatar-glow-uploader";
-                }
+                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; nameGlowClass = "text-glow-cyan"; avatarGlowClass = "avatar-glow-cyan"; }
+                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; nameGlowClass = "text-glow-vip"; avatarGlowClass = "avatar-glow-vip"; }
+                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; nameGlowClass = "text-glow-pro"; avatarGlowClass = "avatar-glow-pro"; }
+                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; nameGlowClass = "text-glow-ultra"; avatarGlowClass = "avatar-glow-ultra"; }
+                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; nameGlowClass = "text-glow-uploader"; avatarGlowClass = "avatar-glow-uploader"; }
 
                 topBadge.innerHTML = badgeIcon + badgeText;
                 topBadge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
@@ -330,14 +399,21 @@
                     </a>
                 `;
             }
+            updateBannerAdsVisibility();
         }
 
-        // --- جلب التاغات والأعمال وفلترتها ---
+        // --- بناء قائمة التصنيفات المجهزة مرة واحدة فقط بحيث لا تتغير أبداً عند الضغط عليها ---
         async function loadTagsAndMangas() {
-            const tagsSet = new Set(['مانغا', 'مانها', 'كوميكس']);
+            const presetTags = ['مانغا', 'مانها', 'كوميكس', 'رومانسي', 'فانتازيا', 'دراما', 'أكشن', 'كوميدي', 'مدرسي', 'خارق للطبيعة', 'وان شوت'];
+            const tagsSet = new Set(presetTags);
+
             try {
                 const { data: tagsData } = await sbClient.from('tags').select('*').order('name');
-                if (tagsData) tagsData.forEach(t => tagsSet.add(t.name.trim()));
+                if (tagsData) {
+                    tagsData.forEach(t => {
+                        if (t.name && t.name.trim()) tagsSet.add(t.name.trim());
+                    });
+                }
 
                 const { data: mangasData } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
                 if (mangasData) {
@@ -352,49 +428,50 @@
                 }
             } catch (e) {}
 
-            // التأكد من وجود أي تاغ تم النقر عليه في القائمة
             selectedTags.forEach(t => tagsSet.add(t));
+            fixedAvailableTags = Array.from(tagsSet);
 
-            allAvailableTags = Array.from(tagsSet);
-            renderTagsFilters();
-            filterMangas();
+            // رسم أزرار التصنيفات مرة واحدة فقط
+            buildFixedTagsDOMOnce();
+            applyTagsFilter(1);
         }
 
-        function renderTagsFilters() {
+        function buildFixedTagsDOMOnce() {
             const container = document.getElementById('tagsFilterContainer');
-            if (allAvailableTags.length === 0) {
-                container.innerHTML = `<span class="text-xs text-gray-500">لا توجد تصنيفات متاحة.</span>`;
-                return;
-            }
+            container.innerHTML = '';
 
-            container.innerHTML = allAvailableTags.map(tag => {
-                const isActive = selectedTags.has(tag);
-                return `
-                    <button onclick="toggleTag('${tag.replace(/'/g, "\\'")}')" class="tag-btn ${isActive ? 'active' : ''}">
-                        ${tag}
-                    </button>
-                `;
-            }).join('');
+            fixedAvailableTags.forEach(tag => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.setAttribute('data-tag', tag);
+                btn.className = `tag-btn ${selectedTags.has(tag) ? 'active' : ''}`;
+                btn.innerText = tag;
+                btn.onclick = () => toggleTagSelection(tag, btn);
+                container.appendChild(btn);
+            });
         }
 
-        function toggleTag(tag) {
+        // تبديل حالة الزر دون إعادة بناء أو تغيير أماكن التصنيفات المجهزة
+        function toggleTagSelection(tag, btnElement) {
             if (selectedTags.has(tag)) {
                 selectedTags.delete(tag);
+                btnElement.classList.remove('active');
             } else {
                 selectedTags.add(tag);
+                btnElement.classList.add('active');
             }
-            renderTagsFilters();
-            filterMangas();
+            applyTagsFilter(1);
         }
 
         function clearFilters() {
             selectedTags.clear();
             window.history.replaceState(null, '', 'tags.html');
-            renderTagsFilters();
-            filterMangas();
+            document.querySelectorAll('#tagsFilterContainer .tag-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            applyTagsFilter(1);
         }
 
-        // تحديد شارة نوع العمل والتقييم الموحد
         function getWorkType(manga) {
             const rawType = ((manga.work_type || manga.type || manga.category || manga.tags || '') + '').toLowerCase();
             if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) return 'مانها';
@@ -424,33 +501,84 @@
             return 5.0;
         }
 
-        function filterMangas() {
-            let filtered = allMangas;
-            if (selectedTags.size > 0) {
-                filtered = allMangas.filter(manga => {
+        function renderMiniStarsHTML(ratingScore) {
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (ratingScore >= i) starsHtml += '<i class="fas fa-star text-yellow-400 text-[9px]"></i>';
+                else if (ratingScore >= i - 0.5) starsHtml += '<i class="fas fa-star-half-alt text-yellow-400 text-[9px]"></i>';
+                else starsHtml += '<i class="far fa-star text-gray-600 text-[9px]"></i>';
+            }
+            return starsHtml;
+        }
+
+        function createCoverAdCardHTML(adIndex) {
+            const ad = nativeCoverAdsPool[adIndex % nativeCoverAdsPool.length];
+            return `
+                <a href="${ad.link}" class="card block bg-card rounded-xl overflow-hidden border border-pink-500/50 hover:border-pink-400 transition shadow-lg relative cursor-pointer z-10">
+                    <div class="relative pb-[140%] overflow-hidden bg-[#141218] pointer-events-none">
+                        <img src="${ad.image}" class="cover-image absolute top-0 left-0 w-full h-full object-cover opacity-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col items-center justify-center p-3 text-center">
+                            <span class="bg-pink-600/90 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-lg mb-2">
+                                <i class="fas fa-bullhorn ml-1"></i>إعلان ممول
+                            </span>
+                            <p class="text-xs font-black text-white leading-snug drop-shadow">${ad.title}</p>
+                        </div>
+                        <div class="absolute bottom-2 right-2 z-20">
+                            <span class="bg-accent text-white text-[10px] font-black px-2 py-0.5 rounded shadow-md">AD</span>
+                        </div>
+                    </div>
+                    <div class="p-2.5 pointer-events-none bg-[#16141c]">
+                        <div class="flex justify-between items-center text-[10px] text-pink-400 mb-1.5 font-bold">
+                            <span><i class="fas fa-external-link-alt ml-1"></i>اضغط للمشاهدة</span>
+                            <span class="truncate">${ad.subtitle}</span>
+                        </div>
+                        <h3 class="font-bold text-xs text-white line-clamp-1 leading-tight">${ad.title}</h3>
+                    </div>
+                </a>
+            `;
+        }
+
+        function applyTagsFilter(pageNumber = 1) {
+            currentPage = pageNumber;
+
+            if (selectedTags.size === 0) {
+                filteredMangasList = [...allMangas];
+            } else {
+                filteredMangasList = allMangas.filter(manga => {
                     const mangaTags = (manga.tags ? manga.tags.split(',').map(t => t.trim()) : []);
                     mangaTags.push(getWorkType(manga));
                     return Array.from(selectedTags).every(sel => mangaTags.includes(sel));
                 });
             }
-            renderFilteredResults(filtered);
+
+            renderPaginatedResults();
+            renderPaginationBar();
         }
 
-        function renderFilteredResults(mangas) {
+        function renderPaginatedResults() {
             const container = document.getElementById('filteredResults');
-            document.getElementById('resultsCount').innerText = mangas.length;
+            document.getElementById('resultsCount').innerText = filteredMangasList.length;
 
-            if (mangas.length === 0) {
+            if (filteredMangasList.length === 0) {
                 container.innerHTML = `<div class="col-span-2 md:col-span-3 text-center py-14 text-gray-500 text-xs font-bold bg-card rounded-2xl border border-gray-800">لا توجد أعمال تطابق التصنيفات المحددة.</div>`;
                 return;
             }
 
-            container.innerHTML = mangas.map(manga => {
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageItems = filteredMangasList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            const showAds = !isUserAdFree();
+            let cardsHtml = [];
+            let adCounter = currentPage;
+
+            pageItems.forEach((manga, idx) => {
                 const typeBadge = getWorkTypeBadgeHTML(getWorkType(manga));
                 const likes = getLikesCount(manga);
-                const rating = calculateRatingBasedOnLikes(likes).toFixed(1);
+                const ratingNum = calculateRatingBasedOnLikes(likes);
+                const rating = ratingNum.toFixed(1);
+                const miniStars = renderMiniStarsHTML(ratingNum);
+                const isLikedByMe = localStorage.getItem(`liked_${manga.id}`) === 'true' || localStorage.getItem(`like_${manga.id}`) === 'true';
 
-                return `
+                cardsHtml.push(`
                     <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-xl overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
                         <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
                             <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
@@ -458,23 +586,104 @@
                         </div>
                         <div class="p-2.5 pointer-events-none bg-[#141417]">
                             <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
-                                <span class="text-yellow-400 font-bold flex items-center gap-1">
-                                    <i class="fas fa-star"></i> ${rating}
-                                    <span class="text-[9px] text-gray-500">(${likes})</span>
+                                <span class="font-bold flex items-center gap-1">
+                                    <span class="flex items-center gap-0.5">${miniStars}</span>
+                                    <span class="text-yellow-400 font-black">${rating}</span>
+                                    <span class="text-[9px] ${isLikedByMe ? 'text-pink-400' : 'text-gray-500'} flex items-center gap-0.5">
+                                        (<i class="fas fa-heart text-[7px]"></i> ${likes})
+                                    </span>
                                 </span>
-                                <span class="truncate max-w-[55%] font-semibold">${manga.uploader_name || 'مجهول'}</span>
+                                <span class="truncate max-w-[42%] font-semibold">${manga.uploader_name || 'مجهول'}</span>
                             </div>
                             <h3 class="font-bold text-xs text-white line-clamp-1 leading-tight">${manga.title}</h3>
                         </div>
                     </a>
-                `;
-            }).join('');
+                `);
+
+                // دمج بطاقة إعلان غلاف بين أغلفة المانغا
+                if (showAds && ((idx + 1) % COVER_AD_FREQUENCY === 0)) {
+                    cardsHtml.push(createCoverAdCardHTML(adCounter++));
+                }
+            });
+
+            container.innerHTML = cardsHtml.join('');
+        }
+
+        // شريط ترقيم الصفحات (Pagination) المطابق للصورة: « < 5 4 3 2 1 > »
+        function renderPaginationBar() {
+            const paginationEl = document.getElementById('paginationContainer');
+            const totalPages = Math.max(1, Math.ceil(filteredMangasList.length / ITEMS_PER_PAGE));
+
+            // نعرض حتى 5 أرقام صفحات كما في الصورة المرفقة
+            const maxVisibleButtons = 5;
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
+            if (endPage - startPage + 1 < maxVisibleButtons) {
+                startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+            }
+
+            let html = '';
+
+            // زر الصفحة الأخيرة «
+            html += `<button onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="page-num-btn" title="الأخيرة">&laquo;</button>`;
+            // زر الصفحة التالية <
+            html += `<button onclick="goToPage(${Math.min(totalPages, currentPage + 1)})" ${currentPage === totalPages ? 'disabled' : ''} class="page-num-btn" title="التالي">&lsaquo;</button>`;
+
+            // أرقام الصفحات من الأكبر للأصغر لتطابق اتجاه الصورة (5 4 3 2 1)
+            for (let p = endPage; p >= startPage; p--) {
+                const isActive = p === currentPage;
+                html += `<button onclick="goToPage(${p})" class="page-num-btn ${isActive ? 'active' : ''}">${p}</button>`;
+            }
+
+            // زر الصفحة السابقة >
+            html += `<button onclick="goToPage(${Math.max(1, currentPage - 1)})" ${currentPage === 1 ? 'disabled' : ''} class="page-num-btn" title="السابق">&rsaquo;</button>`;
+            // زر الصفحة الأولى »
+            html += `<button onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''} class="page-num-btn" title="الأولى">&raquo;</button>`;
+
+            paginationEl.innerHTML = html;
+        }
+
+        function goToPage(pageNum) {
+            if (pageNum === currentPage) return;
+            applyTagsFilter(pageNum);
+            window.scrollTo({ top: 180, behavior: 'smooth' });
         }
 
         function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
         function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
         function openSearch() { const modal = document.getElementById('searchModal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
         function closeSearch() { const modal = document.getElementById('searchModal'); modal.classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300); }
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            const resultsContainer = document.getElementById('searchResults');
+            if (query.length < 2) {
+                resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
+                return;
+            }
+            resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
+                    if (error || !data || data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>';
+                        return;
+                    }
+                    resultsContainer.innerHTML = data.map(manga => `
+                        <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
+                            <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                            <div class="flex-1 overflow-hidden">
+                                <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                            </div>
+                        </a>
+                    `).join('');
+                } catch (err) {
+                    resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>';
+                }
+            }, 600);
+        });
 
         async function goToRandomManga() {
             try {
