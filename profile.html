@@ -12,6 +12,8 @@
         .bg-card { background-color: #18181b; }
         .text-accent { color: #f472b6; }
         .bg-accent { background-color: #f472b6; }
+        .cover-image { transition: transform 0.3s ease; }
+        .card:hover .cover-image { transform: scale(1.05); }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #121214; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -24,28 +26,34 @@
         .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
         .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
 
-        /* توهج الشارات والأسماء */
+        /* توهج الشارات والأسماء وإطارات الصور */
         .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
         .text-glow-free { color: #ffffff; }
+        .avatar-glow-free { border-color: #6b7280; box-shadow: 0 0 10px rgba(156, 163, 175, 0.3); }
         
         .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
         .text-glow-uploader { color: #ef4444; text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+        .avatar-glow-uploader { border-color: #ef4444; box-shadow: 0 0 14px rgba(239, 68, 68, 0.6); }
 
         .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
         .text-glow-cyan { color: #06b6d4; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+        .avatar-glow-cyan { border-color: #06b6d4; box-shadow: 0 0 14px rgba(6, 182, 212, 0.6); }
         
         .badge-glow-vip { animation: badgeGold 2s infinite alternate; border-color: #eab308; color: #eab308; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
         .text-glow-vip { color: #facc15; animation: textGold 2s infinite alternate; }
+        .avatar-glow-vip { border-color: #eab308; animation: badgeGold 2s infinite alternate; }
         @keyframes badgeGold { 0% { box-shadow: 0 0 5px rgba(234,179,8,0.5), inset 0 0 2px rgba(234,179,8,0.5); } 100% { box-shadow: 0 0 15px rgba(234,179,8,0.8), inset 0 0 6px rgba(234,179,8,0.8); } }
         @keyframes textGold { 0% { text-shadow: 0 0 5px rgba(234,179,8,0.5); } 100% { text-shadow: 0 0 15px rgba(234,179,8,0.8); } }
         
         .badge-glow-pro { animation: badgePro 2s infinite alternate; border-color: #f97316; color: #f97316; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6); }
         .text-glow-pro { color: #f97316; animation: textPro 2s infinite alternate; }
+        .avatar-glow-pro { border-color: #f97316; animation: badgePro 2s infinite alternate; }
         @keyframes badgePro { 0% { box-shadow: 0 0 5px rgba(249,115,22,0.5), inset 0 0 2px rgba(249,115,22,0.5); } 100% { box-shadow: 0 0 15px rgba(239,68,68,0.8), inset 0 0 6px rgba(239,68,68,0.8); border-color:#ef4444; color:#ef4444;} }
         @keyframes textPro { 0% { text-shadow: 0 0 5px rgba(249,115,22,0.5); } 100% { color: #ef4444; text-shadow: 0 0 15px rgba(239,68,68,0.8); } }
         
-        .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: transparent; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
+        .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: #d946ef; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
         .text-glow-ultra { color: #d946ef; animation: textUltra 3s infinite linear; }
+        .avatar-glow-ultra { border-color: #d946ef; animation: badgeUltra 3s infinite linear; }
         @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
         @keyframes textUltra { 0% { filter: hue-rotate(0deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } 100% { filter: hue-rotate(360deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } }
 
@@ -58,6 +66,14 @@
 
         .file-upload-label { cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; border: 2px dashed #4b5563; border-radius: 12px; padding: 20px; transition: all 0.3s ease; }
         .file-upload-label:hover { border-color: #f472b6; background-color: rgba(244, 114, 182, 0.05); }
+
+        /* ستايل المساحات الإعلانية (Banners) */
+        .ad-banner-slot {
+            background: linear-gradient(135deg, rgba(24, 24, 27, 0.9), rgba(20, 16, 24, 0.95));
+            border: 1px dashed rgba(244, 114, 182, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -78,7 +94,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) -->
+    <!-- القائمة الجانبية الموحدة (Sidebar) -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
@@ -93,7 +109,7 @@
                 <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
                 <ul class="space-y-1.5">
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
-                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#latestSection" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
                     <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
@@ -110,14 +126,14 @@
                 </ul>
             </div>
         </div>
-        <div class="p-6 border-t border-gray-800/50 text-center">
-            <a href="auth.html" id="sidebarAuthBtn" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
-                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
+        <div id="sidebarFooterAccount" class="p-4 border-t border-gray-800/70 bg-[#0d0d10]">
+            <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px] py-2">
+                <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
             </a>
         </div>
     </div>
 
-    <!-- شريط التنقل العلوي الموحد مع الشريط الفرعي -->
+    <!-- شريط التنقل العلوي -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -180,7 +196,7 @@
     </div>
 
     <!-- المحتوى الرئيسي للملف الشخصي -->
-    <main class="flex-1 max-w-4xl mx-auto px-4 py-8 space-y-8 w-full">
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-6 space-y-6 w-full">
 
         <!-- 1. صندوق الشارات المكتسبة -->
         <div class="bg-[#111113] border border-gray-800/80 rounded-2xl p-5 shadow-lg relative overflow-hidden">
@@ -194,7 +210,7 @@
             <p class="text-[10px] text-gray-500 mt-3 font-bold"><i class="fas fa-info-circle"></i> يتم حفظ وترتيب جميع الشارات التي حصلت عليها في محفظتك.</p>
         </div>
 
-        <!-- 2. إعدادات الخصوصية والملف الشخصي (تظهر فوراً لصاحب الحساب) -->
+        <!-- 2. إعدادات الخصوصية والملف الشخصي (تظهر لصاحب الحساب) -->
         <div id="ownerSettingsBox" class="bg-card border border-gray-700/60 rounded-2xl p-5 shadow-lg hidden relative overflow-hidden">
             <div class="absolute right-0 top-0 w-1 h-full bg-accent"></div>
             <h3 class="text-sm font-black uppercase tracking-wider text-white mb-4 flex items-center gap-2">
@@ -215,7 +231,16 @@
             </div>
         </div>
 
-        <!-- 3. قسم الأعمال المرفوعة -->
+        <!-- [مساحة إعلانية في المنطقة المحددة]: بين إعدادات الخصوصية والأعمال المرفوعة -->
+        <div class="site-ad-slot ad-banner-slot rounded-2xl p-3.5 text-center shadow-md">
+            <span class="text-[9px] text-pink-400/80 font-black uppercase tracking-widest block mb-1">إعلان ممول • PROFILE BANNER AD</span>
+            <!-- ضع كود إعلان البانر (ExoClick / Adsterra) هنا -->
+            <a href="subscription.html" class="block py-1.5 text-xs font-bold text-gray-300 hover:text-white transition">
+                <i class="fas fa-bullhorn text-accent ml-1"></i> مساحة إعلانية مخصصة — <span class="text-yellow-400 underline">اشترك في VIP لتصفح الموقع بدون إعلانات</span>
+            </a>
+        </div>
+
+        <!-- 3. قسم الأعمال المرفوعة (مع إعلانات الأغلفة المدمجة) -->
         <div id="uploadsSection" class="space-y-4">
             <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
                 <i class="fas fa-upload text-red-400"></i> الأعمال المرفوعة (<span id="uploadsSectionCount">0</span>)
@@ -232,7 +257,7 @@
             </div>
         </div>
 
-        <!-- 4. قسم المانغات المفضلة -->
+        <!-- 4. قسم المانغات المفضلة (مع إعلانات الأغلفة المدمجة) -->
         <div id="favoritesSection" class="space-y-4 pt-4 border-t border-gray-800/60">
             <div class="flex justify-between items-center">
                 <h3 class="text-sm font-black uppercase text-gray-300 tracking-wider flex items-center gap-2">
@@ -306,13 +331,13 @@
         </div>
     </div>
 
-    <!-- الفوتر السفلي الكامل -->
+    <!-- الفوتر السفلي المربوط بصفحتي terms.html و dmca.html -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
-            <div class="flex gap-4 text-sm font-bold text-gray-400">
+            <div class="flex gap-5 text-sm font-bold text-gray-400">
                 <a href="index.html" class="hover:text-white transition">الرئيسية</a>
-                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
-                <a href="#" class="hover:text-white transition">DMCA</a>
+                <a href="terms.html" class="hover:text-white transition">شروط الاستخدام</a>
+                <a href="dmca.html" class="hover:text-white transition">DMCA</a>
             </div>
             <p class="text-[10px] text-gray-500 leading-relaxed max-w-lg">
                 جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.
@@ -347,15 +372,31 @@
         const COOLDOWN_BIO    = 60 * 60 * 1000;      // ساعة واحدة
         const COOLDOWN_NAME   = 3 * 24 * 60 * 60 * 1000; // 3 أيام
 
+        // إعدادات إعلانات الأغلفة (Native Cover Ads)
+        const nativeCoverAdsPool = [
+            {
+                title: 'اشترك في باقة VIP وتصفح بدون إعلانات!',
+                subtitle: 'ترقية الحساب',
+                link: 'subscription.html',
+                image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500'
+            },
+            {
+                title: 'مساحة إعلانية ممولة - أعلن معنا الآن',
+                subtitle: 'إعلان راعٍ',
+                link: 'subscription.html',
+                image: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=500'
+            }
+        ];
+
         window.onload = async () => {
-            updateAuthUI();
+            await updateAuthUI();
             
             const urlParams = new URLSearchParams(window.location.search);
             viewedUsername = urlParams.get('user');
 
             if (!viewedUsername && currentUser) {
                 viewedUsername = currentUser.username;
-                window.history.replaceState(null, '', `profile.html?user=${viewedUsername}`);
+                window.history.replaceState(null, '', `profile.html?user=${encodeURIComponent(viewedUsername)}`);
             }
 
             if (!viewedUsername) {
@@ -363,10 +404,8 @@
                 return;
             }
 
-            // التحقق من ملكية الحساب بدون حساسية لحالة الأحرف
             isOwner = Boolean(currentUser && currentUser.username && currentUser.username.trim().toLowerCase() === viewedUsername.trim().toLowerCase());
 
-            // إظهار أزرار المالك وصندوق الخصوصية وزر تسجيل الخروج فوراً
             if (isOwner) {
                 document.getElementById('ownerSettingsBox').classList.remove('hidden');
                 document.getElementById('ownerLogoutSection').classList.remove('hidden');
@@ -385,12 +424,23 @@
             await loadUserFavorites();
         };
 
-        // دالة تسجيل الخروج من الحساب
+        function isUserAdFree() {
+            if (!currentUser) return false;
+            return ['vip', 'vip_pro', 'vip_ultra'].includes(currentUser.subscription_type);
+        }
+
+        function updateBannerAdsVisibility() {
+            const adSlots = document.querySelectorAll('.site-ad-slot');
+            if (isUserAdFree()) {
+                adSlots.forEach(slot => slot.classList.add('hidden'));
+            } else {
+                adSlots.forEach(slot => slot.classList.remove('hidden'));
+            }
+        }
+
         async function logoutUser() {
             if (!confirm('هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟')) return;
-            try {
-                await sbClient.auth.signOut();
-            } catch (e) {}
+            try { await sbClient.auth.signOut(); } catch (e) {}
             localStorage.removeItem('futa_user_logged');
             window.location.href = 'index.html';
         }
@@ -409,7 +459,7 @@
 
         function goToMyProfile() {
             if(!currentUser) { alert('⚠️ يرجى تسجيل الدخول أولاً.'); window.location.href='auth.html'; return; }
-            window.location.href = `profile.html?user=${currentUser.username}`;
+            window.location.href = `profile.html?user=${encodeURIComponent(currentUser.username)}`;
         }
 
         async function goToRandomManga() {
@@ -450,7 +500,6 @@
                     profileData = profile;
                 }
 
-                // جلب الصور والبايو مع إعطاء أولوية للتعديلات المحفوظة
                 const localAvatar = localStorage.getItem(`profile_avatar_${viewedUsername}`);
                 const localBanner = localStorage.getItem(`profile_banner_${viewedUsername}`);
                 const localBio = localStorage.getItem(`profile_bio_${viewedUsername}`);
@@ -617,7 +666,7 @@
             setTimeout(() => { modal.classList.add('modal-active'); }, 10);
         }
 
-        // --- نظام ضغط الصور القوي عبر HTML5 Canvas ---
+        // --- نظام ضغط الصور عبر HTML5 Canvas ---
         function compressImage(file, maxWidth, maxHeight, quality) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -712,6 +761,7 @@
                     document.getElementById('profileAvatar').src = finalAvatarUrl;
                     localStorage.setItem(`profile_avatar_${viewedUsername}`, selectedFileDataUrl);
                     localStorage.setItem(`avatar_cooldown_${userKey}`, Date.now().toString());
+                    updateAuthUI();
 
                 } else if (currentEditMode === 'banner') {
                     if (!selectedFileDataUrl) { alert('يرجى اختيار صورة غلاف أولاً.'); btn.disabled = false; btn.innerText = 'حفظ التغييرات'; return; }
@@ -735,7 +785,7 @@
                             currentUser.username = val;
                             localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
                         }
-                        window.location.href = `profile.html?user=${val}`;
+                        window.location.href = `profile.html?user=${encodeURIComponent(val)}`;
                         return;
                     }
                 } else if (currentEditMode === 'bio') {
@@ -753,7 +803,74 @@
             }
         }
 
-        // --- دوال عرض الأعمال المرفوعة والمفضلة (بحد 6 أعمال مع زر انظر أكثر) ---
+        // --- دوال الشارات والتقييم وإعلانات الأغلفة ---
+        function getWorkType(manga) {
+            const rawType = ((manga.work_type || manga.type || manga.category || manga.tags || '') + '').toLowerCase();
+            if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) return 'مانها';
+            if (rawType.includes('comic') || rawType.includes('كوميكس') || rawType.includes('كوميك')) return 'كوميكس';
+            return 'مانغا';
+        }
+
+        function getWorkTypeBadgeHTML(type) {
+            if (type === 'مانها') return `<span class="bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded shadow-md">مانها</span>`;
+            if (type === 'كوميكس') return `<span class="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-md">كوميكس</span>`;
+            return `<span class="bg-white text-black text-[10px] font-black px-2 py-0.5 rounded shadow-md">مانغا</span>`;
+        }
+
+        function getLikesCount(manga) {
+            const isLiked = localStorage.getItem(`liked_${manga.id}`) === 'true' || localStorage.getItem(`like_${manga.id}`) === 'true';
+            const savedCount = localStorage.getItem(`likes_count_${manga.id}`);
+            if (savedCount !== null && !isNaN(parseInt(savedCount))) return parseInt(savedCount);
+            const dbLikes = Number(manga.likes_count || manga.likes || 0);
+            const baseLikes = dbLikes > 0 ? dbLikes : 1;
+            return baseLikes + (isLiked ? 1 : 0);
+        }
+
+        function calculateRatingBasedOnLikes(likes) {
+            if (likes < 2) return 1.5;
+            if (likes >= 2 && likes < 5) return 2.0;
+            if (likes >= 5 && likes < 10) return 4.5;
+            return 5.0;
+        }
+
+        function renderMiniStarsHTML(ratingScore) {
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (ratingScore >= i) starsHtml += '<i class="fas fa-star text-yellow-400 text-[9px]"></i>';
+                else if (ratingScore >= i - 0.5) starsHtml += '<i class="fas fa-star-half-alt text-yellow-400 text-[9px]"></i>';
+                else starsHtml += '<i class="far fa-star text-gray-600 text-[9px]"></i>';
+            }
+            return starsHtml;
+        }
+
+        function createCoverAdCardHTML(adIndex) {
+            const ad = nativeCoverAdsPool[adIndex % nativeCoverAdsPool.length];
+            return `
+                <a href="${ad.link}" class="card block bg-card rounded-xl overflow-hidden border border-pink-500/50 hover:border-pink-400 transition shadow-lg relative cursor-pointer z-10">
+                    <div class="relative pb-[140%] overflow-hidden bg-[#141218] pointer-events-none">
+                        <img src="${ad.image}" class="cover-image absolute top-0 left-0 w-full h-full object-cover opacity-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col items-center justify-center p-3 text-center">
+                            <span class="bg-pink-600/90 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-lg mb-2">
+                                <i class="fas fa-bullhorn ml-1"></i>إعلان ممول
+                            </span>
+                            <p class="text-xs font-black text-white leading-snug drop-shadow">${ad.title}</p>
+                        </div>
+                        <div class="absolute bottom-2 right-2 z-20">
+                            <span class="bg-accent text-white text-[10px] font-black px-2 py-0.5 rounded shadow-md">AD</span>
+                        </div>
+                    </div>
+                    <div class="p-2.5 pointer-events-none bg-[#16141c]">
+                        <div class="flex justify-between items-center text-[10px] text-pink-400 mb-1.5 font-bold">
+                            <span><i class="fas fa-external-link-alt ml-1"></i>اضغط للمشاهدة</span>
+                            <span class="truncate">${ad.subtitle}</span>
+                        </div>
+                        <h3 class="font-bold text-xs text-white line-clamp-1 leading-tight">${ad.title}</h3>
+                    </div>
+                </a>
+            `;
+        }
+
+        // --- عرض الأعمال المرفوعة والمفضلة مع إعلانات الأغلفة ---
         async function loadUserUploads() {
             try {
                 const { data: uploads } = await sbClient.from('mangas').select('*').eq('uploader_name', viewedUsername).eq('status', 'approved').order('created_at', { ascending: false });
@@ -765,7 +882,7 @@
                     return;
                 }
                 allUploads = uploads;
-                renderMangaGrid(allUploads.slice(0, 6), 'profileUploadsGrid');
+                renderMangaGrid(allUploads.slice(0, 6), 'profileUploadsGrid', 0);
                 if (allUploads.length > 6) {
                     document.getElementById('uploadsSeeMoreBtn').classList.remove('hidden');
                 }
@@ -792,33 +909,64 @@
                     grid.innerHTML = `<div class="col-span-2 md:col-span-3 text-center py-10 text-gray-500 text-xs font-bold bg-card rounded-xl border border-gray-800">لا توجد أعمال محفوظة في المفضلة حالياً.</div>`;
                     return;
                 }
-                renderMangaGrid(allFavorites.slice(0, 6), 'profileFavoritesGrid');
+                renderMangaGrid(allFavorites.slice(0, 6), 'profileFavoritesGrid', 1);
                 if (allFavorites.length > 6) {
                     document.getElementById('favoritesSeeMoreBtn').classList.remove('hidden');
                 }
             } catch (err) {}
         }
 
-        function renderMangaGrid(mangas, containerId) {
+        function renderMangaGrid(mangas, containerId, adSeed = 0) {
             const container = document.getElementById(containerId);
-            container.innerHTML = mangas.map(manga => `
-                <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-lg overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
-                    <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
-                        <img src="${manga.cover_image_url}" class="absolute top-0 left-0 w-full h-full object-cover">
-                    </div>
-                    <div class="p-2.5 pointer-events-none bg-[#111113]">
-                        <h3 class="font-bold text-xs text-white line-clamp-1 leading-tight">${manga.title}</h3>
-                    </div>
-                </a>
-            `).join('');
+            const showAds = !isUserAdFree();
+            let cardsHtml = [];
+            let adCounter = adSeed;
+
+            mangas.forEach((manga, index) => {
+                const typeBadge = getWorkTypeBadgeHTML(getWorkType(manga));
+                const likes = getLikesCount(manga);
+                const ratingNum = calculateRatingBasedOnLikes(likes);
+                const ratingFormatted = ratingNum.toFixed(1);
+                const miniStars = renderMiniStarsHTML(ratingNum);
+                const isLikedByMe = localStorage.getItem(`liked_${manga.id}`) === 'true' || localStorage.getItem(`like_${manga.id}`) === 'true';
+
+                cardsHtml.push(`
+                    <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="card block bg-card rounded-xl overflow-hidden border border-gray-800/80 hover:border-gray-600 transition shadow-lg relative cursor-pointer">
+                        <div class="relative pb-[140%] overflow-hidden bg-black pointer-events-none">
+                            <img src="${manga.cover_image_url}" class="cover-image absolute top-0 left-0 w-full h-full object-cover">
+                            <div class="absolute bottom-2 right-2 z-20">${typeBadge}</div>
+                        </div>
+                        <div class="p-2.5 pointer-events-none bg-[#141417]">
+                            <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
+                                <span class="font-bold flex items-center gap-1">
+                                    <span class="flex items-center gap-0.5">${miniStars}</span>
+                                    <span class="text-yellow-400 font-black">${ratingFormatted}</span>
+                                    <span class="text-[9px] ${isLikedByMe ? 'text-pink-400' : 'text-gray-500'} flex items-center gap-0.5">
+                                        (<i class="fas fa-heart text-[7px]"></i> ${likes})
+                                    </span>
+                                </span>
+                                <span class="truncate max-w-[42%] font-semibold">${manga.uploader_name || 'مجهول'}</span>
+                            </div>
+                            <h3 class="font-bold text-xs text-white line-clamp-1 leading-tight">${manga.title}</h3>
+                        </div>
+                    </a>
+                `);
+
+                // إظهار إعلان على شكل غلاف مانغا بجانب الأعمال (بعد أول عمل ثم كل 3 أعمال)
+                if (showAds && (index === 0 || (index + 1) % 3 === 0)) {
+                    cardsHtml.push(createCoverAdCardHTML(adCounter++));
+                }
+            });
+
+            container.innerHTML = cardsHtml.join('');
         }
 
         function expandGrid(containerId) {
             if (containerId === 'profileUploadsGrid') {
-                renderMangaGrid(allUploads, containerId);
+                renderMangaGrid(allUploads, containerId, 0);
                 document.getElementById('uploadsSeeMoreBtn').classList.add('hidden');
             } else if (containerId === 'profileFavoritesGrid') {
-                renderMangaGrid(allFavorites, containerId);
+                renderMangaGrid(allFavorites, containerId, 1);
                 document.getElementById('favoritesSeeMoreBtn').classList.add('hidden');
             }
         }
@@ -831,30 +979,56 @@
             }
         }
 
-        function updateAuthUI() {
+        async function updateAuthUI() {
             const badge = document.getElementById('userBadge');
-            const menuText = document.getElementById('authMenuText');
-            const sidebarAuthBtn = document.getElementById('sidebarAuthBtn');
+            const sidebarFooter = document.getElementById('sidebarFooterAccount');
+
             if (currentUser) {
+                try {
+                    const { data: profile } = await sbClient.from('profiles').select('*').eq('username', currentUser.username).single();
+                    if (profile) {
+                        currentUser.subscription_type = profile.subscription_type || currentUser.subscription_type;
+                        currentUser.avatar_url = profile.avatar_url || currentUser.avatar_url;
+                        currentUser.badges_history = profile.badges_history || currentUser.badges_history;
+                        localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+                    }
+                } catch (e) {}
+
                 const subType = currentUser.subscription_type || 'free'; 
                 let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
                 let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
                 let badgeText = "مجاني";
+                let nameGlowClass = "text-glow-free";
+                let avatarGlowClass = "avatar-glow-free";
 
-                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
-                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
-                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
-                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
-                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
+                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; nameGlowClass = "text-glow-cyan"; avatarGlowClass = "avatar-glow-cyan"; }
+                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; nameGlowClass = "text-glow-vip"; avatarGlowClass = "avatar-glow-vip"; }
+                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; nameGlowClass = "text-glow-pro"; avatarGlowClass = "avatar-glow-pro"; }
+                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; nameGlowClass = "text-glow-ultra"; avatarGlowClass = "avatar-glow-ultra"; }
+                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; nameGlowClass = "text-glow-uploader"; avatarGlowClass = "avatar-glow-uploader"; }
 
                 badge.innerHTML = badgeIcon + badgeText;
                 badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
-                if (menuText) menuText.innerText = "تسجيل الخروج";
-                if (sidebarAuthBtn) {
-                    sidebarAuthBtn.href = "#";
-                    sidebarAuthBtn.onclick = (e) => { e.preventDefault(); logoutUser(); };
-                }
+
+                const avatarUrl = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `https://ui-avatars.com/api/?name=${currentUser.username}&background=18181b&color=fff&size=120`;
+
+                sidebarFooter.innerHTML = `
+                    <a href="profile.html?user=${encodeURIComponent(currentUser.username)}" class="flex items-center justify-between p-2 rounded-xl bg-[#141418] hover:bg-[#1c1c22] border border-gray-800/80 transition active:scale-95 group">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <img src="${avatarUrl}" class="w-11 h-11 rounded-full object-cover bg-black border-2 ${avatarGlowClass} flex-shrink-0">
+                            <div class="flex flex-col items-start overflow-hidden">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-black text-sm truncate ${nameGlowClass}">${currentUser.username}</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${badgeClass}">${badgeIcon}${badgeText}</span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 font-bold mt-0.5 group-hover:text-gray-300 transition">إعدادات الحساب والملف الشخصي</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-left text-xs text-gray-500 group-hover:text-accent transition mr-1"></i>
+                    </a>
+                `;
             }
+            updateBannerAdsVisibility();
         }
 
         function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
