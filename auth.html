@@ -74,7 +74,7 @@
                 <p class="text-[11px] text-gray-500 font-semibold mt-1">Manga • Manhwa • Doujinshi</p>
             </div>
 
-            <!-- التبويبات الرئيسية (تختفي عند فتح نافذة استعادة كلمة المرور أو تأكيد الإيميل) -->
+            <!-- التبويبات الرئيسية -->
             <div id="mainAuthTabs" class="flex border-b border-gray-800 mb-6">
                 <button type="button" onclick="switchAuthView('login')" id="tabLogin" class="auth-tab active">تسجيل الدخول</button>
                 <button type="button" onclick="switchAuthView('signup')" id="tabSignup" class="auth-tab">حساب جديد</button>
@@ -135,12 +135,12 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">البريد الإلكتروني الحقيقي (للتأكيد)</label>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">البريد الإلكتروني الحقيقي (لإرسال الكود)</label>
                     <div class="input-wrapper flex items-center px-3.5 py-3">
                         <input type="email" id="signupEmail" required dir="ltr" placeholder="example@gmail.com" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
                         <i class="fas fa-envelope text-gray-500 mr-2"></i>
                     </div>
-                    <p class="text-[10px] text-gray-500 font-bold mt-1">سيتم إرسال رمز/رابط تأكيد إلى هذا البريد لتفعيل حسابك.</p>
+                    <p class="text-[10px] text-gray-500 font-bold mt-1">سيتم إرسال رمز تحقق (OTP) إلى هذا البريد لتفعيل حسابك.</p>
                 </div>
 
                 <div>
@@ -163,39 +163,36 @@
                 </div>
 
                 <button type="submit" id="signupSubmitBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-pink-950/50 flex items-center justify-center gap-2 mt-2">
-                    <span>إنشاء الحساب وإرسال التأكيد</span>
+                    <span>إنشاء الحساب وإرسال الرمز</span>
                     <i class="fas fa-user-plus"></i>
                 </button>
             </form>
 
             <!-- ========================================== -->
-            <!-- 3. واجهة تأكيد البريد الإلكتروني بعد التسجيل -->
+            <!-- 3. واجهة تأكيد البريد الإلكتروني برمز الكود (OTP) -->
             <!-- ========================================== -->
             <div id="verifyEmailView" class="space-y-4 hidden text-center">
                 <div class="w-14 h-14 rounded-2xl bg-pink-500/15 border border-pink-500/40 text-accent flex items-center justify-center mx-auto text-2xl">
-                    <i class="fas fa-envelope-open-text"></i>
+                    <i class="fas fa-shield-alt"></i>
                 </div>
-                <h2 class="text-lg font-black text-white">تأكيد البريد الإلكتروني</h2>
+                <h2 class="text-lg font-black text-white">أدخل رمز تفعيل الحساب</h2>
                 <p class="text-xs text-gray-300 font-semibold leading-relaxed">
-                    أرسلنا رسالة تفعيل إلى بريدك:<br>
+                    تم إرسال رمز التأكيد المكون من 6 أرقام إلى:<br>
                     <span id="verifyTargetEmailText" class="text-accent font-black dir-ltr inline-block mt-1"></span>
                 </p>
-                <div class="bg-[#111114] border border-gray-800 rounded-2xl p-3.5 text-[11px] text-gray-400 font-bold space-y-1 text-right">
-                    <div>1. افتح صندوق الوارد في بريدك (أو مجلد الرسائل غير المرغوب فيها Spam).</div>
-                    <div>2. اضغط على <b>رابط التفعيل</b> الموجود في الرسالة، أو أدخل <b>رمز التفعيل (OTP)</b> بالأسفل إن وُجد:</div>
-                </div>
 
-                <!-- إدخال رمز OTP في حال كان القالب يرسل رمزاً -->
-                <div class="space-y-2 pt-1">
-                    <input type="text" id="signupOtpInput" maxlength="8" dir="ltr" placeholder="رمز التفعيل (اختياري إذا ضغطت على الرابط)" class="w-full bg-[#111114] border border-gray-700 focus:border-accent rounded-xl p-3 text-center text-sm font-black tracking-widest text-white outline-none">
-                    <button type="button" onclick="verifySignupOtpCode()" id="verifyOtpBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95">
+                <div class="space-y-3 pt-1">
+                    <input type="text" id="signupOtpInput" maxlength="8" inputmode="numeric" dir="ltr" placeholder="• • • • • •" class="w-full bg-[#111114] border-2 border-gray-700 focus:border-accent rounded-2xl p-3.5 text-center text-xl font-black tracking-[8px] text-white outline-none">
+                    
+                    <button type="button" onclick="verifySignupOtpCode()" id="verifyOtpBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-pink-950/50">
                         تأكيد الرمز وتفعيل الحساب
                     </button>
                 </div>
 
-                <div class="pt-2 flex flex-col gap-2">
-                    <button type="button" onclick="resendVerificationEmail()" id="resendEmailBtn" class="text-xs font-bold text-gray-400 hover:text-white transition">
-                        لم تصلك الرسالة؟ <span class="text-accent underline">إعادة الإرسال</span>
+                <!-- زر إعادة إرسال الكود مع كولداون 60 ثانية -->
+                <div class="pt-3 border-t border-gray-800/80 flex flex-col gap-2.5">
+                    <button type="button" onclick="resendVerificationEmail()" id="resendSignupBtn" class="w-full bg-[#111114] hover:bg-gray-800 text-gray-300 font-bold py-2.5 rounded-xl text-xs border border-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        إعادة إرسال الرمز
                     </button>
                     <button type="button" onclick="switchAuthView('login')" class="text-xs font-bold text-gray-500 hover:text-gray-300 pt-1">
                         العودة لتسجيل الدخول
@@ -204,7 +201,7 @@
             </div>
 
             <!-- ========================================== -->
-            <!-- 4. واجهة نسيت كلمة المرور (Forgot Password) -->
+            <!-- 4. واجهة نسيت كلمة المرور وإدخال رمز الاستعادة (OTP) -->
             <!-- ========================================== -->
             <div id="forgotPasswordView" class="space-y-4 hidden">
                 <div class="text-center space-y-1">
@@ -212,10 +209,11 @@
                         <i class="fas fa-key"></i>
                     </div>
                     <h2 class="text-lg font-black text-white">استعادة كلمة المرور</h2>
-                    <p class="text-xs text-gray-400 font-semibold">أدخل بريدك الإلكتروني المسجل لنرسل لك رابط ورمز إعادة تعيين كلمة المرور.</p>
+                    <p class="text-xs text-gray-400 font-semibold">أدخل بريدك الإلكتروني المسجل ليصلك رمز استعادة كلمة المرور (OTP).</p>
                 </div>
 
-                <form onsubmit="handleSendResetEmail(event)" class="space-y-4 pt-2">
+                <!-- الخطوة 1: إرسال الكود للإيميل -->
+                <form id="forgotSendForm" onsubmit="handleSendResetEmail(event)" class="space-y-4 pt-2">
                     <div>
                         <label class="block text-xs font-bold text-gray-400 mb-2 text-right">البريد الإلكتروني</label>
                         <div class="input-wrapper flex items-center px-3.5 py-3">
@@ -224,21 +222,34 @@
                         </div>
                     </div>
 
-                    <button type="submit" id="sendResetBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-pink-950/50 flex items-center justify-center gap-2">
-                        <span>إرسال رابط استعادة كلمة السر</span>
+                    <button type="submit" id="sendResetBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-pink-950/50 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span>إرسال رمز الاستعادة للإيميل</span>
                         <i class="fas fa-paper-plane text-xs"></i>
                     </button>
                 </form>
 
-                <!-- قسم يظهر بعد إرسال الإيميل لإدخال الرمز أو انتظار الضغط على الرابط -->
+                <!-- الخطوة 2: إدخال الكود المرسل + كلمة المرور الجديدة -->
                 <div id="resetCodeVerifyBox" class="hidden space-y-3 pt-3 border-t border-gray-800">
-                    <p class="text-[11px] text-gray-400 font-bold text-center">
-                        إذا وصلك <b>رابط</b> في الإيميل اضغط عليه مباشرة، أو إذا وصلك <b>رمز (OTP)</b> أدخله هنا مع كلمة المرور الجديدة:
+                    <p class="text-[11px] text-purple-300 font-bold text-center">
+                        أدخل الرمز المكون من 6 أرقام الذي وصلك في البريد مع كلمة المرور الجديدة:
                     </p>
-                    <input type="text" id="recoveryOtpCode" dir="ltr" placeholder="رمز الاستعادة (OTP)" class="w-full bg-[#111114] border border-gray-700 focus:border-accent rounded-xl p-3 text-center text-xs font-black tracking-widest text-white outline-none">
-                    <input type="password" id="recoveryNewPassInline" minlength="6" dir="ltr" placeholder="كلمة المرور الجديدة (6 أحرف فأكثر)" class="w-full bg-[#111114] border border-gray-700 focus:border-accent rounded-xl p-3 text-left text-xs font-bold text-white outline-none">
-                    <button type="button" onclick="verifyRecoveryOtpAndChangePass()" id="verifyRecoveryOtpBtn" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95">
+                    <input type="text" id="recoveryOtpCode" maxlength="8" inputmode="numeric" dir="ltr" placeholder="رمز الاستعادة (6 أرقام)" class="w-full bg-[#111114] border-2 border-gray-700 focus:border-purple-500 rounded-xl p-3 text-center text-base font-black tracking-[6px] text-white outline-none">
+                    
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <button type="button" onclick="togglePassVisibility('recoveryNewPassInline', this)" class="text-gray-500 hover:text-gray-300 ml-2 focus:outline-none">
+                            <i class="far fa-eye text-xs"></i>
+                        </button>
+                        <input type="password" id="recoveryNewPassInline" minlength="6" dir="ltr" placeholder="كلمة المرور الجديدة (6 أحرف فأكثر)" class="w-full bg-transparent text-white text-xs outline-none font-bold placeholder-gray-600 text-left">
+                        <i class="fas fa-lock text-gray-500 mr-2"></i>
+                    </div>
+
+                    <button type="button" onclick="verifyRecoveryOtpAndChangePass()" id="verifyRecoveryOtpBtn" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3.5 rounded-xl text-xs transition active:scale-95 shadow-lg">
                         تأكيد الرمز وحفظ كلمة المرور الجديدة
+                    </button>
+
+                    <!-- زر إعادة إرسال رمز الاستعادة مع كولداون 60 ثانية -->
+                    <button type="button" onclick="resendRecoveryCode()" id="resendRecoveryBtn" class="w-full bg-[#111114] hover:bg-gray-800 text-gray-300 font-bold py-2.5 rounded-xl text-xs border border-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        إعادة إرسال الرمز
                     </button>
                 </div>
 
@@ -248,43 +259,6 @@
                     </button>
                 </div>
             </div>
-
-            <!-- ========================================== -->
-            <!-- 5. واجهة تعيين كلمة المرور الجديدة (تفتح تلقائياً عند الضغط على رابط الإيميل) -->
-            <!-- ========================================== -->
-            <form id="updatePasswordView" onsubmit="handleUpdateNewPassword(event)" class="space-y-4 hidden">
-                <div class="text-center space-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-xl mb-2">
-                        <i class="fas fa-unlock-alt"></i>
-                    </div>
-                    <h2 class="text-lg font-black text-white">تعيين كلمة مرور جديدة</h2>
-                    <p class="text-xs text-gray-400 font-semibold">تم التحقق من بريدك بنجاح! اكتب كلمة المرور الجديدة لحسابك.</p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">كلمة المرور الجديدة</label>
-                    <div class="input-wrapper flex items-center px-3.5 py-3">
-                        <button type="button" onclick="togglePassVisibility('newResetPassword', this)" class="text-gray-500 hover:text-gray-300 ml-2 focus:outline-none">
-                            <i class="far fa-eye text-xs"></i>
-                        </button>
-                        <input type="password" id="newResetPassword" required minlength="6" dir="ltr" placeholder="••••••••" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
-                        <i class="fas fa-lock text-gray-500 mr-2"></i>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">تأكيد كلمة المرور الجديدة</label>
-                    <div class="input-wrapper flex items-center px-3.5 py-3">
-                        <input type="password" id="confirmNewResetPassword" required minlength="6" dir="ltr" placeholder="••••••••" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
-                        <i class="fas fa-check-double text-gray-500 mr-2"></i>
-                    </div>
-                </div>
-
-                <button type="submit" id="saveNewPassBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg flex items-center justify-center gap-2">
-                    <span>حفظ كلمة المرور والدخول</span>
-                    <i class="fas fa-check"></i>
-                </button>
-            </form>
 
         </div>
     </main>
@@ -304,47 +278,140 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+        // إعدادات الكولداون والحماية
+        const MAX_LOGIN_ATTEMPTS = 5;           // الحد الأقصى لمحاولات تسجيل الدخول الخاطئة
+        const LOGIN_COOLDOWN_SECONDS = 60;      // مدة حظر تسجيل الدخول بعد 5 محاولات (60 ثانية)
+        const RESEND_COOLDOWN_SECONDS = 60;     // مدة كولداون إعادة إرسال الإيميل (60 ثانية = دقيقة)
+
         let pendingVerificationEmail = '';
         let pendingVerificationUsername = '';
         let pendingResetEmail = '';
+        let loginCooldownTimer = null;
+        let resendCooldownTimer = null;
 
         window.onload = async () => {
-            // استرجاع الإيميل المحفوظ إذا كان المستخدم قد فعّل "تذكرني" سابقاً
             const savedEmail = localStorage.getItem('futa_remembered_email');
             if (savedEmail) {
                 document.getElementById('loginEmail').value = savedEmail;
             }
 
-            // فحص إذا كان المستخدم عائداً من رابط استعادة كلمة المرور أو رابط تأكيد الإيميل في البريد
-            const hash = window.location.hash || '';
-            const searchParams = new URLSearchParams(window.location.search);
-
-            if (hash.includes('type=recovery') || searchParams.get('reset') === 'true') {
-                switchAuthView('updatePassword');
-                showAlert('يرجى إدخال كلمة المرور الجديدة لحسابك.', 'info');
-            } else if (hash.includes('type=signup') || hash.includes('access_token=')) {
-                showAlert('جاري التحقق من تفعيل بريدك الإلكتروني...', 'success');
-            }
-
-            // مستمع حالة المصادقة التلقائي من Supabase
-            sbClient.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'PASSWORD_RECOVERY') {
-                    switchAuthView('updatePassword');
-                    showAlert('تم التحقق من الرابط! أدخل كلمة المرور الجديدة الآن.', 'info');
-                } else if (event === 'SIGNED_IN' && session?.user) {
-                    // إذا لم نكن في شاشة تغيير كلمة السر، نقوم بتسجيل دخوله ومزامنة ملفه الشخصي
-                    const isUpdatingPass = !document.getElementById('updatePasswordView').classList.contains('hidden');
-                    if (!isUpdatingPass && (hash.includes('type=signup') || hash.includes('access_token='))) {
-                        await syncProfileAndRedirect(session.user);
-                    }
-                }
-            });
+            // فحص ما إذا كان هناك كولداون نشط لتسجيل الدخول أو إعادة الإرسال عند فتح الصفحة
+            checkAndRunLoginCooldown();
+            checkAndRunResendCooldown();
         };
 
-        // التبديل بين الواجهات داخل البطاقة
+        // =========================================================================
+        // نظام الكولداون لمحاولات تسجيل الدخول (أكثر من 5 مرات)
+        // =========================================================================
+        function getFailedLoginAttempts() {
+            return parseInt(localStorage.getItem('futa_failed_login_count') || '0');
+        }
+
+        function recordFailedLoginAttempt() {
+            let count = getFailedLoginAttempts() + 1;
+            localStorage.setItem('futa_failed_login_count', count.toString());
+
+            if (count >= MAX_LOGIN_ATTEMPTS) {
+                const lockUntil = Date.now() + (LOGIN_COOLDOWN_SECONDS * 1000);
+                localStorage.setItem('futa_login_lock_until', lockUntil.toString());
+                checkAndRunLoginCooldown();
+                return true; // تم تفعيل الكولداون
+            }
+            return false;
+        }
+
+        function resetFailedLoginAttempts() {
+            localStorage.removeItem('futa_failed_login_count');
+            localStorage.removeItem('futa_login_lock_until');
+        }
+
+        function checkAndRunLoginCooldown() {
+            const lockUntil = parseInt(localStorage.getItem('futa_login_lock_until') || '0');
+            const btn = document.getElementById('loginSubmitBtn');
+
+            if (lockUntil > Date.now()) {
+                clearInterval(loginCooldownTimer);
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                const updateLockUI = () => {
+                    const remainingSec = Math.ceil((lockUntil - Date.now()) / 1000);
+                    if (remainingSec > 0) {
+                        btn.innerHTML = `<i class="fas fa-hourglass-half"></i> <span>محظور مؤقتاً (${remainingSec} ثانية)</span>`;
+                        showAlert(`تجاوزت ${MAX_LOGIN_ATTEMPTS} محاولات دخول خاطئة! يرجى الانتظار ${remainingSec} ثانية قبل المحاولة مجدداً.`);
+                    } else {
+                        clearInterval(loginCooldownTimer);
+                        resetFailedLoginAttempts();
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        btn.innerHTML = `<span>دخول</span> <i class="fas fa-sign-in-alt"></i>`;
+                        hideAlert();
+                    }
+                };
+
+                updateLockUI();
+                loginCooldownTimer = setInterval(updateLockUI, 1000);
+                return true;
+            }
+            return false;
+        }
+
+        // =========================================================================
+        // نظام الكولداون لإعادة إرسال الرمز للإيميل (مدته دقيقة كاملة = 60 ثانية)
+        // =========================================================================
+        function startResendCooldown() {
+            const unlockTime = Date.now() + (RESEND_COOLDOWN_SECONDS * 1000);
+            localStorage.setItem('futa_resend_lock_until', unlockTime.toString());
+            checkAndRunResendCooldown();
+        }
+
+        function checkAndRunResendCooldown() {
+            const unlockTime = parseInt(localStorage.getItem('futa_resend_lock_until') || '0');
+            const buttons = [
+                document.getElementById('resendSignupBtn'),
+                document.getElementById('resendRecoveryBtn'),
+                document.getElementById('sendResetBtn')
+            ];
+
+            if (unlockTime > Date.now()) {
+                clearInterval(resendCooldownTimer);
+
+                const updateResendUI = () => {
+                    const remainingSec = Math.ceil((unlockTime - Date.now()) / 1000);
+                    if (remainingSec > 0) {
+                        buttons.forEach(btn => {
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.innerHTML = `<i class="fas fa-clock ml-1"></i> إعادة الإرسال متاحة بعد (${remainingSec} ثانية)`;
+                            }
+                        });
+                    } else {
+                        clearInterval(resendCooldownTimer);
+                        localStorage.removeItem('futa_resend_lock_until');
+                        if (buttons[0]) { buttons[0].disabled = false; buttons[0].innerText = 'إعادة إرسال الرمز'; }
+                        if (buttons[1]) { buttons[1].disabled = false; buttons[1].innerText = 'إعادة إرسال الرمز'; }
+                        if (buttons[2]) { buttons[2].disabled = false; buttons[2].innerHTML = `<span>إرسال رمز الاستعادة للإيميل</span> <i class="fas fa-paper-plane text-xs"></i>`; }
+                    }
+                };
+
+                updateResendUI();
+                resendCooldownTimer = setInterval(updateResendUI, 1000);
+                return true;
+            }
+            return false;
+        }
+
+        function isResendOnCooldown() {
+            const unlockTime = parseInt(localStorage.getItem('futa_resend_lock_until') || '0');
+            return unlockTime > Date.now();
+        }
+
+        // =========================================================================
+        // تبديل الواجهات والتنبيهات
+        // =========================================================================
         function switchAuthView(viewName) {
             hideAlert();
-            const views = ['loginView', 'signupView', 'verifyEmailView', 'forgotPasswordView', 'updatePasswordView'];
+            const views = ['loginView', 'signupView', 'verifyEmailView', 'forgotPasswordView'];
             views.forEach(v => document.getElementById(v).classList.add('hidden'));
 
             const mainTabs = document.getElementById('mainAuthTabs');
@@ -356,6 +423,7 @@
                 tabLogin.classList.add('active');
                 tabSignup.classList.remove('active');
                 document.getElementById('loginView').classList.remove('hidden');
+                checkAndRunLoginCooldown();
             } else if (viewName === 'signup') {
                 mainTabs.classList.remove('hidden');
                 tabSignup.classList.add('active');
@@ -369,9 +437,6 @@
                 document.getElementById('forgotPasswordView').classList.remove('hidden');
                 const currentLoginEmail = document.getElementById('loginEmail').value.trim();
                 if (currentLoginEmail) document.getElementById('resetEmailInput').value = currentLoginEmail;
-            } else if (viewName === 'updatePassword') {
-                mainTabs.classList.add('hidden');
-                document.getElementById('updatePasswordView').classList.remove('hidden');
             }
         }
 
@@ -406,13 +471,11 @@
             }
         }
 
-        // فحص صحة البريد الإلكتروني للتأكد من أنه إيميل حقيقي وصالح
         function isValidEmailFormat(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
             return emailRegex.test(email);
         }
 
-        // مزامنة بيانات المستخدم مع جدول profiles وحفظه في futa_user_logged
         async function syncProfileAndRedirect(authUser, fallbackUsername = null) {
             const email = authUser.email;
             const metaUsername = authUser.user_metadata?.username || fallbackUsername || pendingVerificationUsername || email.split('@')[0];
@@ -427,7 +490,6 @@
             };
 
             try {
-                // البحث عن البروفيل الحالي في جدول profiles
                 const { data: existingProfile } = await sbClient
                     .from('profiles')
                     .select('*')
@@ -436,12 +498,8 @@
                     .single();
 
                 if (existingProfile) {
-                    userProfile = {
-                        ...userProfile,
-                        ...existingProfile
-                    };
+                    userProfile = { ...userProfile, ...existingProfile };
                 } else {
-                    // إنشاء سجل جديد في جدول profiles إذا لم يكن موجوداً
                     const { data: insertedProfile } = await sbClient
                         .from('profiles')
                         .insert([{
@@ -459,11 +517,12 @@
             window.location.href = 'index.html';
         }
 
-        // ==========================================
-        // 1. معالجة تسجيل الدخول
-        // ==========================================
+        // =========================================================================
+        // 1. تسجيل الدخول (مع احتساب الـ 5 محاولات والكولداون)
+        // =========================================================================
         async function handleLogin(e) {
             e.preventDefault();
+            if (checkAndRunLoginCooldown()) return;
             hideAlert();
 
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -482,15 +541,31 @@
                 const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
 
                 if (error) {
+                    // إذا كان الحساب مسجلاً لكن لم يتم تأكيد إيميله بعد، نرسل له رمز التفعيل ونفتح شاشة الكود
                     if (error.message.toLowerCase().includes('email not confirmed')) {
                         pendingVerificationEmail = email;
                         document.getElementById('verifyTargetEmailText').innerText = email;
+                        if (!isResendOnCooldown()) {
+                            await sbClient.auth.resend({ type: 'signup', email: email });
+                            startResendCooldown();
+                        }
                         switchAuthView('verifyEmail');
-                        showAlert('هذا الحساب لم يتم تأكيد بريده الإلكتروني بعد. يرجى تفعيله من الرابط أو الرمز المرسل لبريدك.', 'info');
+                        showAlert('هذا الحساب بحاجة لتأكيد البريد الإلكتروني. تم إرسال رمز التفعيل إلى بريدك!', 'info');
                         return;
                     }
-                    throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+
+                    // احتساب محاولة خاطئة
+                    const isLockedNow = recordFailedLoginAttempt();
+                    if (!isLockedNow) {
+                        const usedAttempts = getFailedLoginAttempts();
+                        const remaining = MAX_LOGIN_ATTEMPTS - usedAttempts;
+                        showAlert(`البريد الإلكتروني أو كلمة المرور غير صحيحة. (تبقى لديك ${remaining} محاولات قبل الإيقاف المؤقت)`);
+                    }
+                    return;
                 }
+
+                // نجاح تسجيل الدخول -> تصفير عداد المحاولات الخاطئة
+                resetFailedLoginAttempts();
 
                 if (rememberMe) {
                     localStorage.setItem('futa_remembered_email', email);
@@ -504,17 +579,23 @@
             } catch (err) {
                 showAlert(err.message || 'فشل تسجيل الدخول، تحقق من بياناتك.');
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span>دخول</span> <i class="fas fa-sign-in-alt"></i>`;
+                if (!checkAndRunLoginCooldown()) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<span>دخول</span> <i class="fas fa-sign-in-alt"></i>`;
+                }
             }
         }
 
-        // ==========================================
-        // 2. معالجة إنشاء حساب جديد + التحقق من الإيميل
-        // ==========================================
+        // =========================================================================
+        // 2. إنشاء حساب جديد وإرسال رمز الكود (OTP) بدون الحاجة لـ Redirect URL
+        // =========================================================================
         async function handleSignup(e) {
             e.preventDefault();
             hideAlert();
+
+            if (isResendOnCooldown()) {
+                return showAlert('يرجى الانتظار حتى انتهاء الدقيقة قبل طلب رمز جديد.');
+            }
 
             const rawUsername = document.getElementById('signupUsername').value.trim().replace(/\s+/g, '_');
             const email = document.getElementById('signupEmail').value.trim().toLowerCase();
@@ -526,17 +607,17 @@
                 return showAlert('يجب أن يتكون اسم المستخدم من حرفين على الأقل.');
             }
             if (!isValidEmailFormat(email)) {
-                return showAlert('يرجى إدخال بريد إلكتروني حقيقي وصحيح لتلقي رسالة التأكيد.');
+                return showAlert('يرجى إدخال بريد إلكتروني حقيقي وصحيح لتلقي رمز الكود.');
             }
             if (password !== confirmPassword) {
                 return showAlert('كلمتا المرور غير متطابقتين!');
             }
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري التحقق وإنشاء الحساب...</span>`;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري إنشاء الحساب وإرسال الرمز...</span>`;
 
             try {
-                // التحقق من عدم حجز اسم المستخدم مسبقاً في جدول profiles
+                // فحص عدم حجز اسم المستخدم في جدول profiles
                 const { data: takenUser } = await sbClient
                     .from('profiles')
                     .select('username')
@@ -547,20 +628,21 @@
                     throw new Error('اسم المستخدم هذا مستخدم بالفعل، يرجى اختيار اسم آخر.');
                 }
 
-                // إنشاء الحساب وإرسال إيميل التأكيد عبر Supabase Auth
-                const redirectUrl = window.location.origin + window.location.pathname;
+                // إرسال طلب التسجيل بدون emailRedirectTo لضمان عدم رفض الإيميل من Supabase
                 const { data, error } = await sbClient.auth.signUp({
                     email: email,
                     password: password,
                     options: {
-                        data: { username: rawUsername },
-                        emailRedirectTo: redirectUrl
+                        data: { username: rawUsername }
                     }
                 });
 
                 if (error) {
                     if (error.message.toLowerCase().includes('already registered')) {
-                        throw new Error('هذا البريد الإلكتروني مسجل بالفعل! انتقل لتسجيل الدخول أو استعد كلمة المرور.');
+                        throw new Error('هذا البريد الإلكتروني مسجل بالفعل! انتقل لتسجيل الدخول أو اضغط على نسيت كلمة المرور.');
+                    }
+                    if (error.message.toLowerCase().includes('rate limit')) {
+                        throw new Error('تم تجاوز الحد المسموح لإرسال الإيميلات في الساعة من خادم Supabase. يرجى المحاولة لاحقاً.');
                     }
                     throw error;
                 }
@@ -568,13 +650,17 @@
                 pendingVerificationEmail = email;
                 pendingVerificationUsername = rawUsername;
 
-                // إذا كان Supabase مفعلاً به Confirm Email (الوضع القياسي لتأكيد الإيميل)
+                // إذا كان الإيميل قد سجل سابقاً ولم يتفعل، نرسل له الرمز عبر resend لضمان وصوله
+                if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+                    throw new Error('هذا البريد الإلكتروني مسجل ومفعل بالفعل! يمكنك تسجيل الدخول مباشرة.');
+                }
+
                 if (data.user && !data.session) {
+                    startResendCooldown();
                     document.getElementById('verifyTargetEmailText').innerText = email;
                     switchAuthView('verifyEmail');
-                    showAlert('تم إرسال رسالة التأكيد إلى بريدك الإلكتروني بنجاح!', 'success');
+                    showAlert('تم إرسال رمز التفعيل (OTP) إلى بريدك الإلكتروني! تفقد صندوق الوارد أو الرسائل غير المرغوب فيها (Spam).', 'success');
                 } else if (data.user && data.session) {
-                    // في حال كان التأكيد التلقائي مفعلاً في الإعدادات
                     showAlert('تم إنشاء الحساب بنجاح! جاري تحويلك...', 'success');
                     await syncProfileAndRedirect(data.user, rawUsername);
                 }
@@ -583,32 +669,43 @@
                 showAlert(err.message || 'حدث خطأ أثناء إنشاء الحساب.');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<span>إنشاء الحساب وإرسال التأكيد</span> <i class="fas fa-user-plus"></i>`;
+                btn.innerHTML = `<span>إنشاء الحساب وإرسال الرمز</span> <i class="fas fa-user-plus"></i>`;
             }
         }
 
-        // تأكيد رمز الـ OTP عند التسجيل الجديد
+        // التحقق من رمز الـ OTP عند التسجيل
         async function verifySignupOtpCode() {
             const token = document.getElementById('signupOtpInput').value.trim();
             const btn = document.getElementById('verifyOtpBtn');
 
-            if (!token) {
-                return showAlert('يرجى إدخال رمز التفعيل المرسل إلى بريدك، أو الضغط على الرابط داخل الرسالة.');
+            if (!token || token.length < 6) {
+                return showAlert('يرجى إدخال رمز التفعيل المكون من 6 أرقام كاملاً.');
             }
 
             btn.disabled = true;
             btn.innerText = 'جاري التحقق من الرمز...';
 
             try {
-                const { data, error } = await sbClient.auth.verifyOtp({
+                // نجرب التحقق بنوع signup أولاً، وإذا كان معاداً إرساله نجرب email
+                let { data, error } = await sbClient.auth.verifyOtp({
                     email: pendingVerificationEmail,
                     token: token,
                     type: 'signup'
                 });
 
-                if (error) throw new Error('الرمز غير صحيح أو منتهي الصلاحية.');
+                if (error) {
+                    const retry = await sbClient.auth.verifyOtp({
+                        email: pendingVerificationEmail,
+                        token: token,
+                        type: 'email'
+                    });
+                    data = retry.data;
+                    error = retry.error;
+                }
 
-                showAlert('تم تأكيد بريدك الإلكتروني بنجاح! جاري الدخول...', 'success');
+                if (error) throw new Error('الرمز غير صحيح أو انتهت صلاحيته.');
+
+                showAlert('تم تفعيل حسابك بنجاح! جاري تحويلك للموقع...', 'success');
                 await syncProfileAndRedirect(data.user, pendingVerificationUsername);
             } catch (err) {
                 showAlert(err.message);
@@ -618,32 +715,39 @@
             }
         }
 
-        // إعادة إرسال رسالة تأكيد البريد الإلكتروني
+        // إعادة إرسال رمز تفعيل التسجيل (مع كولداون دقيقة كاملة)
         async function resendVerificationEmail() {
-            if (!pendingVerificationEmail) return;
-            const btn = document.getElementById('resendEmailBtn');
-            btn.disabled = true;
+            if (!pendingVerificationEmail || isResendOnCooldown()) return;
 
             try {
                 const { error } = await sbClient.auth.resend({
                     type: 'signup',
                     email: pendingVerificationEmail
                 });
-                if (error) throw error;
-                showAlert('تمت إعادة إرسال رسالة التفعيل إلى بريدك الإلكتروني!', 'success');
+                if (error) {
+                    if (error.message.toLowerCase().includes('rate limit')) {
+                        throw new Error('تم الوصول للحد الأقصى لإرسال الرسائل في الساعة من Supabase.');
+                    }
+                    throw error;
+                }
+                startResendCooldown();
+                showAlert('تمت إعادة إرسال رمز التفعيل إلى بريدك الإلكتروني! (انتظر دقيقة قبل طلب رمز آخر)', 'success');
             } catch (err) {
-                showAlert('يرجى الانتظار قليلاً قبل طلب إعادة الإرسال مرة أخرى.');
-            } finally {
-                setTimeout(() => { btn.disabled = false; }, 15000);
+                startResendCooldown();
+                showAlert(err.message || 'يرجى الانتظار دقيقة كاملة قبل إعادة الإرسال.');
             }
         }
 
-        // ==========================================
-        // 3. معالجة "نسيت كلمة المرور" واستعادتها
-        // ==========================================
+        // =========================================================================
+        // 3. استعادة كلمة المرور عبر رمز الكود (OTP) مع كولداون دقيقة
+        // =========================================================================
         async function handleSendResetEmail(e) {
             e.preventDefault();
             hideAlert();
+
+            if (isResendOnCooldown()) {
+                return showAlert('يرجى الانتظار حتى انتهاء الدقيقة قبل إرسال رمز جديد.');
+            }
 
             const email = document.getElementById('resetEmailInput').value.trim().toLowerCase();
             const btn = document.getElementById('sendResetBtn');
@@ -653,44 +757,65 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري إرسال طلب الاستعادة...</span>`;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري إرسال رمز الاستعادة...</span>`;
 
             try {
-                const redirectUrl = window.location.origin + window.location.pathname + '?reset=true';
-                const { error } = await sbClient.auth.resetPasswordForEmail(email, {
-                    redirectTo: redirectUrl
-                });
+                // إرسال طلب استعادة كلمة المرور بدون redirectTo لتجنب خطأ Redirect URLs
+                const { error } = await sbClient.auth.resetPasswordForEmail(email);
 
-                if (error) throw error;
+                if (error) {
+                    if (error.message.toLowerCase().includes('rate limit')) {
+                        throw new Error('تم تجاوز الحد المسموح لإرسال الإيميلات في الساعة من Supabase. يرجى الانتظار قليلاً.');
+                    }
+                    throw error;
+                }
 
                 pendingResetEmail = email;
+                startResendCooldown();
                 document.getElementById('resetCodeVerifyBox').classList.remove('hidden');
-                showAlert('تم إرسال رسالة استعادة كلمة المرور إلى بريدك الإلكتروني! افتح الرابط في الرسالة لتعيين كلمة سر جديدة.', 'success');
+                showAlert('تم إرسال رمز الاستعادة (OTP) إلى بريدك الإلكتروني! أدخله بالأسفل مع كلمة المرور الجديدة.', 'success');
 
             } catch (err) {
-                showAlert('تعذر إرسال الرسالة، تأكد من صحة البريد الإلكتروني أو حاول بعد دقيقة.');
-            } finally {
+                showAlert(err.message || 'تعذر إرسال الرمز، تأكد من البريد الإلكتروني أو حاول بعد دقيقة.');
                 btn.disabled = false;
-                btn.innerHTML = `<span>إرسال رابط استعادة كلمة السر</span> <i class="fas fa-paper-plane text-xs"></i>`;
+                btn.innerHTML = `<span>إرسال رمز الاستعادة للإيميل</span> <i class="fas fa-paper-plane text-xs"></i>`;
             }
         }
 
-        // استعادة كلمة المرور باستخدام رمز OTP مباشر (إن وُجد في الإيميل)
+        async function resendRecoveryCode() {
+            const email = pendingResetEmail || document.getElementById('resetEmailInput').value.trim().toLowerCase();
+            if (!email || isResendOnCooldown()) return;
+
+            try {
+                const { error } = await sbClient.auth.resetPasswordForEmail(email);
+                if (error) throw error;
+                startResendCooldown();
+                showAlert('تمت إعادة إرسال رمز الاستعادة إلى بريدك الإلكتروني بنجاح!', 'success');
+            } catch (err) {
+                startResendCooldown();
+                showAlert('يرجى الانتظار دقيقة كاملة قبل طلب رمز جديد.');
+            }
+        }
+
         async function verifyRecoveryOtpAndChangePass() {
+            const email = pendingResetEmail || document.getElementById('resetEmailInput').value.trim().toLowerCase();
             const token = document.getElementById('recoveryOtpCode').value.trim();
             const newPassword = document.getElementById('recoveryNewPassInline').value;
             const btn = document.getElementById('verifyRecoveryOtpBtn');
 
-            if (!token || newPassword.length < 6) {
-                return showAlert('يرجى إدخال رمز الاستعادة وكلمة مرور جديدة من 6 أحرف على الأقل.');
+            if (!token || token.length < 6) {
+                return showAlert('يرجى إدخال رمز الاستعادة المكون من 6 أرقام.');
+            }
+            if (!newPassword || newPassword.length < 6) {
+                return showAlert('يرجى إدخال كلمة مرور جديدة مكونة من 6 أحرف على الأقل.');
             }
 
             btn.disabled = true;
-            btn.innerText = 'جاري التحديث...';
+            btn.innerText = 'جاري التحقق وتحديث كلمة المرور...';
 
             try {
                 const { data, error } = await sbClient.auth.verifyOtp({
-                    email: pendingResetEmail || document.getElementById('resetEmailInput').value.trim(),
+                    email: email,
                     token: token,
                     type: 'recovery'
                 });
@@ -699,9 +824,11 @@
                 const { error: updateErr } = await sbClient.auth.updateUser({ password: newPassword });
                 if (updateErr) throw updateErr;
 
+                resetFailedLoginAttempts();
                 showAlert('تم تغيير كلمة المرور بنجاح! جاري تسجيل دخولك...', 'success');
+
                 if (data?.user) {
-                    await syncProfileAndRedirect(data.user);
+                    setTimeout(() => syncProfileAndRedirect(data.user), 1000);
                 } else {
                     setTimeout(() => switchAuthView('login'), 1500);
                 }
@@ -710,40 +837,6 @@
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'تأكيد الرمز وحفظ كلمة المرور الجديدة';
-            }
-        }
-
-        // حفظ كلمة المرور الجديدة بعد الضغط على رابط الاستعادة في الإيميل
-        async function handleUpdateNewPassword(e) {
-            e.preventDefault();
-            hideAlert();
-
-            const newPassword = document.getElementById('newResetPassword').value;
-            const confirmPassword = document.getElementById('confirmNewResetPassword').value;
-            const btn = document.getElementById('saveNewPassBtn');
-
-            if (newPassword !== confirmPassword) {
-                return showAlert('كلمتا المرور غير متطابقتين!');
-            }
-
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري حفظ كلمة المرور الجديدة...</span>`;
-
-            try {
-                const { data, error } = await sbClient.auth.updateUser({ password: newPassword });
-                if (error) throw error;
-
-                showAlert('تم تحديث كلمة المرور بنجاح! جاري تحويلك للموقع...', 'success');
-                if (data?.user) {
-                    setTimeout(() => syncProfileAndRedirect(data.user), 1200);
-                } else {
-                    setTimeout(() => switchAuthView('login'), 1500);
-                }
-            } catch (err) {
-                showAlert('انتهت صلاحية جلسة الاستعادة، يرجى طلب رابط جديد من نسيت كلمة المرور.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span>حفظ كلمة المرور والدخول</span> <i class="fas fa-check"></i>`;
             }
         }
     </script>
