@@ -168,8 +168,8 @@
 
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
         let selectedWorkType = 'مانغا';
-        let publishMode = 'oneshot'; // 'oneshot' أو 'multi'
-        let multiSubMode = 'new';    // 'new' أو 'existing'
+        let publishMode = 'oneshot';
+        let multiSubMode = 'new';
         let existingMangasCache = [];
 
         const selectedTags = new Set();
@@ -188,7 +188,6 @@
             window.location.href = 'https://leuay666-lgtm.github.io/';
         }
 
-        // التحكم في وضع النشر (وان شوت / متعدد فصول)
         function setPublishMode(mode) {
             publishMode = mode;
             const btnOneshot = document.getElementById('modeBtn_oneshot');
@@ -216,7 +215,6 @@
             const btnNew = document.getElementById('subModeBtn_new');
             const selectContainer = document.getElementById('existingMangaSelectContainer');
             const titleFields = document.getElementById('titleSectionFields');
-            const coverField = document.getElementById('coverContainerField');
 
             if (subMode === 'existing') {
                 btnExisting.className = 'py-2 px-2 rounded-xl text-xs font-bold border border-purple-500 bg-purple-600 text-white transition';
@@ -442,7 +440,6 @@
 
             let targetMangaId = null;
 
-            // إذا كان متعدد الفصول ومضاف لعمل موجود مسبقاً
             if (publishMode === 'multi' && multiSubMode === 'existing') {
                 targetMangaId = document.getElementById('existingMangaSelect').value;
                 if (!targetMangaId) return alert('⚠️ يرجى اختيار العمل الموجود من القائمة!');
@@ -461,7 +458,6 @@
                 if (pageTasks.length === 0) throw new Error('لم يتم العثور على صور صالحة!');
 
                 if (!targetMangaId) {
-                    // إنشاء عمل جديد
                     const title = document.getElementById('mangaTitle').value.trim();
                     const titleEn = document.getElementById('mangaTitleEn').value.trim() || null;
                     const desc = document.getElementById('mangaDesc').value.trim() || null;
@@ -473,10 +469,11 @@
                     if (coverErr) throw coverErr;
                     const coverUrl = sbClient.storage.from('manga-covers').getPublicUrl(coverName).data.publicUrl;
 
+                    // تم إزالة work_type بناءً على طلب المستخدم لحل خطأ Schema Cache
                     const finalTagsArray = [selectedWorkType, ...Array.from(selectedTags)];
                     const mangaData = { 
                         title, title_en: titleEn, description: desc, uploader_name: uploader,
-                        tags: finalTagsArray.join(','), cover_image_url: coverUrl, status: 'pending', work_type: selectedWorkType 
+                        tags: finalTagsArray.join(','), cover_image_url: coverUrl, status: 'pending'
                     };
 
                     const { data: newM, error: mErr } = await sbClient.from('mangas').insert([mangaData]).select();
@@ -484,7 +481,6 @@
                     targetMangaId = newM[0].id;
                 }
 
-                // رفع صفحات الفصل
                 const totalPages = pageTasks.length;
                 for (let i = 0; i < totalPages; i++) {
                     updateProgressUI(`<i class="fas fa-cloud-upload-alt"></i> رفع صفحة (${i + 1}/${totalPages})...`, Math.round(15 + ((i + 1) / totalPages) * 85));
