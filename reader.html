@@ -60,15 +60,18 @@
         @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
         @keyframes textUltra { 0% { filter: hue-rotate(0deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } 100% { filter: hue-rotate(360deg); text-shadow: 0 0 15px rgba(217,70,239,0.7); } }
 
-        /* شريط القارئ الذكي */
         #mainHeaderWrapper { transition: transform 0.3s ease-in-out; }
         .header-hidden { transform: translateY(-100%); }
 
-        .reader-page { width: 100%; display: block; margin: 0 auto; object-fit: contain; user-select: none; transition: filter 0.2s ease; }
-        .floating-counter { background: rgba(18, 18, 20, 0.9); backdrop-filter: blur(8px); border: 1px solid rgba(244, 114, 182, 0.45); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6); }
+        .reader-page { width: 100%; display: block; margin: 0 auto; object-fit: contain; user-select: none; transition: filter 0.2s ease; cursor: pointer; }
+        .floating-counter { background: rgba(18, 18, 20, 0.92); backdrop-filter: blur(10px); border: 1px solid rgba(244, 114, 182, 0.45); box-shadow: 0 4px 25px rgba(0, 0, 0, 0.75); }
 
         .setting-opt-btn { background-color: #111113; border: 1px solid #27272a; color: #a1a1aa; padding: 8px 12px; border-radius: 10px; font-size: 11px; font-weight: bold; transition: all 0.2s ease; }
         .setting-opt-btn.active { background-color: #f472b6; border-color: #f472b6; color: #ffffff; box-shadow: 0 0 10px rgba(244, 114, 182, 0.35); }
+
+        .page-nav-btn { background-color: #1a1c23; border: 1px solid #2d313e; color: #e2e8f0; transition: all 0.2s ease; }
+        .page-nav-btn:hover:not(:disabled) { background-color: #f472b6; border-color: #f472b6; color: #ffffff; }
+        .page-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -127,9 +130,11 @@
         </div>
     </div>
 
-    <!-- نافذة إعدادات القارئ (تفتح عند الضغط على زر الترس) -->
+    <!-- ========================================================== -->
+    <!-- نافذة إعدادات القارئ المحدثة (زر الترس) -->
+    <!-- ========================================================== -->
     <div id="readerSettingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] hidden items-center justify-center p-4">
-        <div class="bg-card border border-gray-800 rounded-2xl p-5 w-full max-w-sm shadow-2xl space-y-5 relative">
+        <div class="bg-card border border-gray-800 rounded-2xl p-5 w-full max-w-sm shadow-2xl space-y-4 relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <h3 class="text-sm font-black text-white flex items-center gap-2">
                     <i class="fas fa-sliders-h text-accent"></i> <span>إعدادات القراءة</span>
@@ -137,7 +142,20 @@
                 <button onclick="closeReaderSettings()" class="text-gray-400 hover:text-white text-lg"><i class="fas fa-times"></i></button>
             </div>
 
-            <!-- 1. حجم عرض الصور -->
+            <!-- 1. نمط القراءة (تمرير طولي أو صفحة بصفحة) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-400 mb-2">نمط القراءة (طريقة العرض):</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setReadingMode('vertical')" id="modeBtn_vertical" class="setting-opt-btn active flex items-center justify-center gap-1.5">
+                        <i class="fas fa-arrows-alt-v text-[10px]"></i> <span>تمرير طولي (ويبتون)</span>
+                    </button>
+                    <button onclick="setReadingMode('single')" id="modeBtn_single" class="setting-opt-btn flex items-center justify-center gap-1.5">
+                        <i class="fas fa-book-open text-[10px]"></i> <span>صفحة بصفحة</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. حجم عرض الصور -->
             <div>
                 <label class="block text-xs font-bold text-gray-400 mb-2">حجم عرض الصفحات:</label>
                 <div class="grid grid-cols-3 gap-2">
@@ -147,8 +165,8 @@
                 </div>
             </div>
 
-            <!-- 2. المسافة بين الصفحات -->
-            <div>
+            <!-- 3. المسافة بين الصفحات (يظهر في وضع التمرير الطولي) -->
+            <div id="gapSettingBox">
                 <label class="block text-xs font-bold text-gray-400 mb-2">الفواصل بين الصور:</label>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="setReaderGap('none')" id="gapBtn_none" class="setting-opt-btn active">بدون فواصل (ويبتون)</button>
@@ -156,7 +174,7 @@
                 </div>
             </div>
 
-            <!-- 3. سطوع الصفحات -->
+            <!-- 4. سطوع الصفحات -->
             <div>
                 <div class="flex justify-between text-xs font-bold text-gray-400 mb-2">
                     <span>سطوع الإضاءة:</span>
@@ -165,15 +183,58 @@
                 <input type="range" id="brightnessSlider" min="50" max="100" value="100" oninput="setReaderBrightness(this.value)" class="w-full accent-pink-500 cursor-pointer">
             </div>
 
-            <!-- 4. إظهار عداد الصفحات العائم -->
+            <!-- 5. إظهار شريط/عداد الصفحات السفلي -->
             <div class="flex items-center justify-between bg-[#111113] p-3 rounded-xl border border-gray-800">
-                <span class="text-xs font-bold text-gray-300">إظهار عداد الصفحات السفلي</span>
+                <span class="text-xs font-bold text-gray-300">إظهار شريط الصفحات السفلي</span>
                 <input type="checkbox" id="toggleCounterCheck" checked onchange="toggleFloatingCounter(this.checked)" class="w-4 h-4 accent-pink-500 cursor-pointer">
+            </div>
+
+            <!-- تلميح اختصارات الكيبورد واللمس -->
+            <div class="bg-[#111113] border border-gray-800/80 rounded-xl p-3 text-[10px] text-gray-400 space-y-1 font-bold">
+                <div class="text-accent font-black mb-1"><i class="fas fa-keyboard ml-1"></i>اختصارات التحكم السريع:</div>
+                <div>• <b>الضغط في منتصف الصفحة:</b> فتح نافذة إدخال رقم الصفحة.</div>
+                <div>• <b>أزرار الكمبيوتر (⬅️ / ➡️):</b> التنقل بين الصفحات.</div>
             </div>
 
             <button onclick="closeReaderSettings()" class="w-full bg-accent hover:bg-pink-600 text-white font-black py-2.5 rounded-xl text-xs transition active:scale-95">
                 حفظ وإغلاق
             </button>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- واجهة الانتقال السريع لرقم الصفحة (تفتح عند الضغط في المنتصف) -->
+    <!-- ========================================================== -->
+    <div id="jumpPageModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[120] hidden items-center justify-center p-4">
+        <div class="bg-card border border-pink-500/40 rounded-2xl p-5 w-full max-w-xs shadow-2xl space-y-4 text-center">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-2.5">
+                <h3 class="text-sm font-black text-white flex items-center gap-2">
+                    <i class="fas fa-bolt text-accent"></i> <span>الانتقال إلى صفحة</span>
+                </h3>
+                <button onclick="closeJumpPageModal()" class="text-gray-400 hover:text-white text-lg"><i class="fas fa-times"></i></button>
+            </div>
+
+            <p class="text-xs text-gray-400 font-bold">
+                أدخل رقم الصفحة (من <span class="text-white">1</span> إلى <span id="jumpModalMaxPage" class="text-accent">1</span>):
+            </p>
+
+            <form onsubmit="confirmJumpToPage(event)" class="space-y-3">
+                <input type="number" id="jumpPageInput" min="1" max="1" required class="w-full bg-[#111113] text-white text-center text-lg font-black p-3 rounded-xl border border-gray-700 focus:border-accent outline-none">
+                
+                <!-- أزرار سريعة لأول وآخر صفحة -->
+                <div class="grid grid-cols-2 gap-2 text-[11px] font-bold">
+                    <button type="button" onclick="jumpToSpecificPage(0); closeJumpPageModal();" class="bg-[#111113] hover:bg-gray-800 text-gray-300 py-2 rounded-lg border border-gray-800 transition">
+                        الصفحة الأولى (1)
+                    </button>
+                    <button type="button" onclick="jumpToSpecificPage(totalPages - 1); closeJumpPageModal();" class="bg-[#111113] hover:bg-gray-800 text-gray-300 py-2 rounded-lg border border-gray-800 transition">
+                        الصفحة الأخيرة
+                    </button>
+                </div>
+
+                <button type="submit" class="w-full bg-accent hover:bg-pink-600 text-white font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow-lg shadow-pink-950/50">
+                    انتقال الآن
+                </button>
+            </form>
         </div>
     </div>
 
@@ -196,7 +257,7 @@
             </div>
         </div>
 
-        <!-- شريط تحكم الفصل (اسم المانغا، الفصل، زر الرجوع، وزر الترس الفعال) -->
+        <!-- شريط تحكم الفصل -->
         <div class="bg-[#18181b]/90 border-t border-gray-800/80 px-4 py-2">
             <div class="max-w-4xl mx-auto flex justify-between items-center gap-2">
                 <button onclick="goBackToManga()" class="bg-[#111113] hover:bg-gray-800 text-gray-200 hover:text-white px-3 py-1.5 rounded-xl border border-gray-700 text-xs font-bold transition active:scale-95 flex items-center gap-1.5">
@@ -215,16 +276,48 @@
         </div>
     </header>
 
-    <!-- عداد الصفحات العائم -->
-    <div id="floatingPageCounter" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-40 floating-counter px-4 py-1.5 rounded-full text-xs font-black text-white flex items-center gap-1.5 pointer-events-none">
-        <span id="currentPageNum" class="text-accent">1</span>
-        <span class="text-gray-500">/</span>
-        <span id="totalPagesNum" class="text-gray-300">1</span>
+    <!-- شريط التحكم السفلي العائم (أزرار تغيير الصفحة + الضغط في المنتصف لوضع رقم الصفحة) -->
+    <div id="floatingPageCounter" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-40 floating-counter px-2.5 py-1.5 rounded-full text-xs font-black text-white flex items-center gap-2">
+        <!-- زر الصفحة السابقة (لا يفتح أي إعلان) -->
+        <button id="prevPageBtn" onclick="changePageByButton(-1, event)" class="page-nav-btn w-8 h-8 rounded-full flex items-center justify-center active:scale-90" title="الصفحة السابقة (السهم الأيمن)">
+            <i class="fas fa-chevron-right text-[11px]"></i>
+        </button>
+
+        <!-- زر المنتصف: يفتح واجهة وضع رقم الصفحة -->
+        <button onclick="openJumpPageModal(event)" class="px-3 py-1 rounded-full hover:bg-white/10 transition flex items-center gap-1.5 cursor-pointer" title="اضغط لإدخال رقم الصفحة">
+            <span id="currentPageNum" class="text-accent">1</span>
+            <span class="text-gray-500">/</span>
+            <span id="totalPagesNum" class="text-gray-300">1</span>
+            <i class="fas fa-sort text-[10px] text-gray-400 mr-0.5"></i>
+        </button>
+
+        <!-- زر الصفحة التالية (لا يفتح أي إعلان) -->
+        <button id="nextPageBtn" onclick="changePageByButton(1, event)" class="page-nav-btn w-8 h-8 rounded-full flex items-center justify-center active:scale-90" title="الصفحة التالية (السهم الأيسر)">
+            <i class="fas fa-chevron-left text-[11px]"></i>
+        </button>
     </div>
 
     <!-- المحتوى الرئيسي: صفحات الفصل -->
     <main class="flex-1 w-full flex flex-col items-center">
-        <div id="pagesContainer" class="w-full max-w-3xl mx-auto flex flex-col items-center min-h-[65vh] bg-[#0b0b0d] shadow-2xl">
+        
+        <!-- شريط تنقل علوي يظهر في وضع (صفحة بصفحة) -->
+        <div id="singleModeTopBar" class="w-full max-w-3xl mx-auto px-4 pt-4 pb-2 hidden items-center justify-between gap-2">
+            <button id="topPrevPageBtn" onclick="changePageByButton(-1, event)" class="page-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 active:scale-95">
+                <i class="fas fa-arrow-right text-[10px]"></i> <span>السابقة</span>
+            </button>
+
+            <button onclick="openJumpPageModal(event)" class="bg-[#18181b] hover:bg-gray-800 border border-gray-700 px-4 py-2 rounded-xl text-xs font-black text-white flex items-center gap-2 transition active:scale-95">
+                <span>صفحة <span id="singleTopCurrentNum" class="text-accent">1</span> من <span id="singleTopTotalNum">1</span></span>
+                <i class="fas fa-edit text-[10px] text-gray-400"></i>
+            </button>
+
+            <button id="topNextPageBtn" onclick="changePageByButton(1, event)" class="page-nav-btn px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 active:scale-95">
+                <span>التالية</span> <i class="fas fa-arrow-left text-[10px]"></i>
+            </button>
+        </div>
+
+        <!-- حاوية الصور -->
+        <div id="pagesContainer" class="w-full max-w-3xl mx-auto flex flex-col items-center min-h-[65vh] bg-[#0b0b0d] shadow-2xl relative">
             <div class="text-center py-28 text-gray-400 text-xs font-bold">
                 <i class="fas fa-spinner fa-spin text-3xl text-accent mb-3 block"></i>
                 جاري تحميل صفحات الفصل...
@@ -253,7 +346,7 @@
         </div>
     </main>
 
-    <!-- الفوتر السفلي الموحد (مرتبط بـ terms.html و dmca.html) -->
+    <!-- الفوتر السفلي الموحد -->
     <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative z-10 w-full">
         <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
             <div class="flex gap-5 text-sm font-bold text-gray-400">
@@ -278,6 +371,12 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+        // =========================================================================
+        // رابط الإعلان المباشر (Tab / Popunder Ad) الذي يفتح عند الضغط على صورة الصفحة
+        // عندما نربط شركة الإعلانات (ExoClick / Adsterra) ضع الرابط المباشر داخل علامتي التنصيص:
+        const DIRECT_AD_URL = ""; // مثال لاحقاً: "https://your-ad-network-direct-link.com"
+        // =========================================================================
+
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -285,7 +384,12 @@
         const chapterNum = parseInt(urlParams.get('chapter')) || 1;
         
         let mangaData = null;
+        let pagesList = [];
         let totalPages = 0;
+        let currentPageIndex = 0;
+        let readingMode = 'vertical'; // 'vertical' (تمرير طولي) أو 'single' (صفحة بصفحة)
+        let scrollObserver = null;
+
         let lastScrollY = window.scrollY;
         const headerWrapper = document.getElementById('mainHeaderWrapper');
 
@@ -299,9 +403,406 @@
             }
             document.getElementById('chapterNumDisplay').innerText = `الفصل ${chapterNum}`;
             await fetchMangaAndPages();
+            setupKeyboardShortcuts();
         };
 
-        // --- تحديث السايدبار والنافبار مثل الصفحة الرئيسية ---
+        function isUserAdFree() {
+            if (!currentUser) return false;
+            return ['vip', 'vip_pro', 'vip_ultra'].includes(currentUser.subscription_type);
+        }
+
+        // فتح إعلان في تاب جديد عند الضغط على صورة الصفحة (لغير مشتركي VIP عندما يتم وضع الرابط)
+        function triggerPageImageAd() {
+            if (isUserAdFree()) return;
+            if (DIRECT_AD_URL && DIRECT_AD_URL.trim() !== "") {
+                window.open(DIRECT_AD_URL, '_blank', 'noopener,noreferrer');
+            }
+        }
+
+        // التعامل مع الضغط على صورة الصفحة:
+        // - إذا ضغط في المنتصف (الثلث الأوسط من الصورة) -> تفتح واجهة وضع رقم الصفحة
+        // - إذا ضغط على باقي أجزاء صورة الصفحة -> يفتح الإعلان في تاب جديد (عند ربطه)
+        function handlePageImageClick(event) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+
+            // المنطقة الوسطى من الصفحة (بين 35% و 65% من العرض)
+            if (clickX >= width * 0.35 && clickX <= width * 0.65) {
+                openJumpPageModal(event);
+                return;
+            }
+
+            // الضغط على الصفحة خارج المنتصف يفتح إعلان التاب الجديد (عند تفعيل الرابط)
+            triggerPageImageAd();
+        }
+
+        // تغيير الصفحة عبر أزرار تغيير الصفحة (بدون فتح أي إعلان)
+        function changePageByButton(delta, event) {
+            if (event) event.stopPropagation();
+            const targetIndex = currentPageIndex + delta;
+
+            // إذا وصل للأولى أو الأخيرة لا يحدث شيء
+            if (targetIndex < 0 || targetIndex >= totalPages) return;
+
+            jumpToSpecificPage(targetIndex);
+        }
+
+        // الانتقال المباشر لأي صفحة سواء في وضع (صفحة بصفحة) أو (التمرير الطولي)
+        function jumpToSpecificPage(targetIndex) {
+            if (!pagesList || totalPages === 0) return;
+            const safeIndex = Math.max(0, Math.min(totalPages - 1, targetIndex));
+            currentPageIndex = safeIndex;
+
+            if (readingMode === 'single') {
+                renderSinglePageView();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                const targetImg = document.querySelector(`img.reader-page[data-index="${safeIndex}"]`);
+                if (targetImg) {
+                    targetImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            updatePageCountersUI(safeIndex);
+            updateReadingHistory(safeIndex);
+        }
+
+        function updatePageCountersUI(pageIdx) {
+            const pageNum = pageIdx + 1;
+            document.getElementById('currentPageNum').innerText = pageNum;
+            document.getElementById('totalPagesNum').innerText = totalPages;
+            document.getElementById('singleTopCurrentNum').innerText = pageNum;
+            document.getElementById('singleTopTotalNum').innerText = totalPages;
+
+            const isFirst = pageIdx <= 0;
+            const isLast = pageIdx >= totalPages - 1;
+
+            ['prevPageBtn', 'topPrevPageBtn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.disabled = isFirst;
+            });
+            ['nextPageBtn', 'topNextPageBtn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.disabled = isLast;
+            });
+        }
+
+        // --- واجهة إدخال رقم الصفحة ---
+        function openJumpPageModal(event) {
+            if (event) event.stopPropagation();
+            if (totalPages <= 0) return;
+            const modal = document.getElementById('jumpPageModal');
+            const input = document.getElementById('jumpPageInput');
+            document.getElementById('jumpModalMaxPage').innerText = totalPages;
+            input.max = totalPages;
+            input.value = currentPageIndex + 1;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => { input.focus(); input.select(); }, 50);
+        }
+
+        function closeJumpPageModal() {
+            const modal = document.getElementById('jumpPageModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmJumpToPage(event) {
+            event.preventDefault();
+            const val = parseInt(document.getElementById('jumpPageInput').value);
+            if (!isNaN(val) && val >= 1 && val <= totalPages) {
+                jumpToSpecificPage(val - 1);
+                closeJumpPageModal();
+            }
+        }
+
+        // --- دعم أزرار لوحة مفاتيح الكمبيوتر ---
+        function setupKeyboardShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+                if (activeTag === 'input' || activeTag === 'textarea') {
+                    if (e.key === 'Escape') {
+                        closeJumpPageModal();
+                        closeReaderSettings();
+                        closeSearch();
+                    }
+                    return;
+                }
+
+                if (e.key === 'Escape') {
+                    closeJumpPageModal();
+                    closeReaderSettings();
+                    closeSearch();
+                    closeSidebar();
+                    return;
+                }
+
+                // السهم الأيسر أو حرف A -> الصفحة التالية (لأن الموقع عربي RTL)
+                if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') {
+                    e.preventDefault();
+                    changePageByButton(1);
+                }
+                // السهم الأيمن أو حرف D -> الصفحة السابقة
+                else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
+                    e.preventDefault();
+                    changePageByButton(-1);
+                }
+                // حرف G -> فتح نافذة إدخال رقم الصفحة
+                else if (e.key.toLowerCase() === 'g') {
+                    e.preventDefault();
+                    openJumpPageModal();
+                }
+            });
+        }
+
+        // --- إعدادات القارئ (زر الترس) ---
+        function openReaderSettings() {
+            const modal = document.getElementById('readerSettingsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeReaderSettings() {
+            const modal = document.getElementById('readerSettingsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function setReadingMode(mode, skipRender = false) {
+            readingMode = mode === 'single' ? 'single' : 'vertical';
+            document.getElementById('modeBtn_vertical').classList.toggle('active', readingMode === 'vertical');
+            document.getElementById('modeBtn_single').classList.toggle('active', readingMode === 'single');
+
+            const gapBox = document.getElementById('gapSettingBox');
+            const singleTopBar = document.getElementById('singleModeTopBar');
+
+            if (readingMode === 'single') {
+                gapBox.classList.add('hidden');
+                singleTopBar.classList.remove('hidden');
+                singleTopBar.classList.add('flex');
+            } else {
+                gapBox.classList.remove('hidden');
+                singleTopBar.classList.add('hidden');
+                singleTopBar.classList.remove('flex');
+            }
+
+            localStorage.setItem('futa_reader_mode', readingMode);
+
+            if (!skipRender && pagesList.length > 0) {
+                renderReaderPagesByMode();
+            }
+        }
+
+        function setReaderWidth(widthClass) {
+            const container = document.getElementById('pagesContainer');
+            container.classList.remove('max-w-3xl', 'max-w-xl', 'max-w-md');
+            container.classList.add(widthClass);
+
+            ['max-w-3xl', 'max-w-xl', 'max-w-md'].forEach(w => {
+                const btn = document.getElementById(`widthBtn_${w}`);
+                if (btn) btn.classList.toggle('active', w === widthClass);
+            });
+            localStorage.setItem('futa_reader_width', widthClass);
+        }
+
+        function setReaderGap(mode) {
+            const container = document.getElementById('pagesContainer');
+            if (mode === 'spaced' && readingMode === 'vertical') {
+                container.classList.add('gap-3', 'py-2');
+            } else {
+                container.classList.remove('gap-3', 'py-2');
+            }
+            document.getElementById('gapBtn_none').classList.toggle('active', mode === 'none');
+            document.getElementById('gapBtn_spaced').classList.toggle('active', mode === 'spaced');
+            localStorage.setItem('futa_reader_gap', mode);
+        }
+
+        function setReaderBrightness(val) {
+            document.getElementById('brightnessValText').innerText = `${val}%`;
+            document.querySelectorAll('.reader-page').forEach(img => {
+                img.style.filter = `brightness(${val}%)`;
+            });
+            localStorage.setItem('futa_reader_brightness', val);
+        }
+
+        function toggleFloatingCounter(show) {
+            const counter = document.getElementById('floatingPageCounter');
+            if (show) counter.classList.remove('hidden');
+            else counter.classList.add('hidden');
+            localStorage.setItem('futa_reader_counter', show ? '1' : '0');
+        }
+
+        function loadSavedReaderPreferences() {
+            const savedMode = localStorage.getItem('futa_reader_mode') || 'vertical';
+            setReadingMode(savedMode, true);
+
+            const savedWidth = localStorage.getItem('futa_reader_width');
+            if (savedWidth) setReaderWidth(savedWidth);
+
+            const savedGap = localStorage.getItem('futa_reader_gap');
+            if (savedGap) setReaderGap(savedGap);
+
+            const savedCounter = localStorage.getItem('futa_reader_counter');
+            if (savedCounter === '0') {
+                document.getElementById('toggleCounterCheck').checked = false;
+                toggleFloatingCounter(false);
+            }
+        }
+
+        // --- عرض الصفحات حسب النمط المختار (تمرير طولي أو صفحة بصفحة) ---
+        function renderReaderPagesByMode() {
+            if (scrollObserver) {
+                scrollObserver.disconnect();
+                scrollObserver = null;
+            }
+
+            if (readingMode === 'single') {
+                renderSinglePageView();
+            } else {
+                renderVerticalScrollView();
+            }
+        }
+
+        function renderVerticalScrollView() {
+            const savedBright = localStorage.getItem('futa_reader_brightness') || '100';
+            const pagesContainer = document.getElementById('pagesContainer');
+
+            pagesContainer.innerHTML = pagesList.map((p, idx) => `
+                <img src="${p.image_url}" data-index="${idx}" onclick="handlePageImageClick(event)" style="filter: brightness(${savedBright}%);" class="reader-page border-b border-gray-900/40" loading="lazy" alt="صفحة ${idx + 1}">
+            `).join('');
+
+            document.getElementById('chapterFooterNav').classList.remove('hidden');
+            document.getElementById('chapterFooterNav').classList.add('flex');
+
+            setupIntersectionObserver();
+            updatePageCountersUI(currentPageIndex);
+
+            if (currentPageIndex > 0) {
+                setTimeout(() => {
+                    const targetImg = document.querySelector(`img.reader-page[data-index="${currentPageIndex}"]`);
+                    if (targetImg) targetImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+            }
+        }
+
+        function renderSinglePageView() {
+            const savedBright = localStorage.getItem('futa_reader_brightness') || '100';
+            const pagesContainer = document.getElementById('pagesContainer');
+            const currentPageObj = pagesList[currentPageIndex] || pagesList[0];
+
+            pagesContainer.innerHTML = `
+                <div class="w-full relative flex flex-col items-center">
+                    <img src="${currentPageObj.image_url}" data-index="${currentPageIndex}" onclick="handlePageImageClick(event)" style="filter: brightness(${savedBright}%);" class="reader-page min-h-[50vh]" alt="صفحة ${currentPageIndex + 1}">
+                </div>
+            `;
+
+            // إظهار بطاقة نهاية الفصل فقط عندما يصل للصفحة الأخيرة
+            const footerNav = document.getElementById('chapterFooterNav');
+            if (currentPageIndex >= totalPages - 1) {
+                footerNav.classList.remove('hidden');
+                footerNav.classList.add('flex');
+            } else {
+                footerNav.classList.add('hidden');
+                footerNav.classList.remove('flex');
+            }
+
+            updatePageCountersUI(currentPageIndex);
+
+            // تحميل مسبق (Preload) للصفحة التالية لتكون فورية السرعة
+            if (currentPageIndex + 1 < totalPages) {
+                const preloadImg = new Image();
+                preloadImg.src = pagesList[currentPageIndex + 1].image_url;
+            }
+        }
+
+        // --- حفظ تقدم القراءة وسجل القراءة (History) ---
+        function updateReadingHistory(pageIndex) {
+            if (!mangaData) return;
+            currentPageIndex = pageIndex;
+
+            let history = JSON.parse(localStorage.getItem('futa_read_history') || '[]');
+            history = history.filter(item => String(item.id) !== String(mangaData.id));
+            
+            history.unshift({
+                id: mangaData.id,
+                title: mangaData.title,
+                cover_image_url: mangaData.cover_image_url,
+                last_chapter: chapterNum,
+                last_page: pageIndex + 1,
+                timestamp: Date.now()
+            });
+
+            if (history.length > 50) history.pop();
+            localStorage.setItem('futa_read_history', JSON.stringify(history));
+
+            localStorage.setItem(`reading_progress_${mangaId}`, JSON.stringify({
+                chapterNum: chapterNum,
+                pageIndex: pageIndex,
+                totalPages: totalPages,
+                updatedAt: Date.now()
+            }));
+
+            const readMap = JSON.parse(localStorage.getItem(`read_chapters_${mangaId}`) || '{}');
+            readMap[chapterNum] = { readAt: Date.now(), lastPage: pageIndex + 1 };
+            localStorage.setItem(`read_chapters_${mangaId}`, JSON.stringify(readMap));
+        }
+
+        async function fetchMangaAndPages() {
+            try {
+                const { data: manga, error: mangaErr } = await sbClient.from('mangas').select('*').eq('id', mangaId).single();
+                if (mangaErr) throw mangaErr;
+                mangaData = manga;
+                document.getElementById('mangaTitleDisplay').innerText = manga.title;
+
+                const { data: pages, error: pagesErr } = await sbClient
+                    .from('manga_pages')
+                    .select('*')
+                    .eq('manga_id', mangaId)
+                    .order('page_number', { ascending: true });
+
+                pagesList = (!pagesErr && pages && pages.length > 0)
+                    ? pages
+                    : [{ page_number: 1, image_url: manga.cover_image_url }];
+
+                totalPages = pagesList.length;
+
+                const savedBright = localStorage.getItem('futa_reader_brightness') || '100';
+                document.getElementById('brightnessSlider').value = savedBright;
+                document.getElementById('brightnessValText').innerText = `${savedBright}%`;
+
+                // استرجاع آخر صفحة توقف عندها القارئ
+                const progress = JSON.parse(localStorage.getItem(`reading_progress_${mangaId}`) || 'null');
+                if (progress && progress.chapterNum === chapterNum && progress.pageIndex > 0 && progress.pageIndex < totalPages) {
+                    currentPageIndex = progress.pageIndex;
+                } else {
+                    currentPageIndex = 0;
+                }
+
+                renderReaderPagesByMode();
+                updateReadingHistory(currentPageIndex);
+
+            } catch (error) {
+                document.getElementById('pagesContainer').innerHTML = '<div class="text-red-400 py-28 text-center text-xs font-bold">تعذر تحميل صفحات هذا الفصل حالياً.</div>';
+            }
+        }
+
+        function setupIntersectionObserver() {
+            scrollObserver = new IntersectionObserver((entries) => {
+                if (readingMode !== 'vertical') return;
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const pageIndex = parseInt(entry.target.getAttribute('data-index'));
+                        updatePageCountersUI(pageIndex);
+                        updateReadingHistory(pageIndex);
+                    }
+                });
+            }, { root: null, threshold: 0.35 });
+
+            document.querySelectorAll('.reader-page').forEach(img => scrollObserver.observe(img));
+        }
+
+        // --- تحديث السايدبار والنافبار ---
         async function updateAuthUI() {
             const topBadge = document.getElementById('userBadge');
             const sidebarFooter = document.getElementById('sidebarFooterAccount');
@@ -360,7 +861,6 @@
             window.location.href = `reader.html?id=${encodeURIComponent(mangaId)}&chapter=${chapterNum + 1}`;
         }
 
-        // إخفاء/إظهار الهيدر بنعومة عند التمرير للقراءة المريحة
         window.addEventListener('scroll', () => {
             if (window.scrollY > lastScrollY && window.scrollY > 120) {
                 headerWrapper.classList.add('header-hidden');
@@ -370,169 +870,6 @@
             lastScrollY = window.scrollY;
         });
 
-        // --- إعدادات القارئ (زر الترس) ---
-        function openReaderSettings() {
-            const modal = document.getElementById('readerSettingsModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeReaderSettings() {
-            const modal = document.getElementById('readerSettingsModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function setReaderWidth(widthClass) {
-            const container = document.getElementById('pagesContainer');
-            container.classList.remove('max-w-3xl', 'max-w-xl', 'max-w-md');
-            container.classList.add(widthClass);
-
-            ['max-w-3xl', 'max-w-xl', 'max-w-md'].forEach(w => {
-                const btn = document.getElementById(`widthBtn_${w}`);
-                if (btn) {
-                    if (w === widthClass) btn.classList.add('active');
-                    else btn.classList.remove('active');
-                }
-            });
-            localStorage.setItem('futa_reader_width', widthClass);
-        }
-
-        function setReaderGap(mode) {
-            const container = document.getElementById('pagesContainer');
-            if (mode === 'spaced') {
-                container.classList.add('gap-3', 'py-2');
-            } else {
-                container.classList.remove('gap-3', 'py-2');
-            }
-            document.getElementById('gapBtn_none').classList.toggle('active', mode === 'none');
-            document.getElementById('gapBtn_spaced').classList.toggle('active', mode === 'spaced');
-            localStorage.setItem('futa_reader_gap', mode);
-        }
-
-        function setReaderBrightness(val) {
-            document.getElementById('brightnessValText').innerText = `${val}%`;
-            document.querySelectorAll('.reader-page').forEach(img => {
-                img.style.filter = `brightness(${val}%)`;
-            });
-            localStorage.setItem('futa_reader_brightness', val);
-        }
-
-        function toggleFloatingCounter(show) {
-            const counter = document.getElementById('floatingPageCounter');
-            if (show) counter.classList.remove('hidden');
-            else counter.classList.add('hidden');
-            localStorage.setItem('futa_reader_counter', show ? '1' : '0');
-        }
-
-        function loadSavedReaderPreferences() {
-            const savedWidth = localStorage.getItem('futa_reader_width');
-            if (savedWidth) setReaderWidth(savedWidth);
-
-            const savedGap = localStorage.getItem('futa_reader_gap');
-            if (savedGap) setReaderGap(savedGap);
-
-            const savedCounter = localStorage.getItem('futa_reader_counter');
-            if (savedCounter === '0') {
-                document.getElementById('toggleCounterCheck').checked = false;
-                toggleFloatingCounter(false);
-            }
-        }
-
-        // --- حفظ تقدم القراءة وسجل القراءة (History) ---
-        function updateReadingHistory(pageIndex) {
-            if (!mangaData) return;
-            let history = JSON.parse(localStorage.getItem('futa_read_history') || '[]');
-            history = history.filter(item => String(item.id) !== String(mangaData.id));
-            
-            history.unshift({
-                id: mangaData.id,
-                title: mangaData.title,
-                cover_image_url: mangaData.cover_image_url,
-                last_chapter: chapterNum,
-                last_page: pageIndex + 1,
-                timestamp: Date.now()
-            });
-
-            if (history.length > 50) history.pop();
-            localStorage.setItem('futa_read_history', JSON.stringify(history));
-
-            localStorage.setItem(`reading_progress_${mangaId}`, JSON.stringify({
-                chapterNum: chapterNum,
-                pageIndex: pageIndex,
-                totalPages: totalPages,
-                updatedAt: Date.now()
-            }));
-
-            const readMap = JSON.parse(localStorage.getItem(`read_chapters_${mangaId}`) || '{}');
-            readMap[chapterNum] = { readAt: Date.now(), lastPage: pageIndex + 1 };
-            localStorage.setItem(`read_chapters_${mangaId}`, JSON.stringify(readMap));
-        }
-
-        async function fetchMangaAndPages() {
-            try {
-                const { data: manga, error: mangaErr } = await sbClient.from('mangas').select('*').eq('id', mangaId).single();
-                if (mangaErr) throw mangaErr;
-                mangaData = manga;
-                document.getElementById('mangaTitleDisplay').innerText = manga.title;
-
-                const { data: pages, error: pagesErr } = await sbClient
-                    .from('manga_pages')
-                    .select('*')
-                    .eq('manga_id', mangaId)
-                    .order('page_number', { ascending: true });
-
-                const pageList = (!pagesErr && pages && pages.length > 0)
-                    ? pages
-                    : [{ page_number: 1, image_url: manga.cover_image_url }];
-
-                totalPages = pageList.length;
-                document.getElementById('totalPagesNum').innerText = totalPages;
-
-                const savedBright = localStorage.getItem('futa_reader_brightness') || '100';
-                document.getElementById('brightnessSlider').value = savedBright;
-                document.getElementById('brightnessValText').innerText = `${savedBright}%`;
-
-                const pagesContainer = document.getElementById('pagesContainer');
-                pagesContainer.innerHTML = pageList.map((p, idx) => `
-                    <img src="${p.image_url}" data-index="${idx}" style="filter: brightness(${savedBright}%);" class="reader-page" loading="lazy" alt="صفحة ${idx + 1}">
-                `).join('');
-
-                document.getElementById('chapterFooterNav').classList.remove('hidden');
-                document.getElementById('chapterFooterNav').classList.add('flex');
-
-                setupIntersectionObserver();
-
-                const progress = JSON.parse(localStorage.getItem(`reading_progress_${mangaId}`) || 'null');
-                if (progress && progress.chapterNum === chapterNum && progress.pageIndex > 0) {
-                    setTimeout(() => {
-                        const targetImg = document.querySelector(`img[data-index="${progress.pageIndex}"]`);
-                        if (targetImg) targetImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 400);
-                } else {
-                    updateReadingHistory(0);
-                }
-
-            } catch (error) {
-                document.getElementById('pagesContainer').innerHTML = '<div class="text-red-400 py-28 text-center text-xs font-bold">تعذر تحميل صفحات هذا الفصل حالياً.</div>';
-            }
-        }
-
-        function setupIntersectionObserver() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const pageIndex = parseInt(entry.target.getAttribute('data-index'));
-                        document.getElementById('currentPageNum').innerText = pageIndex + 1;
-                        updateReadingHistory(pageIndex);
-                    }
-                });
-            }, { root: null, threshold: 0.4 });
-
-            document.querySelectorAll('.reader-page').forEach(img => observer.observe(img));
-        }
-
-        // --- دوال السايدبار والبحث والنرد ---
         function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
         function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
         function openSearch() { const modal = document.getElementById('searchModal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
