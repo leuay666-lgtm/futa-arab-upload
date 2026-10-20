@@ -8,245 +8,742 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <title>تسجيل الدخول - Futa Arab</title>
     <style>
-        body { background-color: #0a0a0c; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+        body { background-color: #0e0e11; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
         .text-accent { color: #f472b6; }
         .bg-accent { background-color: #f472b6; }
-        
+
         .body-glow {
-            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
-            background: radial-gradient(circle, rgba(244,114,182,0.08) 0%, rgba(10,10,12,0) 70%);
+            position: fixed; top: -15%; left: -10%; width: 120%; height: 60%;
+            background: radial-gradient(circle, rgba(244,114,182,0.08) 0%, rgba(14,14,17,0) 70%);
             z-index: -1; pointer-events: none;
         }
 
-        .auth-container {
-            background: rgba(18, 18, 20, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        .auth-card {
+            background-color: #16161a;
+            border: 1px solid #26262e;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
         }
 
-        .input-field {
-            background-color: #111113;
-            border: 1px solid #262626;
-            color: white;
-            transition: all 0.3s ease;
+        .auth-tab {
+            padding-bottom: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            transition: all 0.25s ease;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
         }
-        .input-field:focus {
+        .auth-tab.active {
+            color: #f472b6;
+            border-bottom-color: #f472b6;
+        }
+
+        .input-wrapper {
+            background-color: #111114;
+            border: 1px solid #27272f;
+            border-radius: 14px;
+            transition: all 0.2s ease;
+        }
+        .input-wrapper:focus-within {
             border-color: #f472b6;
-            outline: none;
-            box-shadow: 0 0 0 1px #f472b6;
+            box-shadow: 0 0 12px rgba(244, 114, 182, 0.15);
         }
-        
-        /* تأثير التبويبات (Tabs) */
-        .tab-btn { color: #6b7280; border-bottom: 2px solid transparent; transition: all 0.3s ease; padding-bottom: 10px; font-weight: bold; }
-        .tab-btn.active { color: #f472b6; border-bottom-color: #f472b6; }
     </style>
 </head>
-<body class="relative flex items-center justify-center p-4">
+<body class="relative min-h-screen flex flex-col justify-between p-4">
 
     <div class="body-glow"></div>
 
-    <!-- زر العودة للرئيسية -->
-    <a href="index.html" class="absolute top-6 right-6 text-gray-400 hover:text-white transition flex items-center gap-2 font-bold text-sm">
-        <i class="fas fa-arrow-right"></i> العودة للموقع
-    </a>
-
-    <!-- صندوق تسجيل الدخول والتسجيل -->
-    <div class="auth-container w-full max-w-md rounded-3xl p-8 mt-10">
-        
-        <!-- اللوجو -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-black text-accent tracking-widest mb-1">Futa Arab</h1>
-            <p class="text-xs text-gray-500 font-semibold tracking-wider">Manga • Manhwa • Doujinshi</p>
-        </div>
-
-        <!-- التبويبات -->
-        <div class="flex border-b border-gray-800 mb-8">
-            <button onclick="switchTab('login')" id="tab-login" class="flex-1 tab-btn active">تسجيل الدخول</button>
-            <button onclick="switchTab('register')" id="tab-register" class="flex-1 tab-btn">حساب جديد</button>
-        </div>
-
-        <!-- رسائل الخطأ/النجاح -->
-        <div id="authMessage" class="hidden mb-4 p-3 rounded-xl text-sm font-bold text-center"></div>
-
-        <!-- فورم تسجيل الدخول -->
-        <div id="loginForm" class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">البريد الإلكتروني</label>
-                <div class="relative">
-                    <i class="fas fa-envelope absolute left-4 top-3.5 text-gray-600"></i>
-                    <input type="email" id="loginEmail" placeholder="example@email.com" class="w-full input-field rounded-xl p-3 pl-10 text-sm" dir="ltr">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">كلمة المرور</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute left-4 top-3.5 text-gray-600"></i>
-                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full input-field rounded-xl p-3 pl-10 text-sm" dir="ltr">
-                </div>
-            </div>
-            <div class="flex justify-between items-center text-xs mt-2">
-                <label class="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-white">
-                    <input type="checkbox" class="accent-pink-500 rounded bg-gray-800 border-gray-700"> تذكرني
-                </label>
-                <a href="#" class="text-accent hover:text-pink-400 font-bold">نسيت كلمة المرور؟</a>
-            </div>
-            <button onclick="handleLogin()" id="loginBtn" class="w-full bg-accent hover:bg-pink-600 text-white font-black py-3.5 rounded-xl shadow-lg shadow-pink-900/30 transition active:scale-95 mt-4 text-sm flex justify-center items-center gap-2">
-                دخول <i class="fas fa-sign-in-alt"></i>
-            </button>
-        </div>
-
-        <!-- فورم إنشاء حساب جديد -->
-        <div id="registerForm" class="hidden space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">اسم المستخدم (يظهر للآخرين)</label>
-                <div class="relative">
-                    <i class="fas fa-user absolute left-4 top-3.5 text-gray-600"></i>
-                    <input type="text" id="regUsername" placeholder="مثال: Otaku_King" maxlength="20" class="w-full input-field rounded-xl p-3 pl-10 text-sm">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">البريد الإلكتروني</label>
-                <div class="relative">
-                    <i class="fas fa-envelope absolute left-4 top-3.5 text-gray-600"></i>
-                    <input type="email" id="regEmail" placeholder="example@email.com" class="w-full input-field rounded-xl p-3 pl-10 text-sm" dir="ltr">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-400 mb-1.5 ml-1">كلمة المرور (6 أحرف على الأقل)</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute left-4 top-3.5 text-gray-600"></i>
-                    <input type="password" id="regPassword" placeholder="••••••••" class="w-full input-field rounded-xl p-3 pl-10 text-sm" dir="ltr">
-                </div>
-            </div>
-            <button onclick="handleRegister()" id="registerBtn" class="w-full bg-[#18181b] hover:bg-[#222] border border-gray-700 hover:border-accent text-white font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 mt-4 text-sm flex justify-center items-center gap-2">
-                إنشاء حساب <i class="fas fa-user-plus"></i>
-            </button>
-            <p class="text-[10px] text-gray-500 text-center mt-3">بتسجيلك، أنت توافق على شروط الاستخدام وسياسة الخصوصية.</p>
-        </div>
-
+    <!-- الشريط العلوي (زر العودة للموقع) -->
+    <div class="w-full max-w-md mx-auto pt-4 flex justify-start">
+        <a href="index.html" class="inline-flex items-center gap-2 text-gray-400 hover:text-white text-xs font-bold transition active:scale-95">
+            <i class="fas fa-arrow-right"></i>
+            <span>العودة للموقع</span>
+        </a>
     </div>
 
+    <!-- البطاقة الرئيسية -->
+    <main class="w-full max-w-md mx-auto my-auto py-6">
+        <div class="auth-card rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+            
+            <!-- الشعار والعنوان -->
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-black text-accent tracking-wider">Futa Arab</h1>
+                <p class="text-[11px] text-gray-500 font-semibold mt-1">Manga • Manhwa • Doujinshi</p>
+            </div>
+
+            <!-- التبويبات الرئيسية (تختفي عند فتح نافذة استعادة كلمة المرور أو تأكيد الإيميل) -->
+            <div id="mainAuthTabs" class="flex border-b border-gray-800 mb-6">
+                <button type="button" onclick="switchAuthView('login')" id="tabLogin" class="auth-tab active">تسجيل الدخول</button>
+                <button type="button" onclick="switchAuthView('signup')" id="tabSignup" class="auth-tab">حساب جديد</button>
+            </div>
+
+            <!-- صندوق الرسائل والتنبيهات -->
+            <div id="authAlertBox" class="hidden mb-4 p-3.5 rounded-xl text-xs font-bold leading-relaxed text-center border"></div>
+
+            <!-- ========================================== -->
+            <!-- 1. نموذج تسجيل الدخول (Login View) -->
+            <!-- ========================================== -->
+            <form id="loginView" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">البريد الإلكتروني</label>
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <input type="email" id="loginEmail" required dir="ltr" placeholder="example@email.com" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
+                        <i class="fas fa-envelope text-gray-500 mr-2"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">كلمة المرور</label>
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <button type="button" onclick="togglePassVisibility('loginPassword', this)" class="text-gray-500 hover:text-gray-300 ml-2 focus:outline-none">
+                            <i class="far fa-eye text-xs"></i>
+                        </button>
+                        <input type="password" id="loginPassword" required dir="ltr" placeholder="••••••••" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
+                        <i class="fas fa-lock text-gray-500 mr-2"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1 text-xs font-bold">
+                    <label class="flex items-center gap-2 text-gray-400 cursor-pointer select-none">
+                        <input type="checkbox" id="rememberMeCheck" checked class="w-4 h-4 accent-pink-500 rounded cursor-pointer">
+                        <span>تذكرني</span>
+                    </label>
+                    <button type="button" onclick="switchAuthView('forgot')" class="text-accent hover:underline">
+                        نسيت كلمة المرور؟
+                    </button>
+                </div>
+
+                <button type="submit" id="loginSubmitBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-pink-950/50 flex items-center justify-center gap-2 mt-2">
+                    <span>دخول</span>
+                    <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </form>
+
+            <!-- ========================================== -->
+            <!-- 2. نموذج إنشاء حساب جديد (Sign Up View) -->
+            <!-- ========================================== -->
+            <form id="signupView" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">اسم المستخدم (بدون مسافات)</label>
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <input type="text" id="signupUsername" required maxlength="20" placeholder="مثال: Otaku_99" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-right">
+                        <i class="fas fa-user text-gray-500 mr-2"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">البريد الإلكتروني الحقيقي (للتأكيد)</label>
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <input type="email" id="signupEmail" required dir="ltr" placeholder="example@gmail.com" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
+                        <i class="fas fa-envelope text-gray-500 mr-2"></i>
+                    </div>
+                    <p class="text-[10px] text-gray-500 font-bold mt-1">سيتم إرسال رمز/رابط تأكيد إلى هذا البريد لتفعيل حسابك.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">كلمة المرور (6 أحرف على الأقل)</label>
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <button type="button" onclick="togglePassVisibility('signupPassword', this)" class="text-gray-500 hover:text-gray-300 ml-2 focus:outline-none">
+                            <i class="far fa-eye text-xs"></i>
+                        </button>
+                        <input type="password" id="signupPassword" required minlength="6" dir="ltr" placeholder="••••••••" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
+                        <i class="fas fa-lock text-gray-500 mr-2"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">تأكيد كلمة المرور</label>
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <input type="password" id="signupConfirmPassword" required minlength="6" dir="ltr" placeholder="••••••••" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
+                        <i class="fas fa-check-double text-gray-500 mr-2"></i>
+                    </div>
+                </div>
+
+                <button type="submit" id="signupSubmitBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-pink-950/50 flex items-center justify-center gap-2 mt-2">
+                    <span>إنشاء الحساب وإرسال التأكيد</span>
+                    <i class="fas fa-user-plus"></i>
+                </button>
+            </form>
+
+            <!-- ========================================== -->
+            <!-- 3. واجهة تأكيد البريد الإلكتروني بعد التسجيل -->
+            <!-- ========================================== -->
+            <div id="verifyEmailView" class="space-y-4 hidden text-center">
+                <div class="w-14 h-14 rounded-2xl bg-pink-500/15 border border-pink-500/40 text-accent flex items-center justify-center mx-auto text-2xl">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <h2 class="text-lg font-black text-white">تأكيد البريد الإلكتروني</h2>
+                <p class="text-xs text-gray-300 font-semibold leading-relaxed">
+                    أرسلنا رسالة تفعيل إلى بريدك:<br>
+                    <span id="verifyTargetEmailText" class="text-accent font-black dir-ltr inline-block mt-1"></span>
+                </p>
+                <div class="bg-[#111114] border border-gray-800 rounded-2xl p-3.5 text-[11px] text-gray-400 font-bold space-y-1 text-right">
+                    <div>1. افتح صندوق الوارد في بريدك (أو مجلد الرسائل غير المرغوب فيها Spam).</div>
+                    <div>2. اضغط على <b>رابط التفعيل</b> الموجود في الرسالة، أو أدخل <b>رمز التفعيل (OTP)</b> بالأسفل إن وُجد:</div>
+                </div>
+
+                <!-- إدخال رمز OTP في حال كان القالب يرسل رمزاً -->
+                <div class="space-y-2 pt-1">
+                    <input type="text" id="signupOtpInput" maxlength="8" dir="ltr" placeholder="رمز التفعيل (اختياري إذا ضغطت على الرابط)" class="w-full bg-[#111114] border border-gray-700 focus:border-accent rounded-xl p-3 text-center text-sm font-black tracking-widest text-white outline-none">
+                    <button type="button" onclick="verifySignupOtpCode()" id="verifyOtpBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95">
+                        تأكيد الرمز وتفعيل الحساب
+                    </button>
+                </div>
+
+                <div class="pt-2 flex flex-col gap-2">
+                    <button type="button" onclick="resendVerificationEmail()" id="resendEmailBtn" class="text-xs font-bold text-gray-400 hover:text-white transition">
+                        لم تصلك الرسالة؟ <span class="text-accent underline">إعادة الإرسال</span>
+                    </button>
+                    <button type="button" onclick="switchAuthView('login')" class="text-xs font-bold text-gray-500 hover:text-gray-300 pt-1">
+                        العودة لتسجيل الدخول
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 4. واجهة نسيت كلمة المرور (Forgot Password) -->
+            <!-- ========================================== -->
+            <div id="forgotPasswordView" class="space-y-4 hidden">
+                <div class="text-center space-y-1">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/40 text-purple-400 flex items-center justify-center mx-auto text-xl mb-2">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h2 class="text-lg font-black text-white">استعادة كلمة المرور</h2>
+                    <p class="text-xs text-gray-400 font-semibold">أدخل بريدك الإلكتروني المسجل لنرسل لك رابط ورمز إعادة تعيين كلمة المرور.</p>
+                </div>
+
+                <form onsubmit="handleSendResetEmail(event)" class="space-y-4 pt-2">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-2 text-right">البريد الإلكتروني</label>
+                        <div class="input-wrapper flex items-center px-3.5 py-3">
+                            <input type="email" id="resetEmailInput" required dir="ltr" placeholder="example@email.com" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
+                            <i class="fas fa-envelope text-gray-500 mr-2"></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="sendResetBtn" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-pink-950/50 flex items-center justify-center gap-2">
+                        <span>إرسال رابط استعادة كلمة السر</span>
+                        <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+
+                <!-- قسم يظهر بعد إرسال الإيميل لإدخال الرمز أو انتظار الضغط على الرابط -->
+                <div id="resetCodeVerifyBox" class="hidden space-y-3 pt-3 border-t border-gray-800">
+                    <p class="text-[11px] text-gray-400 font-bold text-center">
+                        إذا وصلك <b>رابط</b> في الإيميل اضغط عليه مباشرة، أو إذا وصلك <b>رمز (OTP)</b> أدخله هنا مع كلمة المرور الجديدة:
+                    </p>
+                    <input type="text" id="recoveryOtpCode" dir="ltr" placeholder="رمز الاستعادة (OTP)" class="w-full bg-[#111114] border border-gray-700 focus:border-accent rounded-xl p-3 text-center text-xs font-black tracking-widest text-white outline-none">
+                    <input type="password" id="recoveryNewPassInline" minlength="6" dir="ltr" placeholder="كلمة المرور الجديدة (6 أحرف فأكثر)" class="w-full bg-[#111114] border border-gray-700 focus:border-accent rounded-xl p-3 text-left text-xs font-bold text-white outline-none">
+                    <button type="button" onclick="verifyRecoveryOtpAndChangePass()" id="verifyRecoveryOtpBtn" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95">
+                        تأكيد الرمز وحفظ كلمة المرور الجديدة
+                    </button>
+                </div>
+
+                <div class="text-center pt-2">
+                    <button type="button" onclick="switchAuthView('login')" class="text-xs font-bold text-gray-400 hover:text-white transition">
+                        <i class="fas fa-arrow-right ml-1 text-[10px]"></i> العودة لتسجيل الدخول
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 5. واجهة تعيين كلمة المرور الجديدة (تفتح تلقائياً عند الضغط على رابط الإيميل) -->
+            <!-- ========================================== -->
+            <form id="updatePasswordView" onsubmit="handleUpdateNewPassword(event)" class="space-y-4 hidden">
+                <div class="text-center space-y-1">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-xl mb-2">
+                        <i class="fas fa-unlock-alt"></i>
+                    </div>
+                    <h2 class="text-lg font-black text-white">تعيين كلمة مرور جديدة</h2>
+                    <p class="text-xs text-gray-400 font-semibold">تم التحقق من بريدك بنجاح! اكتب كلمة المرور الجديدة لحسابك.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">كلمة المرور الجديدة</label>
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <button type="button" onclick="togglePassVisibility('newResetPassword', this)" class="text-gray-500 hover:text-gray-300 ml-2 focus:outline-none">
+                            <i class="far fa-eye text-xs"></i>
+                        </button>
+                        <input type="password" id="newResetPassword" required minlength="6" dir="ltr" placeholder="••••••••" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
+                        <i class="fas fa-lock text-gray-500 mr-2"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2 text-right">تأكيد كلمة المرور الجديدة</label>
+                    <div class="input-wrapper flex items-center px-3.5 py-3">
+                        <input type="password" id="confirmNewResetPassword" required minlength="6" dir="ltr" placeholder="••••••••" class="w-full bg-transparent text-white text-sm outline-none font-semibold placeholder-gray-600 text-left">
+                        <i class="fas fa-check-double text-gray-500 mr-2"></i>
+                    </div>
+                </div>
+
+                <button type="submit" id="saveNewPassBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3.5 rounded-2xl text-sm transition active:scale-95 shadow-lg flex items-center justify-center gap-2">
+                    <span>حفظ كلمة المرور والدخول</span>
+                    <i class="fas fa-check"></i>
+                </button>
+            </form>
+
+        </div>
+    </main>
+
+    <!-- الفوتر المبسط المرتبط بشروط الاستخدام و DMCA -->
+    <footer class="w-full max-w-md mx-auto pb-4 text-center">
+        <div class="flex justify-center gap-4 text-xs font-bold text-gray-500 mb-1">
+            <a href="index.html" class="hover:text-gray-300 transition">الرئيسية</a>
+            <a href="terms.html" class="hover:text-gray-300 transition">شروط الاستخدام</a>
+            <a href="dmca.html" class="hover:text-gray-300 transition">DMCA</a>
+        </div>
+        <p class="text-[10px] text-gray-600 font-bold">© 2026 Futa Arab</p>
+    </footer>
+
     <script>
-        // مفاتيح Supabase (تأكد من مطابقتها لمفاتيحك)
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // التحقق إذا كان المستخدم مسجلاً بالفعل
+        let pendingVerificationEmail = '';
+        let pendingVerificationUsername = '';
+        let pendingResetEmail = '';
+
         window.onload = async () => {
-            const { data: { session } } = await sbClient.auth.getSession();
-            if (session) {
-                window.location.href = 'index.html'; // إعادة توجيه للرئيسية إذا كان مسجلاً
-            }
-        };
-
-        function switchTab(tab) {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const tabLogin = document.getElementById('tab-login');
-            const tabRegister = document.getElementById('tab-register');
-            const msgBox = document.getElementById('authMessage');
-
-            msgBox.classList.add('hidden'); // إخفاء أي رسائل سابقة
-
-            if (tab === 'login') {
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-                tabLogin.classList.add('active');
-                tabRegister.classList.remove('active');
-            } else {
-                loginForm.classList.add('hidden');
-                registerForm.classList.remove('hidden');
-                tabLogin.classList.remove('active');
-                tabRegister.classList.add('active');
-            }
-        }
-
-        function showMessage(msg, isError = true) {
-            const msgBox = document.getElementById('authMessage');
-            msgBox.classList.remove('hidden', 'bg-red-900/50', 'text-red-400', 'border-red-500', 'bg-emerald-900/50', 'text-emerald-400', 'border-emerald-500');
-            
-            if (isError) {
-                msgBox.classList.add('bg-red-900/50', 'text-red-400', 'border', 'border-red-500/50');
-            } else {
-                msgBox.classList.add('bg-emerald-900/50', 'text-emerald-400', 'border', 'border-emerald-500/50');
-            }
-            msgBox.innerHTML = msg;
-        }
-
-        // --- وظيفة تسجيل الدخول ---
-        async function handleLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('loginBtn');
-
-            if (!email || !password) return showMessage('<i class="fas fa-exclamation-circle"></i> يرجى ملء جميع الحقول.');
-
-            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الدخول...';
-
-            const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                btn.disabled = false; btn.innerHTML = 'دخول <i class="fas fa-sign-in-alt"></i>';
-                showMessage('<i class="fas fa-times-circle"></i> بيانات الدخول غير صحيحة.');
-            } else {
-                showMessage('<i class="fas fa-check-circle"></i> تم تسجيل الدخول بنجاح! جاري التحويل...', false);
-                
-                // حفظ بيانات المستخدم محلياً لسهولة استخدامها في القوائم الجانبية
-                const userObj = {
-                    id: data.user.id,
-                    email: data.user.email,
-                    username: data.user.user_metadata.username || 'مستخدم'
-                };
-                localStorage.setItem('futa_user_logged', JSON.stringify(userObj));
-                
-                setTimeout(() => { window.location.href = 'index.html'; }, 1000);
-            }
-        }
-
-        // --- وظيفة إنشاء حساب جديد ---
-        async function handleRegister() {
-            const username = document.getElementById('regUsername').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const btn = document.getElementById('registerBtn');
-
-            if (!username || !email || !password) return showMessage('<i class="fas fa-exclamation-circle"></i> يرجى ملء جميع الحقول.');
-            if (password.length < 6) return showMessage('<i class="fas fa-exclamation-circle"></i> كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
-
-            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
-
-            // 1. التحقق من أن اسم المستخدم غير مكرر في جدول profiles
-            const { data: existingUser } = await sbClient.from('profiles').select('username').eq('username', username).single();
-            if (existingUser) {
-                btn.disabled = false; btn.innerHTML = 'إنشاء حساب <i class="fas fa-user-plus"></i>';
-                return showMessage('<i class="fas fa-times-circle"></i> اسم المستخدم محجوز مسبقاً، اختر اسماً آخر.');
+            // استرجاع الإيميل المحفوظ إذا كان المستخدم قد فعّل "تذكرني" سابقاً
+            const savedEmail = localStorage.getItem('futa_remembered_email');
+            if (savedEmail) {
+                document.getElementById('loginEmail').value = savedEmail;
             }
 
-            // 2. تسجيل الحساب في نظام Auth في Supabase
-            const { data, error } = await sbClient.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: { username: username } // هذا سيفعل الـ Trigger لإنشاء Profile تلقائياً
+            // فحص إذا كان المستخدم عائداً من رابط استعادة كلمة المرور أو رابط تأكيد الإيميل في البريد
+            const hash = window.location.hash || '';
+            const searchParams = new URLSearchParams(window.location.search);
+
+            if (hash.includes('type=recovery') || searchParams.get('reset') === 'true') {
+                switchAuthView('updatePassword');
+                showAlert('يرجى إدخال كلمة المرور الجديدة لحسابك.', 'info');
+            } else if (hash.includes('type=signup') || hash.includes('access_token=')) {
+                showAlert('جاري التحقق من تفعيل بريدك الإلكتروني...', 'success');
+            }
+
+            // مستمع حالة المصادقة التلقائي من Supabase
+            sbClient.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'PASSWORD_RECOVERY') {
+                    switchAuthView('updatePassword');
+                    showAlert('تم التحقق من الرابط! أدخل كلمة المرور الجديدة الآن.', 'info');
+                } else if (event === 'SIGNED_IN' && session?.user) {
+                    // إذا لم نكن في شاشة تغيير كلمة السر، نقوم بتسجيل دخوله ومزامنة ملفه الشخصي
+                    const isUpdatingPass = !document.getElementById('updatePasswordView').classList.contains('hidden');
+                    if (!isUpdatingPass && (hash.includes('type=signup') || hash.includes('access_token='))) {
+                        await syncProfileAndRedirect(session.user);
+                    }
                 }
             });
+        };
 
-            if (error) {
-                btn.disabled = false; btn.innerHTML = 'إنشاء حساب <i class="fas fa-user-plus"></i>';
-                showMessage(`<i class="fas fa-times-circle"></i> فشل التسجيل: ${error.message}`);
+        // التبديل بين الواجهات داخل البطاقة
+        function switchAuthView(viewName) {
+            hideAlert();
+            const views = ['loginView', 'signupView', 'verifyEmailView', 'forgotPasswordView', 'updatePasswordView'];
+            views.forEach(v => document.getElementById(v).classList.add('hidden'));
+
+            const mainTabs = document.getElementById('mainAuthTabs');
+            const tabLogin = document.getElementById('tabLogin');
+            const tabSignup = document.getElementById('tabSignup');
+
+            if (viewName === 'login') {
+                mainTabs.classList.remove('hidden');
+                tabLogin.classList.add('active');
+                tabSignup.classList.remove('active');
+                document.getElementById('loginView').classList.remove('hidden');
+            } else if (viewName === 'signup') {
+                mainTabs.classList.remove('hidden');
+                tabSignup.classList.add('active');
+                tabLogin.classList.remove('active');
+                document.getElementById('signupView').classList.remove('hidden');
+            } else if (viewName === 'verifyEmail') {
+                mainTabs.classList.add('hidden');
+                document.getElementById('verifyEmailView').classList.remove('hidden');
+            } else if (viewName === 'forgot') {
+                mainTabs.classList.add('hidden');
+                document.getElementById('forgotPasswordView').classList.remove('hidden');
+                const currentLoginEmail = document.getElementById('loginEmail').value.trim();
+                if (currentLoginEmail) document.getElementById('resetEmailInput').value = currentLoginEmail;
+            } else if (viewName === 'updatePassword') {
+                mainTabs.classList.add('hidden');
+                document.getElementById('updatePasswordView').classList.remove('hidden');
+            }
+        }
+
+        function showAlert(msg, type = 'error') {
+            const box = document.getElementById('authAlertBox');
+            box.classList.remove('hidden');
+            if (type === 'success') {
+                box.className = 'mb-4 p-3.5 rounded-xl text-xs font-bold leading-relaxed text-center border bg-emerald-950/50 border-emerald-500/60 text-emerald-300';
+                box.innerHTML = `<i class="fas fa-check-circle ml-1"></i> ${msg}`;
+            } else if (type === 'info') {
+                box.className = 'mb-4 p-3.5 rounded-xl text-xs font-bold leading-relaxed text-center border bg-purple-950/50 border-purple-500/60 text-purple-300';
+                box.innerHTML = `<i class="fas fa-info-circle ml-1"></i> ${msg}`;
             } else {
-                showMessage('<i class="fas fa-check-circle"></i> تم إنشاء حسابك بنجاح! جاري التحويل للرئيسية...', false);
-                
-                const userObj = {
-                    id: data.user.id,
-                    email: data.user.email,
-                    username: username
-                };
-                localStorage.setItem('futa_user_logged', JSON.stringify(userObj));
-                
-                setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                box.className = 'mb-4 p-3.5 rounded-xl text-xs font-bold leading-relaxed text-center border bg-red-950/50 border-red-500/60 text-red-300';
+                box.innerHTML = `<i class="fas fa-exclamation-circle ml-1"></i> ${msg}`;
+            }
+        }
+
+        function hideAlert() {
+            document.getElementById('authAlertBox').classList.add('hidden');
+        }
+
+        function togglePassVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'far fa-eye-slash text-xs text-accent';
+            } else {
+                input.type = 'password';
+                icon.className = 'far fa-eye text-xs';
+            }
+        }
+
+        // فحص صحة البريد الإلكتروني للتأكد من أنه إيميل حقيقي وصالح
+        function isValidEmailFormat(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+            return emailRegex.test(email);
+        }
+
+        // مزامنة بيانات المستخدم مع جدول profiles وحفظه في futa_user_logged
+        async function syncProfileAndRedirect(authUser, fallbackUsername = null) {
+            const email = authUser.email;
+            const metaUsername = authUser.user_metadata?.username || fallbackUsername || pendingVerificationUsername || email.split('@')[0];
+            const cleanUsername = metaUsername.trim().replace(/\s+/g, '_').slice(0, 20);
+
+            let userProfile = {
+                id: authUser.id,
+                username: cleanUsername,
+                email: email,
+                subscription_type: 'free',
+                badges_history: []
+            };
+
+            try {
+                // البحث عن البروفيل الحالي في جدول profiles
+                const { data: existingProfile } = await sbClient
+                    .from('profiles')
+                    .select('*')
+                    .or(`id.eq.${authUser.id},username.eq.${cleanUsername}`)
+                    .limit(1)
+                    .single();
+
+                if (existingProfile) {
+                    userProfile = {
+                        ...userProfile,
+                        ...existingProfile
+                    };
+                } else {
+                    // إنشاء سجل جديد في جدول profiles إذا لم يكن موجوداً
+                    const { data: insertedProfile } = await sbClient
+                        .from('profiles')
+                        .insert([{
+                            id: authUser.id,
+                            username: cleanUsername,
+                            subscription_type: 'free'
+                        }])
+                        .select()
+                        .single();
+                    if (insertedProfile) userProfile = { ...userProfile, ...insertedProfile };
+                }
+            } catch (e) {}
+
+            localStorage.setItem('futa_user_logged', JSON.stringify(userProfile));
+            window.location.href = 'index.html';
+        }
+
+        // ==========================================
+        // 1. معالجة تسجيل الدخول
+        // ==========================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMeCheck').checked;
+            const btn = document.getElementById('loginSubmitBtn');
+
+            if (!isValidEmailFormat(email)) {
+                return showAlert('يرجى إدخال عنوان بريد إلكتروني صحيح.');
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري تسجيل الدخول...</span>`;
+
+            try {
+                const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+
+                if (error) {
+                    if (error.message.toLowerCase().includes('email not confirmed')) {
+                        pendingVerificationEmail = email;
+                        document.getElementById('verifyTargetEmailText').innerText = email;
+                        switchAuthView('verifyEmail');
+                        showAlert('هذا الحساب لم يتم تأكيد بريده الإلكتروني بعد. يرجى تفعيله من الرابط أو الرمز المرسل لبريدك.', 'info');
+                        return;
+                    }
+                    throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+                }
+
+                if (rememberMe) {
+                    localStorage.setItem('futa_remembered_email', email);
+                } else {
+                    localStorage.removeItem('futa_remembered_email');
+                }
+
+                showAlert('تم تسجيل الدخول بنجاح! جاري تحويلك...', 'success');
+                await syncProfileAndRedirect(data.user);
+
+            } catch (err) {
+                showAlert(err.message || 'فشل تسجيل الدخول، تحقق من بياناتك.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>دخول</span> <i class="fas fa-sign-in-alt"></i>`;
+            }
+        }
+
+        // ==========================================
+        // 2. معالجة إنشاء حساب جديد + التحقق من الإيميل
+        // ==========================================
+        async function handleSignup(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const rawUsername = document.getElementById('signupUsername').value.trim().replace(/\s+/g, '_');
+            const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const btn = document.getElementById('signupSubmitBtn');
+
+            if (rawUsername.length < 2) {
+                return showAlert('يجب أن يتكون اسم المستخدم من حرفين على الأقل.');
+            }
+            if (!isValidEmailFormat(email)) {
+                return showAlert('يرجى إدخال بريد إلكتروني حقيقي وصحيح لتلقي رسالة التأكيد.');
+            }
+            if (password !== confirmPassword) {
+                return showAlert('كلمتا المرور غير متطابقتين!');
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري التحقق وإنشاء الحساب...</span>`;
+
+            try {
+                // التحقق من عدم حجز اسم المستخدم مسبقاً في جدول profiles
+                const { data: takenUser } = await sbClient
+                    .from('profiles')
+                    .select('username')
+                    .ilike('username', rawUsername)
+                    .limit(1);
+
+                if (takenUser && takenUser.length > 0) {
+                    throw new Error('اسم المستخدم هذا مستخدم بالفعل، يرجى اختيار اسم آخر.');
+                }
+
+                // إنشاء الحساب وإرسال إيميل التأكيد عبر Supabase Auth
+                const redirectUrl = window.location.origin + window.location.pathname;
+                const { data, error } = await sbClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: { username: rawUsername },
+                        emailRedirectTo: redirectUrl
+                    }
+                });
+
+                if (error) {
+                    if (error.message.toLowerCase().includes('already registered')) {
+                        throw new Error('هذا البريد الإلكتروني مسجل بالفعل! انتقل لتسجيل الدخول أو استعد كلمة المرور.');
+                    }
+                    throw error;
+                }
+
+                pendingVerificationEmail = email;
+                pendingVerificationUsername = rawUsername;
+
+                // إذا كان Supabase مفعلاً به Confirm Email (الوضع القياسي لتأكيد الإيميل)
+                if (data.user && !data.session) {
+                    document.getElementById('verifyTargetEmailText').innerText = email;
+                    switchAuthView('verifyEmail');
+                    showAlert('تم إرسال رسالة التأكيد إلى بريدك الإلكتروني بنجاح!', 'success');
+                } else if (data.user && data.session) {
+                    // في حال كان التأكيد التلقائي مفعلاً في الإعدادات
+                    showAlert('تم إنشاء الحساب بنجاح! جاري تحويلك...', 'success');
+                    await syncProfileAndRedirect(data.user, rawUsername);
+                }
+
+            } catch (err) {
+                showAlert(err.message || 'حدث خطأ أثناء إنشاء الحساب.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>إنشاء الحساب وإرسال التأكيد</span> <i class="fas fa-user-plus"></i>`;
+            }
+        }
+
+        // تأكيد رمز الـ OTP عند التسجيل الجديد
+        async function verifySignupOtpCode() {
+            const token = document.getElementById('signupOtpInput').value.trim();
+            const btn = document.getElementById('verifyOtpBtn');
+
+            if (!token) {
+                return showAlert('يرجى إدخال رمز التفعيل المرسل إلى بريدك، أو الضغط على الرابط داخل الرسالة.');
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'جاري التحقق من الرمز...';
+
+            try {
+                const { data, error } = await sbClient.auth.verifyOtp({
+                    email: pendingVerificationEmail,
+                    token: token,
+                    type: 'signup'
+                });
+
+                if (error) throw new Error('الرمز غير صحيح أو منتهي الصلاحية.');
+
+                showAlert('تم تأكيد بريدك الإلكتروني بنجاح! جاري الدخول...', 'success');
+                await syncProfileAndRedirect(data.user, pendingVerificationUsername);
+            } catch (err) {
+                showAlert(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'تأكيد الرمز وتفعيل الحساب';
+            }
+        }
+
+        // إعادة إرسال رسالة تأكيد البريد الإلكتروني
+        async function resendVerificationEmail() {
+            if (!pendingVerificationEmail) return;
+            const btn = document.getElementById('resendEmailBtn');
+            btn.disabled = true;
+
+            try {
+                const { error } = await sbClient.auth.resend({
+                    type: 'signup',
+                    email: pendingVerificationEmail
+                });
+                if (error) throw error;
+                showAlert('تمت إعادة إرسال رسالة التفعيل إلى بريدك الإلكتروني!', 'success');
+            } catch (err) {
+                showAlert('يرجى الانتظار قليلاً قبل طلب إعادة الإرسال مرة أخرى.');
+            } finally {
+                setTimeout(() => { btn.disabled = false; }, 15000);
+            }
+        }
+
+        // ==========================================
+        // 3. معالجة "نسيت كلمة المرور" واستعادتها
+        // ==========================================
+        async function handleSendResetEmail(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const email = document.getElementById('resetEmailInput').value.trim().toLowerCase();
+            const btn = document.getElementById('sendResetBtn');
+
+            if (!isValidEmailFormat(email)) {
+                return showAlert('يرجى إدخال بريد إلكتروني صحيح.');
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري إرسال طلب الاستعادة...</span>`;
+
+            try {
+                const redirectUrl = window.location.origin + window.location.pathname + '?reset=true';
+                const { error } = await sbClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: redirectUrl
+                });
+
+                if (error) throw error;
+
+                pendingResetEmail = email;
+                document.getElementById('resetCodeVerifyBox').classList.remove('hidden');
+                showAlert('تم إرسال رسالة استعادة كلمة المرور إلى بريدك الإلكتروني! افتح الرابط في الرسالة لتعيين كلمة سر جديدة.', 'success');
+
+            } catch (err) {
+                showAlert('تعذر إرسال الرسالة، تأكد من صحة البريد الإلكتروني أو حاول بعد دقيقة.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>إرسال رابط استعادة كلمة السر</span> <i class="fas fa-paper-plane text-xs"></i>`;
+            }
+        }
+
+        // استعادة كلمة المرور باستخدام رمز OTP مباشر (إن وُجد في الإيميل)
+        async function verifyRecoveryOtpAndChangePass() {
+            const token = document.getElementById('recoveryOtpCode').value.trim();
+            const newPassword = document.getElementById('recoveryNewPassInline').value;
+            const btn = document.getElementById('verifyRecoveryOtpBtn');
+
+            if (!token || newPassword.length < 6) {
+                return showAlert('يرجى إدخال رمز الاستعادة وكلمة مرور جديدة من 6 أحرف على الأقل.');
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'جاري التحديث...';
+
+            try {
+                const { data, error } = await sbClient.auth.verifyOtp({
+                    email: pendingResetEmail || document.getElementById('resetEmailInput').value.trim(),
+                    token: token,
+                    type: 'recovery'
+                });
+                if (error) throw new Error('رمز الاستعادة غير صحيح أو منتهي الصلاحية.');
+
+                const { error: updateErr } = await sbClient.auth.updateUser({ password: newPassword });
+                if (updateErr) throw updateErr;
+
+                showAlert('تم تغيير كلمة المرور بنجاح! جاري تسجيل دخولك...', 'success');
+                if (data?.user) {
+                    await syncProfileAndRedirect(data.user);
+                } else {
+                    setTimeout(() => switchAuthView('login'), 1500);
+                }
+            } catch (err) {
+                showAlert(err.message || 'فشل تحديث كلمة المرور.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'تأكيد الرمز وحفظ كلمة المرور الجديدة';
+            }
+        }
+
+        // حفظ كلمة المرور الجديدة بعد الضغط على رابط الاستعادة في الإيميل
+        async function handleUpdateNewPassword(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const newPassword = document.getElementById('newResetPassword').value;
+            const confirmPassword = document.getElementById('confirmNewResetPassword').value;
+            const btn = document.getElementById('saveNewPassBtn');
+
+            if (newPassword !== confirmPassword) {
+                return showAlert('كلمتا المرور غير متطابقتين!');
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>جاري حفظ كلمة المرور الجديدة...</span>`;
+
+            try {
+                const { data, error } = await sbClient.auth.updateUser({ password: newPassword });
+                if (error) throw error;
+
+                showAlert('تم تحديث كلمة المرور بنجاح! جاري تحويلك للموقع...', 'success');
+                if (data?.user) {
+                    setTimeout(() => syncProfileAndRedirect(data.user), 1200);
+                } else {
+                    setTimeout(() => switchAuthView('login'), 1500);
+                }
+            } catch (err) {
+                showAlert('انتهت صلاحية جلسة الاستعادة، يرجى طلب رابط جديد من نسيت كلمة المرور.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>حفظ كلمة المرور والدخول</span> <i class="fas fa-check"></i>`;
             }
         }
     </script>
