@@ -6,402 +6,652 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <title>الاشتراكات والتميز - Futa Arab</title>
+    <title>اشتراكي وترقية الحساب - Futa Arab</title>
     <style>
-        body { background-color: #111113; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
-        .bg-card { background-color: #18181b; }
+        body { background-color: #0e0e11; color: #fff; font-family: system-ui, sans-serif; overflow-x: hidden; }
+        .bg-card { background-color: #16161a; }
         .text-accent { color: #f472b6; }
         .bg-accent { background-color: #f472b6; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #121214; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        #sidebarOverlay, #sidebarMenu { transition: all 0.3s ease-in-out; }
+        .sidebar-link { display: flex; align-items: center; gap: 12px; color: #d1d5db; padding: 10px; border-radius: 8px; transition: 0.3s; font-weight: bold; font-size: 14px; }
+        .sidebar-link:hover { background-color: #1a1c23; color: #fff; }
+        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; }
 
-        .body-glow {
-            position: fixed; top: -20%; left: -10%; width: 120%; height: 60%;
-            background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, rgba(17,17,19,0) 70%);
-            z-index: -1; pointer-events: none;
-        }
+        .hero-gradient { background: linear-gradient(180deg, #ec4899 0%, #831843 55%, #0e0e11 100%); }
+        .glow-free { box-shadow: 0 0 10px rgba(156,163,175,0.2); border-color: #4b5563; }
+        .text-glow-free { color: #fff; }
+        .avatar-glow-free { border-color: #6b7280; }
 
-        #sidebarOverlay { transition: opacity 0.3s ease-in-out; }
-        #sidebarMenu { transition: transform 0.3s ease-in-out; }
-        .sidebar-link { display: flex; align-items: center; justify-content: flex-start; gap: 12px; color: #d1d5db; padding: 10px; border-radius: 8px; transition: all 0.3s ease; }
-        .sidebar-link:hover { background-color: #1a1c23; color: #ffffff; }
-        .sidebar-link i { width: 20px; text-align: center; color: #6b7280; font-size: 14px; }
-        .sidebar-link span { font-weight: bold; font-size: 14px; flex-grow: 1; text-align: right; }
+        .glow-uploader { box-shadow: 0 0 15px rgba(239,68,68,0.45); border-color: #ef4444; color: #ef4444; }
+        .text-glow-uploader { color: #ef4444; text-shadow: 0 0 8px rgba(239,68,68,0.5); }
+        .avatar-glow-uploader { border-color: #ef4444; box-shadow: 0 0 12px rgba(239,68,68,0.6); }
 
-        /* تأثيرات التوهج للشارات الثابتة */
-        .glow-free { box-shadow: 0 0 10px rgba(156, 163, 175, 0.2); border-color: #4b5563; }
-        .glow-uploader { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444; color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
-        .bg-glow-uploader { background: linear-gradient(145deg, #18181b, #2a1111); border: 1px solid #ef4444; }
-        .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border-color: #06b6d4; color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
-        .bg-glow-cyan { background: linear-gradient(145deg, #18181b, #0c2025); border: 1px solid #06b6d4; }
+        .glow-cyan { box-shadow: 0 0 15px rgba(6,182,212,0.45); border-color: #06b6d4; color: #06b6d4; }
+        .text-glow-cyan { color: #06b6d4; text-shadow: 0 0 8px rgba(6,182,212,0.5); }
+        .avatar-glow-cyan { border-color: #06b6d4; box-shadow: 0 0 12px rgba(6,182,212,0.6); }
 
-        /* تأثيرات التوهج الديناميكية المتحركة (الشارات والبطاقات) */
-        .badge-glow-vip { animation: badgeGold 2s infinite alternate; border-color: #eab308; color: #eab308; text-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
-        @keyframes badgeGold { 0% { box-shadow: 0 0 5px rgba(234,179,8,0.5), inset 0 0 2px rgba(234,179,8,0.5); } 100% { box-shadow: 0 0 15px rgba(234,179,8,0.8), inset 0 0 6px rgba(234,179,8,0.8); } }
-        
-        .badge-glow-pro { animation: badgePro 2s infinite alternate; border-color: #f97316; color: #f97316; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6); }
-        @keyframes badgePro { 0% { box-shadow: 0 0 5px rgba(249,115,22,0.5), inset 0 0 2px rgba(249,115,22,0.5); } 100% { box-shadow: 0 0 15px rgba(239,68,68,0.8), inset 0 0 6px rgba(239,68,68,0.8); border-color:#ef4444; color:#ef4444;} }
-        
-        .badge-glow-ultra { animation: badgeUltra 3s infinite linear; border-color: transparent; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.8); }
-        @keyframes badgeUltra { 0% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(0deg); } 100% { box-shadow: 0 0 15px rgba(217,70,239,0.7), inset 0 0 4px rgba(217,70,239,0.7); filter: hue-rotate(360deg); } }
+        .badge-glow-vip, .avatar-glow-vip { border-color: #eab308; color: #eab308; box-shadow: 0 0 15px rgba(234,179,8,0.65); }
+        .text-glow-vip { color: #facc15; text-shadow: 0 0 10px rgba(234,179,8,0.7); }
 
-        .card-glow-vip { background: linear-gradient(145deg, #18181b, #2a2208); border: 1px solid #eab308; animation: cardGold 2s infinite alternate; }
-        @keyframes cardGold { 0% { box-shadow: 0 0 10px rgba(234, 179, 8, 0.3); } 100% { box-shadow: 0 0 30px rgba(234, 179, 8, 0.7); border-color: #facc15; } }
+        .badge-glow-pro, .avatar-glow-pro { border-color: #f97316; color: #f97316; box-shadow: 0 0 15px rgba(249,115,22,0.65); }
+        .text-glow-pro { color: #f97316; text-shadow: 0 0 10px rgba(249,115,22,0.7); }
 
-        .card-glow-pro { position: relative; background: linear-gradient(145deg, #18181b, #2a180a); border: 2px solid transparent; background-clip: padding-box; }
-        .card-glow-pro::before { content: ''; position: absolute; inset: -2px; border-radius: inherit; background: linear-gradient(45deg, #ef4444, #eab308, #ef4444); background-size: 200% 200%; z-index: -1; animation: bgGlowPro 3s linear infinite; }
-        @keyframes bgGlowPro { 0% { background-position: 0% 50%; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); } 50% { background-position: 100% 50%; box-shadow: 0 0 20px rgba(234, 179, 8, 0.5); } 100% { background-position: 0% 50%; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); } }
+        .badge-glow-ultra, .avatar-glow-ultra { border-color: #22c55e; color: #4ade80; box-shadow: 0 0 16px rgba(168,85,247,0.75); animation: hueRot 3s infinite linear; }
+        .text-glow-ultra { color: #e879f9; text-shadow: 0 0 12px rgba(217,70,239,0.8); animation: hueRot 3s infinite linear; }
+        @keyframes hueRot { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
-        .card-glow-ultra { position: relative; background: linear-gradient(145deg, #18181b, #230d2a); background-clip: padding-box; border: 2px solid transparent; }
-        .card-glow-ultra::before { content: ''; position: absolute; inset: -2px; border-radius: inherit; background: linear-gradient(to right, #eab308, #ef4444, #d946ef, #eab308); background-size: 300% 100%; z-index: -1; animation: bgGlowUltra 3s linear infinite; }
-        @keyframes bgGlowUltra { 0% { background-position: 0% 0; filter: hue-rotate(0deg); box-shadow: 0 0 25px rgba(217, 70, 239, 0.6); } 100% { background-position: 100% 0; filter: hue-rotate(360deg); box-shadow: 0 0 25px rgba(217, 70, 239, 0.6); } }
-
-        /* تصميم معاينة التعليق المتوهج */
-        .comment-preview { background-color: #111113; border: 1px solid #262626; border-radius: 12px; padding: 12px; transition: all 0.4s ease; margin-bottom: 20px; }
+        .plan-card { background-color: #151519; border-radius: 22px; padding: 22px; position: relative; overflow: hidden; transition: transform 0.25s ease; }
+        .ribbon { position: absolute; top: 14px; left: -30px; transform: rotate(-45deg); background: #ef4444; color: #fff; font-size: 10px; font-weight: 900; padding: 3px 34px; }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
 
-    <div class="body-glow"></div>
-
-    <!-- نافذة البحث الذكية -->
-    <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col transition-opacity opacity-0 backdrop-blur-sm">
-        <div class="p-4 border-b border-gray-800/80 flex items-center gap-3 bg-[#121214]">
-            <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2 active:scale-95"><i class="fas fa-arrow-right"></i></button>
-            <div class="relative flex-1">
-                <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
-                <input type="text" id="searchInput" placeholder="ابحث عن مانغا..." class="w-full bg-[#18181b] text-white text-sm p-3 pr-12 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-600">
-            </div>
+    <!-- نافذة البحث -->
+    <div id="searchModal" class="fixed inset-0 bg-[#0a0a0c]/95 z-[100] hidden flex-col backdrop-blur-sm">
+        <div class="p-4 border-b border-gray-800 flex items-center gap-3 bg-[#121214]">
+            <button onclick="closeSearch()" class="text-gray-400 hover:text-white text-xl p-2"><i class="fas fa-arrow-right"></i></button>
+            <input type="text" id="searchInput" placeholder="ابحث عن مانغا أو تصنيف..." class="w-full bg-[#18181b] text-white text-sm p-3 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold">
         </div>
-        <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3">
-            <div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل...</div>
-        </div>
+        <div id="searchResults" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
-    <!-- القائمة الجانبية -->
+    <!-- القائمة الجانبية الموحدة -->
     <div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/70 z-[60] opacity-0 pointer-events-none"></div>
     <div id="sidebarMenu" class="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0c] z-[70] transform translate-x-full overflow-y-auto border-l border-gray-800 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-800/50 flex justify-between items-center relative">
-            <button onclick="closeSidebar()" class="absolute right-4 top-6 text-gray-500 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-times"></i></button>
+            <button onclick="closeSidebar()" class="absolute right-4 top-6 text-gray-500 hover:text-white text-lg"><i class="fas fa-times"></i></button>
             <div class="w-full text-left pl-2">
                 <h2 class="text-xl font-black text-accent tracking-wider">Futa Arab</h2>
                 <p class="text-[11px] text-gray-500 mt-0.5 font-semibold">Manga • Manhwa • Doujinshi</p>
             </div>
         </div>
-        <div class="flex-1 py-6 flex flex-col gap-8 px-6">
+        <div class="flex-1 py-6 flex flex-col gap-6 px-6">
             <div>
-                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
+                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest text-left pl-2">المكتبة (LIBRARY)</h3>
                 <ul class="space-y-1.5">
                     <li><a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>الرئيسية</span></a></li>
-                    <li><a href="index.html" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
+                    <li><a href="index.html#latestSection" class="sidebar-link"><i class="fas fa-list"></i><span>كل الأعمال</span></a></li>
                     <li><a href="index.html#topSection" class="sidebar-link"><i class="fas fa-arrow-trend-up"></i><span>الأكثر شعبية</span></a></li>
                     <li><a href="tags.html" class="sidebar-link"><i class="fas fa-tags"></i><span>التصنيفات</span></a></li>
                 </ul>
             </div>
             <div class="h-[1px] w-full bg-gray-800/50"></div>
             <div>
-                <h3 class="text-[10px] font-black text-accent mb-4 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
+                <h3 class="text-[10px] font-black text-accent mb-3 uppercase tracking-widest text-left pl-2">حسابي (MY ACCOUNT)</h3>
                 <ul class="space-y-1.5">
-                    <li><a href="library.html?tab=bookmarks" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول.'); return false; }" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
-                    <li><a href="library.html?tab=history" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول.'); return false; }" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
-                    <li><a href="library.html?tab=likes" onclick="if(!localStorage.getItem('futa_user_logged')){ alert('⚠️ يجب تسجيل الدخول.'); return false; }" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
-                    <!-- زر الاشتراكي في القائمة الجانبية -->
-                    <li><a href="subscription.html" class="sidebar-link bg-[#1a1c23] text-white"><i class="fas fa-crown text-yellow-500"></i><span class="text-yellow-500">اشتراكي</span></a></li>
+                    <li><a href="#" onclick="goToMyProfile()" class="sidebar-link"><i class="fas fa-user"></i><span>الملف الشخصي</span></a></li>
+                    <li><a href="library.html?tab=bookmarks" class="sidebar-link"><i class="far fa-bookmark"></i><span>المفضلة</span></a></li>
+                    <li><a href="library.html?tab=history" class="sidebar-link"><i class="fas fa-history"></i><span>سجل القراءة</span></a></li>
+                    <li><a href="library.html?tab=likes" class="sidebar-link"><i class="far fa-thumbs-up"></i><span>أعمال أعجبتني</span></a></li>
+                    <li><a href="subscription.html" class="sidebar-link bg-[#1a1c23] text-yellow-500"><i class="fas fa-crown text-yellow-500"></i><span class="text-yellow-500">اشتراكي</span></a></li>
                 </ul>
             </div>
         </div>
-        <div class="p-6 border-t border-gray-800/50 text-center">
-            <a href="auth.html" id="sidebarAuthBtn" class="inline-flex flex-row-reverse items-center justify-center gap-2 text-accent hover:text-pink-400 transition font-black active:scale-95 text-[13px]">
-                <i class="fas fa-sign-in-alt"></i> <span id="authMenuText">تسجيل الدخول / حساب جديد</span>
+        <div id="sidebarFooterAccount" class="p-4 border-t border-gray-800/70 bg-[#0d0d10]">
+            <a href="auth.html" class="flex flex-row-reverse items-center justify-center gap-2 text-accent font-black text-[13px] py-2">
+                <i class="fas fa-sign-in-alt"></i> <span>تسجيل الدخول / حساب جديد</span>
             </a>
         </div>
     </div>
 
-    <!-- شريط التنقل العلوي -->
+    <!-- الشريط العلوي المحدث -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl active:scale-95 transition"><i class="fas fa-bars"></i></button>
-                <!-- تعديل زر الشارة ليصبح قابلاً للضغط -->
-                <a href="subscription.html" class="active:scale-95 transition cursor-pointer" title="ترقية الاشتراك">
-                    <span id="userBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1">مجاني</span>
-                </a>
+                <button onclick="openSidebar()" class="text-gray-300 hover:text-white text-xl"><i class="fas fa-bars"></i></button>
+                <a href="subscription.html"><span id="userBadge" class="bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free">مجاني</span></a>
             </div>
-            
-            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent flex items-center">Futa Arab</a>
-            
+            <a href="index.html" class="text-xl sm:text-2xl font-black tracking-wider text-accent">Futa Arab</a>
             <div class="flex items-center gap-4">
-                <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg active:scale-95 transition"><i class="fas fa-search"></i></button>
+                <button onclick="goToRandomManga()" class="text-purple-400 hover:text-purple-300 text-xl" title="عمل عشوائي"><i class="fas fa-dice"></i></button>
+                <button onclick="openSearch()" class="text-gray-300 hover:text-white text-lg"><i class="fas fa-search"></i></button>
             </div>
         </div>
-        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800 scrollbar-hide">
-            <a href="index.html" class="hover:text-white transition">الأحدث</a>
-            <a href="tags.html" class="hover:text-white transition">تصنيفات</a>
-            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="hover:text-white transition text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
+        <div class="max-w-4xl mx-auto px-4 py-2 flex gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-gray-400 border-t border-gray-800">
+            <a href="index.html" class="hover:text-white">الأحدث</a>
+            <a href="tags.html" class="hover:text-white">تصنيفات</a>
+            <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="text-purple-400">إضافة عمل <i class="fas fa-upload text-xs"></i></a>
             <a href="subscription.html" class="text-yellow-500 border-b-2 border-yellow-500 pb-1">اشتراكي <i class="fas fa-crown text-xs"></i></a>
+            <a href="index.html#topSection" class="hover:text-white">الأكثر قراءة</a>
         </div>
     </nav>
+    <!-- قسم الترقية والمعاينة الحية -->
+    <div class="hero-gradient pt-8 pb-6 px-4 text-center">
+        <div class="max-w-md mx-auto">
+            <h1 class="text-3xl font-black text-white mb-2">ترقية</h1>
+            <p class="text-xs text-pink-100/90 font-bold leading-relaxed mb-5">تخلص من الإعلانات، وادعم أعمالك المفضلة واحصل على شارات متوهجة فريدة في التعليقات!</p>
 
-    <!-- المحتوى الرئيسي (الباقات) -->
-    <main class="flex-1 max-w-4xl mx-auto px-4 py-8 space-y-10 w-full">
-        
-        <div class="text-center space-y-2">
-            <h1 class="text-3xl font-black text-white">ترقية <span class="text-accent">الاشتراك</span></h1>
-            <p class="text-sm text-gray-400 font-bold max-w-md mx-auto">تخلص من الإعلانات، وسّع مكتبتك الخاصة، واحصل على شارات متوهجة تميزك في التعليقات!</p>
+            <!-- حالة اشتراك المستخدم الحالي والوقت المتبقي -->
+            <div id="activeSubStatusBox" class="hidden mb-4 bg-black/50 border border-pink-400/40 rounded-2xl p-3 text-xs font-bold text-pink-200"></div>
+
+            <!-- صندوق المعاينة الحية للتعليقات -->
+            <div class="bg-[#18181c]/90 border border-pink-500/30 rounded-2xl p-4 shadow-2xl backdrop-blur-md">
+                <p class="text-[11px] text-gray-300 font-bold mb-3">معاينة حية لتعليقاتك حسب باقتك</p>
+                <div class="bg-[#0e0e11] border border-gray-800 rounded-xl p-3.5 text-right mb-4">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <span id="previewUsername" class="font-black text-sm text-glow-free">زائر</span>
+                            <span id="previewBadge" class="text-[9px] px-2 py-0.5 rounded border border-gray-600 bg-gray-800 text-gray-300 font-bold">مجاني</span>
+                        </div>
+                        <span class="text-[10px] text-gray-500 font-bold">الآن</span>
+                    </div>
+                    <p class="text-xs text-gray-300 font-bold">هكذا سيبدو تعليقك في الموقع...</p>
+                </div>
+                <div class="flex justify-center gap-2.5">
+                    <button onclick="setPreviewTier('free')" class="w-9 h-9 rounded-full bg-gray-800 border border-gray-600 text-gray-300 flex items-center justify-center text-xs"><i class="fas fa-user"></i></button>
+                    <button onclick="setPreviewTier('uploader')" class="w-9 h-9 rounded-full bg-red-950/80 border border-red-500 text-red-400 flex items-center justify-center text-xs glow-uploader"><i class="fas fa-upload"></i></button>
+                    <button onclick="setPreviewTier('vip_lite')" class="w-9 h-9 rounded-full bg-cyan-950/80 border border-cyan-400 text-cyan-300 flex items-center justify-center text-xs glow-cyan"><i class="fas fa-star"></i></button>
+                    <button onclick="setPreviewTier('vip')" class="w-9 h-9 rounded-full bg-yellow-950/80 border border-yellow-400 text-yellow-300 flex items-center justify-center text-xs badge-glow-vip"><i class="fas fa-crown"></i></button>
+                    <button onclick="setPreviewTier('vip_pro')" class="w-9 h-9 rounded-full bg-orange-950/80 border border-orange-500 text-orange-400 flex items-center justify-center text-xs badge-glow-pro"><i class="fas fa-crown"></i></button>
+                    <button onclick="setPreviewTier('vip_ultra')" class="w-9 h-9 rounded-full bg-emerald-950/80 border border-emerald-400 text-emerald-300 flex items-center justify-center text-xs badge-glow-ultra"><i class="fas fa-crown"></i></button>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-2.5 font-bold">جرب النقر على الأيقونات لرؤية التوهج</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- قائمة الباقات -->
+    <main class="max-w-md mx-auto px-4 py-4 space-y-5 w-full flex-1">
+
+        <!-- 1. الباقة المجانية -->
+        <div class="plan-card border border-gray-800">
+            <div class="flex justify-between items-start mb-2">
+                <span class="text-[10px] bg-gray-800 text-gray-300 px-2.5 py-0.5 rounded font-bold border border-gray-700">الحالي</span>
+                <div class="text-left">
+                    <h2 class="text-xl font-black text-white">مجاني</h2>
+                    <p class="text-2xl font-black text-gray-300 mt-0.5">$0 <span class="text-xs text-gray-500">/ للأبد</span></p>
+                </div>
+            </div>
+            <ul class="space-y-2.5 text-xs font-bold text-gray-300 my-4">
+                <li class="flex items-center gap-2"><i class="fas fa-check text-gray-400"></i> سعة مفضلة وسجل قراءة (25 عمل)</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-gray-400"></i> إمكانية التقييم والإعجاب</li>
+                <li class="flex items-center gap-2 text-gray-500"><i class="fas fa-times"></i> إعلانات في الموقع</li>
+                <li class="flex items-center gap-2 text-gray-500"><i class="fas fa-times"></i> انتظار قبل التعليق (Cooldown)</li>
+            </ul>
+            <button id="btnPlan_free" disabled class="w-full bg-[#22252a] text-gray-400 font-black py-3 rounded-xl text-xs">أنت على هذه الباقة</button>
         </div>
 
-        <!-- معاينة التعليق المتوهج -->
-        <div class="bg-[#18181b]/50 border border-gray-800 rounded-2xl p-5 text-center">
-            <h3 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-wider">معاينة حية لتعليقاتك حسب باقتك</h3>
-            
-            <div id="commentPreviewBox" class="comment-preview text-right">
-                <div class="flex justify-between items-center text-xs mb-2">
-                    <span class="font-bold flex items-center gap-2">
-                        <span id="previewName" class="text-white">الزائر الكريم</span>
-                        <span id="previewBadge" class="text-[9px] px-1.5 py-0.5 rounded border glow-free text-gray-400 bg-gray-800 border-gray-600">مجاني</span>
-                    </span>
-                    <span class="text-gray-600">الآن</span>
+        <!-- 2. باقة الرافع (25 مانغا أسبوعياً) -->
+        <div class="plan-card border-2 border-red-500/80 shadow-lg shadow-red-950/30">
+            <div class="ribbon">مكافأة</div>
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] px-2.5 py-1 rounded border border-red-500 bg-red-950/60 text-red-400 glow-uploader font-black"><i class="fas fa-upload ml-1"></i>UPLOADER</span>
+                <div class="text-left">
+                    <h2 class="text-xl font-black text-white">الرافع</h2>
+                    <p class="text-sm font-black text-red-400 mt-0.5">رفع 25 مانغا <span class="text-[11px] text-gray-400">/ أسبوعياً</span></p>
                 </div>
-                <p id="previewText" class="text-gray-300 font-semibold text-sm">هكذا سيبدو تعليقك في الموقع...</p>
             </div>
-            
-            <div class="flex flex-wrap justify-center gap-2 mt-4" dir="ltr">
-                <button onmouseenter="previewComment('ultra')" class="w-8 h-8 rounded-full border border-purple-500 bg-purple-900/50 text-purple-400 badge-glow-ultra"><i class="fas fa-crown text-[10px]"></i></button>
-                <button onmouseenter="previewComment('pro')" class="w-8 h-8 rounded-full border border-orange-500 bg-orange-900/50 text-orange-400 badge-glow-pro"><i class="fas fa-crown text-[10px]"></i></button>
-                <button onmouseenter="previewComment('vip')" class="w-8 h-8 rounded-full border border-yellow-500 bg-yellow-900/50 text-yellow-400 badge-glow-vip"><i class="fas fa-crown text-[10px]"></i></button>
-                <button onmouseenter="previewComment('lite')" class="w-8 h-8 rounded-full border border-cyan-500 bg-cyan-900/50 text-cyan-400 glow-cyan"><i class="fas fa-star text-[10px]"></i></button>
-                <button onmouseenter="previewComment('uploader')" class="w-8 h-8 rounded-full border border-red-500 bg-red-900/50 text-red-400 glow-uploader"><i class="fas fa-upload text-[10px]"></i></button>
-                <button onmouseenter="previewComment('free')" class="w-8 h-8 rounded-full border border-gray-600 bg-gray-800 text-gray-400"><i class="fas fa-user text-[10px]"></i></button>
+            <!-- شريط تقدم الرفع الأسبوعي -->
+            <div class="bg-[#0e0e11] border border-red-900/50 rounded-xl p-2.5 my-3">
+                <div class="flex justify-between text-[11px] font-bold mb-1">
+                    <span class="text-gray-300">إنجازك خلال آخر 7 أيام:</span>
+                    <span id="uploaderWeeklyProgressText" class="text-red-400 font-black">0 / 25 مانغا</span>
+                </div>
+                <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                    <div id="uploaderWeeklyBar" class="bg-red-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-1.5 font-semibold">تتجدد الباقة كل أسبوع بشرط رفع 25 عملاً جديداً بعد انتهاء أسبوعك.</p>
             </div>
-            <p class="text-[10px] text-gray-500 mt-2">مرر الماوس (أو اضغط) على الدوائر لترى التوهج.</p>
+            <ul class="space-y-2 text-xs font-bold text-gray-200 my-3">
+                <li class="flex items-center gap-2"><i class="fas fa-check text-red-500"></i> شعار أحمر متوهج يثير الانتباه</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-red-500"></i> بدون إعلانات طوال الأسبوع</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-red-500"></i> مساهمة في نمو المجتمع</li>
+            </ul>
+            <button id="btnPlan_uploader" onclick="handleUploaderAction()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95">ابدأ الرفع الآن</button>
         </div>
 
-        <!-- شبكة الباقات -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            <!-- 1. الباقة المجانية -->
-            <div class="bg-[#111113] border border-gray-800 rounded-2xl p-6 flex flex-col relative">
-                <div class="absolute top-0 right-0 bg-gray-800 text-gray-300 text-[10px] font-bold px-3 py-1 rounded-bl-lg rounded-tr-xl">الحالي</div>
-                <h3 class="text-xl font-black text-white mb-2">مجاني</h3>
-                <div class="text-2xl font-black text-gray-400 mb-4">$0 <span class="text-xs font-normal">/ للأبد</span></div>
-                <ul class="text-xs text-gray-400 space-y-3 mb-8 flex-1 font-bold">
-                    <li><i class="fas fa-check text-gray-600 ml-2"></i> سعة مفضلة وسجل قراءة (25 عمل)</li>
-                    <li><i class="fas fa-check text-gray-600 ml-2"></i> إمكانية التقييم والإعجاب</li>
-                    <li><i class="fas fa-times text-gray-600 ml-2"></i> إعلانات في الموقع</li>
-                    <li><i class="fas fa-times text-gray-600 ml-2"></i> انتظار قبل التعليق (Cooldown)</li>
-                </ul>
-                <button disabled class="w-full bg-gray-800 text-gray-500 py-3 rounded-xl font-black text-sm">أنت على هذه الباقة</button>
-            </div>
-
-            <!-- 2. باقة الرافع (مكافأة) -->
-            <div class="bg-glow-uploader rounded-2xl p-6 flex flex-col relative overflow-hidden">
-                <div class="absolute -right-10 top-6 bg-red-600 text-white text-[10px] font-black py-1 px-10 transform rotate-45">مكافأة!</div>
-                <div class="flex items-center gap-2 mb-2">
-                    <h3 class="text-xl font-black text-white">الرافع</h3>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded border glow-uploader font-bold bg-red-900/50"><i class="fas fa-upload ml-1"></i>UPLOADER</span>
+        <!-- 3. VIP Lite ($2 / أسبوع) -->
+        <div class="plan-card border-2 border-cyan-500/80 shadow-lg shadow-cyan-950/30">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] px-2.5 py-1 rounded border border-cyan-400 bg-cyan-950/60 text-cyan-300 glow-cyan font-black"><i class="fas fa-star ml-1"></i>LITE</span>
+                <div class="text-left">
+                    <h2 class="text-xl font-black text-white">VIP Lite</h2>
+                    <p class="text-2xl font-black text-cyan-400 mt-0.5">$2 <span class="text-xs text-gray-400">/ أسبوع</span></p>
                 </div>
-                <div class="text-sm font-black text-red-400 mb-4">رفع 25 مانغا <span class="text-xs font-normal text-gray-400">/ أسبوعياً</span></div>
-                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
-                    <li><i class="fas fa-check text-red-500 ml-2"></i> <span class="text-white">شعار أحمر متوهج</span> يثير الانتباه</li>
-                    <li><i class="fas fa-check text-red-500 ml-2"></i> <span class="text-white">بدون إعلانات</span> طوال الأسبوع</li>
-                    <li><i class="fas fa-check text-red-500 ml-2"></i> مساهمة في نمو المجتمع</li>
-                </ul>
-                <a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="w-full text-center bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-black text-sm transition">ابدأ الرفع الآن</a>
             </div>
-
-            <!-- 3. VIP Lite -->
-            <div class="bg-glow-cyan rounded-2xl p-6 flex flex-col">
-                <div class="flex items-center gap-2 mb-2">
-                    <h3 class="text-xl font-black text-white">VIP Lite</h3>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded border glow-cyan font-bold bg-cyan-900/50"><i class="fas fa-star ml-1"></i>LITE</span>
-                </div>
-                <div class="text-2xl font-black text-cyan-400 mb-4">$2 <span class="text-xs font-normal text-gray-400">/ أسبوع</span></div>
-                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
-                    <li><i class="fas fa-check text-cyan-500 ml-2"></i> <span class="text-white">بدون إعلانات</span> نهائياً</li>
-                    <li><i class="fas fa-check text-cyan-500 ml-2"></i> <span class="text-white">شعار نيون سماوي</span> لتعليقاتك</li>
-                    <li><i class="fas fa-check text-cyan-500 ml-2"></i> رفع سعة المكتبة والسجل (50 عمل)</li>
-                </ul>
-                <button class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-black text-sm transition">ترقية الآن</button>
-            </div>
-
-            <!-- 4. VIP الشهري -->
-            <div class="card-glow-vip rounded-2xl p-6 flex flex-col transform md:-translate-y-2 relative shadow-2xl">
-                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black text-[10px] font-black px-4 py-1 rounded-full shadow-lg">الأكثر شعبية</div>
-                <div class="flex items-center gap-2 mb-2 mt-2">
-                    <h3 class="text-xl font-black text-white">VIP</h3>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded border font-bold bg-yellow-900/50 badge-glow-vip"><i class="fas fa-crown ml-1"></i>GOLD</span>
-                </div>
-                <div class="text-2xl font-black text-yellow-400 mb-4">$5 <span class="text-xs font-normal text-gray-400">/ شهر</span></div>
-                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
-                    <li><i class="fas fa-check text-yellow-500 ml-2"></i> <span class="text-white">بدون إعلانات</span> نهائياً</li>
-                    <li><i class="fas fa-check text-yellow-500 ml-2"></i> <span class="text-white">شعار ذهبي متوهج</span> لتعليقاتك</li>
-                    <li><i class="fas fa-check text-yellow-500 ml-2"></i> تعليقات بدون انتظار (No Cooldown)</li>
-                    <li><i class="fas fa-check text-yellow-500 ml-2"></i> تحميل الفصول بدون قيود</li>
-                </ul>
-                <button class="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-black text-sm transition">ترقية الآن</button>
-            </div>
-
-            <!-- 5. VIP Pro -->
-            <div class="card-glow-pro rounded-2xl p-6 flex flex-col">
-                <div class="flex items-center gap-2 mb-2">
-                    <h3 class="text-xl font-black text-white">VIP Pro</h3>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded border font-bold bg-orange-900/50 badge-glow-pro"><i class="fas fa-crown ml-1"></i>PRO</span>
-                </div>
-                <div class="text-2xl font-black text-orange-400 mb-4">$10 <span class="text-xs font-normal text-gray-400">/ 3 أشهر (توفير!)</span></div>
-                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
-                    <li><i class="fas fa-check text-orange-500 ml-2"></i> جميع ميزات VIP الشهري</li>
-                    <li><i class="fas fa-check text-orange-500 ml-2"></i> <span class="text-white">شعار أحمر متوهج بالذهبي</span></li>
-                    <li><i class="fas fa-check text-orange-500 ml-2"></i> سعة مكتبة عملاقة (100 عمل)</li>
-                </ul>
-                <button class="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white py-3 rounded-xl font-black text-sm transition">ترقية الآن</button>
-            </div>
-
-            <!-- 6. VIP Ultra (النخبة) -->
-            <div class="card-glow-ultra rounded-2xl p-6 flex flex-col md:col-span-2 lg:col-span-1">
-                <div class="flex items-center gap-2 mb-2">
-                    <h3 class="text-xl font-black text-white">VIP Ultra</h3>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded border font-bold bg-purple-900/50 badge-glow-ultra"><i class="fas fa-crown ml-1"></i>ULTRA</span>
-                </div>
-                <div class="text-2xl font-black text-purple-400 mb-4">$50 <span class="text-xs font-normal text-gray-400">/ لمدة سنة</span></div>
-                <ul class="text-xs text-gray-300 space-y-3 mb-8 flex-1 font-bold">
-                    <li><i class="fas fa-check text-purple-500 ml-2"></i> اشتراك مستمر لمدة عام كامل</li>
-                    <li><i class="fas fa-check text-purple-500 ml-2"></i> <span class="text-white">شعار أسطوري (متحرك الألوان)</span></li>
-                    <li><i class="fas fa-check text-purple-500 ml-2"></i> <span class="text-white">تخزين مانغا لا نهائي</span> في المفضلة</li>
-                    <li><i class="fas fa-check text-purple-500 ml-2"></i> تتبع كامل لسجل المشاهدة</li>
-                </ul>
-                <button class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white py-3 rounded-xl font-black text-sm transition animate-pulse hover:animate-none opacity-90 hover:opacity-100">كن إمبراطوراً لمدة سنة</button>
-            </div>
-
+            <ul class="space-y-2.5 text-xs font-bold text-gray-200 my-4">
+                <li class="flex items-center gap-2"><i class="fas fa-check text-cyan-400"></i> بدون إعلانات نهائياً</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-cyan-400"></i> شعار نيون سماوي لتعليقاتك</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-cyan-400"></i> رفع سعة المكتبة والسجل (50 عمل)</li>
+            </ul>
+            <button id="btnPlan_vip_lite" onclick="openPaymentModal('vip_lite', 'VIP Lite', 2, 7)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95">ترقية الآن</button>
         </div>
 
-        <!-- قسم عرض الشارات (توضيحي) -->
-        <div class="border-t border-gray-800 pt-8 mt-10">
-            <h2 class="text-center text-lg font-black uppercase tracking-wider text-gray-300 mb-6">نظام الشارات <span class="text-accent">Badges</span></h2>
-            
-            <div class="flex justify-center flex-wrap gap-4 md:gap-8 items-center bg-[#111113] p-4 rounded-xl border border-gray-800">
-                <span class="text-[10px] px-2 py-1 rounded border glow-uploader bg-red-900/50 font-bold"><i class="fas fa-upload ml-1"></i>الرافع</span>
-                <span class="text-gray-700 hidden sm:block">•</span>
-                <span class="text-[10px] px-2 py-1 rounded border glow-cyan bg-cyan-900/50 font-bold"><i class="fas fa-star ml-1"></i>LITE</span>
-                <span class="text-gray-700 hidden sm:block">•</span>
-                <span class="text-[10px] px-2 py-1 rounded border badge-glow-vip bg-yellow-900/50 font-bold"><i class="fas fa-crown ml-1"></i>VIP</span>
-                <span class="text-gray-700 hidden sm:block">•</span>
-                <span class="text-[10px] px-2 py-1 rounded border badge-glow-pro bg-orange-900/50 font-bold"><i class="fas fa-crown ml-1"></i>VIP PRO</span>
-                <span class="text-gray-700 hidden sm:block">•</span>
-                <span class="text-[10px] px-2 py-1 rounded border badge-glow-ultra bg-purple-900/50 font-bold"><i class="fas fa-crown ml-1"></i>ULTRA</span>
+        <!-- 4. VIP ($5 / شهر) -->
+        <div class="plan-card border-2 border-yellow-500 shadow-lg shadow-yellow-950/30">
+            <div class="text-center -mt-2 mb-2">
+                <span class="bg-yellow-400 text-black text-[10px] font-black px-3 py-0.5 rounded-full shadow">الأكثر شعبية</span>
             </div>
-            
-            <p class="text-center text-[11px] text-gray-500 mt-4 font-bold max-w-lg mx-auto leading-relaxed">
-                <i class="fas fa-info-circle text-gray-400"></i> هذه الشارات تظهر بجانب اسمك في ملفك الشخصي وعند تعليقك على أي عمل. امتلاك باقة يجعلك تبرز في مجتمع Futa Arab.
-            </p>
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] px-2.5 py-1 rounded border border-yellow-400 bg-yellow-950/60 text-yellow-300 badge-glow-vip font-black"><i class="fas fa-crown ml-1"></i>GOLD</span>
+                <div class="text-left">
+                    <h2 class="text-xl font-black text-white">VIP</h2>
+                    <p class="text-2xl font-black text-yellow-400 mt-0.5">$5 <span class="text-xs text-gray-400">/ شهر</span></p>
+                </div>
+            </div>
+            <ul class="space-y-2.5 text-xs font-bold text-gray-200 my-4">
+                <li class="flex items-center gap-2"><i class="fas fa-check text-yellow-400"></i> بدون إعلانات نهائياً</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-yellow-400"></i> شعار ذهبي متوهج لتعليقاتك</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-yellow-400"></i> تعليقات بدون انتظار (No Cooldown)</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-yellow-400"></i> تحميل الفصول بدون قيود</li>
+            </ul>
+            <button id="btnPlan_vip" onclick="openPaymentModal('vip', 'VIP الشهري', 5, 30)" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 rounded-xl text-xs transition active:scale-95">ترقية الآن</button>
         </div>
 
+        <!-- 5. VIP Pro ($10 / 3 أشهر) -->
+        <div class="plan-card border-2 border-orange-500 shadow-lg shadow-orange-950/30">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] px-2.5 py-1 rounded border border-orange-500 bg-orange-950/60 text-orange-400 badge-glow-pro font-black"><i class="fas fa-crown ml-1"></i>PRO</span>
+                <div class="text-left">
+                    <h2 class="text-xl font-black text-white">VIP Pro</h2>
+                    <p class="text-2xl font-black text-orange-400 mt-0.5">$10 <span class="text-xs text-gray-400">/ 3 أشهر (توفير)</span></p>
+                </div>
+            </div>
+            <ul class="space-y-2.5 text-xs font-bold text-gray-200 my-4">
+                <li class="flex items-center gap-2"><i class="fas fa-check text-orange-400"></i> جميع ميزات VIP الشهري</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-orange-400"></i> شعار أحمر متوهج بالذهبي</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-orange-400"></i> سعة مكتبة عملاقة (100 عمل)</li>
+            </ul>
+            <button id="btnPlan_vip_pro" onclick="openPaymentModal('vip_pro', 'VIP Pro (3 أشهر)', 10, 90)" class="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:opacity-95 text-white font-black py-3 rounded-xl text-xs transition active:scale-95">ترقية الآن</button>
+        </div>
+
+        <!-- 6. VIP Ultra ($50 / سنة) -->
+        <div class="plan-card border-2 border-emerald-400 shadow-lg shadow-purple-950/40">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] px-2.5 py-1 rounded border border-emerald-400 bg-emerald-950/60 text-emerald-300 badge-glow-ultra font-black"><i class="fas fa-crown ml-1"></i>ULTRA</span>
+                <div class="text-left">
+                    <h2 class="text-xl font-black text-white">VIP Ultra</h2>
+                    <p class="text-2xl font-black text-purple-400 mt-0.5">$50 <span class="text-xs text-gray-400">/ لمدة سنة</span></p>
+                </div>
+            </div>
+            <ul class="space-y-2.5 text-xs font-bold text-gray-200 my-4">
+                <li class="flex items-center gap-2"><i class="fas fa-check text-purple-400"></i> اشتراك مستمر لمدة عام كامل</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-purple-400"></i> شعار أسطوري (متحرك الألوان)</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-purple-400"></i> تخزين مانغا لا نهائي في المفضلة</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-purple-400"></i> تتبع كامل لسجل المشاهدة</li>
+            </ul>
+            <button id="btnPlan_vip_ultra" onclick="openPaymentModal('vip_ultra', 'VIP Ultra السنوي', 50, 365)" class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95">كن إمبراطوراً لمدة سنة</button>
+        </div>
+
+        <!-- قسم نظام الشارات -->
+        <div class="pt-4 text-center">
+            <h3 class="text-sm font-black mb-3">نظام الشارات <span class="text-accent">BADGES</span></h3>
+            <div class="bg-card border border-gray-800 rounded-2xl p-4 flex flex-wrap justify-center gap-2">
+                <span class="text-[10px] px-2.5 py-1 rounded border border-red-500 bg-red-950/50 text-red-400 glow-uploader font-bold"><i class="fas fa-upload ml-1"></i>الرافع</span>
+                <span class="text-[10px] px-2.5 py-1 rounded border border-cyan-500 bg-cyan-950/50 text-cyan-400 glow-cyan font-bold"><i class="fas fa-star ml-1"></i>LITE</span>
+                <span class="text-[10px] px-2.5 py-1 rounded border border-yellow-500 bg-yellow-950/50 text-yellow-400 badge-glow-vip font-bold"><i class="fas fa-crown ml-1"></i>VIP</span>
+                <span class="text-[10px] px-2.5 py-1 rounded border border-orange-500 bg-orange-950/50 text-orange-400 badge-glow-pro font-bold"><i class="fas fa-crown ml-1"></i>VIP PRO</span>
+                <span class="text-[10px] px-2.5 py-1 rounded border border-emerald-400 bg-emerald-950/50 text-emerald-300 badge-glow-ultra font-bold"><i class="fas fa-crown ml-1"></i>ULTRA</span>
+            </div>
+            <p class="text-[10px] text-gray-500 mt-2 font-bold"><i class="fas fa-info-circle"></i> هذه الشارات تظهر بجانب اسمك في ملفك الشخصي وعند تعليقك على أي عمل.</p>
+        </div>
     </main>
 
-    <!-- الفوتر -->
-    <footer class="bg-[#121214] border-t border-gray-800 mt-auto py-8 px-4 text-center relative w-full">
-        <div class="max-w-4xl mx-auto flex flex-col items-center gap-4">
-            <div class="flex gap-4 text-sm font-bold text-gray-400">
-                <a href="index.html" class="hover:text-white transition">الرئيسية</a>
-                <a href="#" class="hover:text-white transition">شروط الاستخدام</a>
+    <!-- نافذة الدفع الآلي (بوابة USDT / RedotPay Web3 بدون أي بيانات شخصية) -->
+    <div id="paymentModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-[110] hidden items-center justify-center p-4">
+        <div class="bg-[#16161a] border border-gray-700 rounded-3xl p-5 w-full max-w-sm shadow-2xl relative">
+            <button onclick="closePaymentModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-pink-500/15 border border-pink-500/40 text-accent flex items-center justify-center mx-auto text-xl mb-2">
+                    <i class="fas fa-shield-check"></i>
+                </div>
+                <h3 id="payModalTitle" class="text-base font-black text-white">تفعيل الباقة الفوري</h3>
+                <p class="text-[11px] text-gray-400 font-bold mt-0.5">دفع مشفر وآمن 100% — يتم التفعيل تلقائياً فور التحقق من الشبكة</p>
             </div>
-            <p class="text-xs text-gray-600 mt-2 font-bold">© 2026 Futa Arab. All rights reserved.</p>
+
+            <div class="bg-[#111114] border border-gray-800 rounded-2xl p-3.5 mb-3 text-xs font-bold space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">الباقة المختارة:</span>
+                    <span id="payPlanName" class="text-white font-black">VIP</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">المبلغ المطلوب:</span>
+                    <span id="payPlanAmount" class="text-emerald-400 font-black text-sm">$5 USDT</span>
+                </div>
+                <div class="pt-2 border-t border-gray-800">
+                    <label class="block text-[10px] text-gray-400 mb-1">اختر شبكة الدفع (من RedotPay أو Binance أو أي محفظة):</label>
+                    <select id="payNetworkSelect" onchange="updateDepositAddress()" class="w-full bg-[#18181c] border border-gray-700 rounded-xl p-2 text-xs text-white font-bold outline-none">
+                        <option value="TRC20">USDT - شبكة Tron (TRC20)</option>
+                        <option value="BEP20">USDT - شبكة BNB Smart Chain (BEP20)</option>
+                    </select>
+                </div>
+                <div class="pt-1">
+                    <label class="block text-[10px] text-gray-400 mb-1">عنوان الدفع المخصص للبوابة (اضغط لنسخه):</label>
+                    <div onclick="copyDepositAddress()" class="bg-[#0b0b0d] border border-gray-700 hover:border-accent rounded-xl p-2.5 flex items-center justify-between cursor-pointer">
+                        <span id="depositAddressText" class="text-[10px] text-pink-300 font-mono truncate dir-ltr"></span>
+                        <i class="far fa-copy text-gray-400 mr-2"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2.5">
+                <label class="block text-[11px] font-bold text-gray-300">أدخل رمز العملية (TXID / Hash) للتحقق الآلي الفوري:</label>
+                <input type="text" id="txidInput" dir="ltr" placeholder="الصق رمز العملية (Transaction Hash) هنا..." class="w-full bg-[#111114] border border-gray-700 focus:border-accent rounded-xl p-3 text-xs text-white font-mono outline-none">
+                <div id="payAlertBox" class="hidden p-2.5 rounded-xl text-[11px] font-bold text-center"></div>
+                <button id="verifyPayBtn" onclick="verifyBlockchainPayment()" class="w-full bg-accent hover:bg-pink-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95 shadow-lg">
+                    <i class="fas fa-bolt ml-1"></i> تحقق من الدفع وتفعيل الباقة فوراً
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- الفوتر الموحد مع شروط الاستخدام و DMCA -->
+    <footer class="bg-[#121214] border-t border-gray-800 mt-8 py-8 px-4 text-center w-full">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-3">
+            <div class="flex gap-5 text-sm font-bold text-gray-400">
+                <a href="index.html" class="hover:text-white">الرئيسية</a>
+                <a href="terms.html" class="hover:text-white">شروط الاستخدام</a>
+                <a href="dmca.html" class="hover:text-white">DMCA</a>
+            </div>
+            <p class="text-[10px] text-gray-500 max-w-lg">جميع القصص والصور المعروضة في هذا الموقع هي مساهمات من المجتمع. الموقع لا يستضيف أي ملفات على خوادمه.</p>
+            <p class="text-xs text-gray-600 font-bold">© 2026 Futa Arab. All rights reserved.</p>
         </div>
     </footer>
-
     <script>
-        const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
-        const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+        const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
-        window.onload = () => { updateAuthUI(); };
+        // عناوين بوابة استلام USDT المشفرة (ضع عنوان إيداع USDT من RedotPay هنا - لا يظهر أي بيانات شخصية إطلاقاً)
+        const MERCHANT_USDT_TRC20 = 'TYourRedotPayTRC20DepositAddressHere';
+        const MERCHANT_USDT_BEP20 = '0xYourRedotPayBEP20DepositAddressHere';
 
-        function updateAuthUI() {
-            const badge = document.getElementById('userBadge');
-            const menuText = document.getElementById('authMenuText');
+        let selectedPlan = { type: 'vip', name: 'VIP', price: 5, days: 30 };
+        let weeklyUploadsCount = 0;
+
+        // جدول الصلاحيات الفعلي لكل باقة ليتم تطبيقه في كامل الموقع
+        const PLAN_PERKS = {
+            free:      { library_limit: 25,     ad_free: false, no_comment_cooldown: false, unlimited_downloads: false },
+            uploader:  { library_limit: 50,     ad_free: true,  no_comment_cooldown: false, unlimited_downloads: false },
+            vip_lite:  { library_limit: 50,     ad_free: true,  no_comment_cooldown: false, unlimited_downloads: false },
+            vip:       { library_limit: 50,     ad_free: true,  no_comment_cooldown: true,  unlimited_downloads: true  },
+            vip_pro:   { library_limit: 100,    ad_free: true,  no_comment_cooldown: true,  unlimited_downloads: true  },
+            vip_ultra: { library_limit: 999999, ad_free: true,  no_comment_cooldown: true,  unlimited_downloads: true  }
+        };
+
+        window.onload = async () => {
             if (currentUser) {
-                const subType = currentUser.subscription_type || 'free'; 
-                let badgeClass = "bg-gray-800 text-gray-400 border-gray-600 glow-free";
-                let badgeIcon = '<i class="fas fa-user text-[8px]"></i> ';
-                let badgeText = "مجاني";
+                document.getElementById('previewUsername').innerText = currentUser.username;
+            }
+            await syncAndCheckSubscription();
+            await checkWeeklyUploaderProgress();
+        };
 
-                if(subType === 'vip_lite') { badgeClass = "bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan"; badgeIcon = '<i class="fas fa-star text-[8px]"></i> '; badgeText = "LITE"; }
-                else if(subType === 'vip') { badgeClass = "bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "VIP"; }
-                else if(subType === 'vip_pro') { badgeClass = "bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "PRO"; }
-                else if(subType === 'vip_ultra') { badgeClass = "bg-purple-900/50 text-purple-400 border-purple-500 badge-glow-ultra"; badgeIcon = '<i class="fas fa-crown text-[8px]"></i> '; badgeText = "ULTRA"; }
-                else if(subType === 'uploader') { badgeClass = "bg-red-900/50 text-red-400 border-red-500 glow-uploader"; badgeIcon = '<i class="fas fa-upload text-[8px]"></i> '; badgeText = "رافع"; }
+        function getSubMeta(t) {
+            const map = {
+                vip_lite: { b: 'bg-cyan-900/50 text-cyan-400 border-cyan-500 glow-cyan', i: 'fa-star', l: 'LITE', n: 'text-glow-cyan', a: 'avatar-glow-cyan' },
+                vip: { b: 'bg-yellow-900/50 text-yellow-400 border-yellow-500 badge-glow-vip', i: 'fa-crown', l: 'VIP', n: 'text-glow-vip', a: 'avatar-glow-vip' },
+                vip_pro: { b: 'bg-orange-900/50 text-orange-400 border-orange-500 badge-glow-pro', i: 'fa-crown', l: 'VIP PRO', n: 'text-glow-pro', a: 'avatar-glow-pro' },
+                vip_ultra: { b: 'bg-emerald-900/50 text-emerald-300 border-emerald-400 badge-glow-ultra', i: 'fa-crown', l: 'ULTRA', n: 'text-glow-ultra', a: 'avatar-glow-ultra' },
+                uploader: { b: 'bg-red-900/50 text-red-400 border-red-500 glow-uploader', i: 'fa-upload', l: 'الرافع', n: 'text-glow-uploader', a: 'avatar-glow-uploader' }
+            };
+            return map[t] || { b: 'bg-gray-800 text-gray-400 border-gray-600 glow-free', i: 'fa-user', l: 'مجاني', n: 'text-glow-free', a: 'avatar-glow-free' };
+        }
 
-                badge.innerHTML = badgeIcon + badgeText;
-                badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 transition ${badgeClass}`;
-                
-                menuText.innerText = "تسجيل الخروج";
-                document.getElementById('previewName').innerText = currentUser.username;
+        function setPreviewTier(tier) {
+            const m = getSubMeta(tier);
+            const uEl = document.getElementById('previewUsername');
+            const bEl = document.getElementById('previewBadge');
+            uEl.className = `font-black text-sm ${m.n}`;
+            bEl.className = `text-[9px] px-2 py-0.5 rounded border font-bold ${m.b}`;
+            bEl.innerHTML = `<i class="fas ${m.i} ml-1"></i>${m.l}`;
+        }
+
+        // فحص صلاحية الاشتراك الحالي وتطبيق الميزات الموعودة فعلياً
+        async function syncAndCheckSubscription() {
+            if (!currentUser) return;
+            try {
+                const { data: p } = await sbClient.from('profiles').select('*').ilike('username', currentUser.username).limit(1).single();
+                if (p) {
+                    let subType = p.subscription_type || 'free';
+                    const exp = p.subscription_expires_at ? new Date(p.subscription_expires_at) : null;
+
+                    // إذا انتهت مدة الاشتراك، يعود مجانياً تلقائياً
+                    if (subType !== 'free' && exp && exp < new Date()) {
+                        subType = 'free';
+                        await applyPlanToUser('free', null, false);
+                    } else {
+                        currentUser = { ...currentUser, ...p, subscription_type: subType };
+                        savePerksLocally(subType);
+                    }
+
+                    if (subType !== 'free' && exp) {
+                        const remDays = Math.max(1, Math.ceil((exp - new Date()) / 86400000));
+                        const box = document.getElementById('activeSubStatusBox');
+                        box.classList.remove('hidden');
+                        box.innerHTML = `<i class="fas fa-crown text-yellow-400 ml-1"></i> باقتك النشطة: <b>${getSubMeta(subType).l}</b> — متبقي <b>${remDays} يوم</b> (تنتهي في ${exp.toLocaleDateString('ar-EG')})`;
+                    }
+                }
+            } catch (e) {}
+            updateUIButtons();
+        }
+
+        function savePerksLocally(subType) {
+            const perks = PLAN_PERKS[subType] || PLAN_PERKS.free;
+            localStorage.setItem('futa_sub_perks', JSON.stringify(perks));
+            if (currentUser) {
+                currentUser.subscription_type = subType;
+                currentUser.library_limit = perks.library_limit;
+                currentUser.ad_free = perks.ad_free;
+                currentUser.no_comment_cooldown = perks.no_comment_cooldown;
+                currentUser.unlimited_downloads = perks.unlimited_downloads;
+                localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+            }
+        }
+
+        // حساب عدد المانغا المرفوعة في آخر 7 أيام لباقة الرافع (شرط 25 مانغا أسبوعياً)
+        async function checkWeeklyUploaderProgress() {
+            if (!currentUser) return;
+            try {
+                const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+                const { data: uploads } = await sbClient
+                    .from('mangas')
+                    .select('id')
+                    .ilike('uploader_name', currentUser.username)
+                    .eq('status', 'approved')
+                    .gte('created_at', sevenDaysAgo);
+
+                weeklyUploadsCount = uploads ? uploads.length : 0;
+                const pct = Math.min(100, Math.round((weeklyUploadsCount / 25) * 100));
+                document.getElementById('uploaderWeeklyProgressText').innerText = `${weeklyUploadsCount} / 25 مانغا`;
+                document.getElementById('uploaderWeeklyBar').style.width = `${pct}%`;
+
+                const btn = document.getElementById('btnPlan_uploader');
+                if (currentUser.subscription_type === 'uploader') {
+                    btn.innerText = 'باقة الرافع مفعلة حالياً (تتجدد أسبوعياً)';
+                } else if (weeklyUploadsCount >= 25) {
+                    btn.innerText = '🎉 أكملت 25 مانغا! اضغط لتفعيل رتبة الرافع (أسبوع)';
+                    btn.className = 'w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95';
+                }
+            } catch (e) {}
+        }
+
+        async function handleUploaderAction() {
+            if (!currentUser) { alert('يرجى تسجيل الدخول أولاً.'); window.location.href = 'auth.html'; return; }
+            if (weeklyUploadsCount >= 25) {
+                await applyPlanToUser('uploader', 7, true);
+                alert('🎉 مبروك! تم تفعيل باقة الرافع لمدة 7 أيام بدون إعلانات ومع الشارة الحمراء المتوهجة!');
+                location.reload();
             } else {
-                badge.innerHTML = "مجاني";
-                badge.className = "bg-gray-800 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-md border border-gray-600 flex items-center gap-1 glow-free";
-                menuText.innerText = "تسجيل الدخول / حساب جديد";
+                window.location.href = 'https://leuay666-lgtm.github.io/futa-arab-upload/upload.html';
             }
         }
 
-        // دالة عرض المعاينة المتوهجة للتعليق
-        function previewComment(type) {
-            const box = document.getElementById('commentPreviewBox');
-            const badge = document.getElementById('previewBadge');
-            const text = document.getElementById('previewText');
-            
-            // تصفير الكلاسات
-            box.className = 'comment-preview text-right border border-gray-800 bg-[#111113]';
-            badge.className = 'text-[9px] px-1.5 py-0.5 rounded font-bold border';
-            
-            if (type === 'ultra') {
-                box.classList.add('border-purple-500', 'bg-purple-900/10');
-                box.style.boxShadow = '0 0 20px rgba(217, 70, 239, 0.15) inset';
-                badge.className += ' badge-glow-ultra bg-purple-900/50 text-purple-400 border-purple-500'; 
-                badge.innerHTML = '<i class="fas fa-crown ml-1"></i>ULTRA';
-                text.className = 'font-bold text-sm text-purple-200';
-            } 
-            else if (type === 'pro') {
-                box.classList.add('border-orange-500', 'bg-orange-900/10');
-                box.style.boxShadow = '0 0 15px rgba(249, 115, 22, 0.1) inset';
-                badge.className += ' badge-glow-pro bg-orange-900/50 text-orange-400 border-orange-500'; 
-                badge.innerHTML = '<i class="fas fa-crown ml-1"></i>PRO';
-                text.className = 'font-bold text-sm text-orange-200';
+        // تفعيل الباقة وحفظ جميع ميزاتها في قاعدة البيانات والمتصفح
+        async function applyPlanToUser(planType, durationDays, addBadge = true) {
+            if (!currentUser) return;
+            const perks = PLAN_PERKS[planType] || PLAN_PERKS.free;
+            const expDate = durationDays ? new Date(Date.now() + durationDays * 86400000).toISOString() : null;
+
+            let badges = Array.isArray(currentUser.badges_history) ? [...currentUser.badges_history] : JSON.parse(localStorage.getItem(`badges_history_${currentUser.username}`) || '[]');
+            if (addBadge && planType !== 'free' && !badges.includes(planType)) badges.push(planType);
+
+            const updatePayload = {
+                subscription_type: planType,
+                subscription_expires_at: expDate,
+                badges_history: badges,
+                library_limit: perks.library_limit,
+                ad_free: perks.ad_free,
+                no_comment_cooldown: perks.no_comment_cooldown,
+                unlimited_downloads: perks.unlimited_downloads
+            };
+
+            try {
+                await sbClient.from('profiles').update(updatePayload).ilike('username', currentUser.username);
+            } catch (e) {}
+
+            localStorage.setItem(`badges_history_${currentUser.username}`, JSON.stringify(badges));
+            currentUser = { ...currentUser, ...updatePayload };
+            savePerksLocally(planType);
+            updateUIButtons();
+        }
+
+        // نافذة الدفع الآلي عبر البلوكتشين
+        function openPaymentModal(type, name, price, days) {
+            if (!currentUser) { alert('يرجى تسجيل الدخول أولاً لترقية حسابك.'); window.location.href = 'auth.html'; return; }
+            selectedPlan = { type, name, price, days };
+            document.getElementById('payPlanName').innerText = `${name} (${days} يوم)`;
+            document.getElementById('payPlanAmount').innerText = `$${price} USDT`;
+            document.getElementById('txidInput').value = '';
+            document.getElementById('payAlertBox').classList.add('hidden');
+            updateDepositAddress();
+            const m = document.getElementById('paymentModal');
+            m.classList.remove('hidden'); m.classList.add('flex');
+        }
+
+        function closePaymentModal() {
+            const m = document.getElementById('paymentModal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+        }
+
+        function updateDepositAddress() {
+            const net = document.getElementById('payNetworkSelect').value;
+            document.getElementById('depositAddressText').innerText = net === 'TRC20' ? MERCHANT_USDT_TRC20 : MERCHANT_USDT_BEP20;
+        }
+
+        function copyDepositAddress() {
+            const addr = document.getElementById('depositAddressText').innerText;
+            navigator.clipboard.writeText(addr);
+            showPayAlert('تم نسخ عنوان الدفع بنجاح!', 'success');
+        }
+
+        function showPayAlert(msg, type = 'error') {
+            const b = document.getElementById('payAlertBox');
+            b.classList.remove('hidden');
+            b.className = `p-2.5 rounded-xl text-[11px] font-bold text-center ${type === 'success' ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-500/50' : 'bg-red-950/70 text-red-300 border border-red-500/50'}`;
+            b.innerText = msg;
+        }
+
+        // التحقق الآلي الفوري من عملية الدفع عبر Blockchain API وتفعيل العرض مباشرة
+        async function verifyBlockchainPayment() {
+            const txid = document.getElementById('txidInput').value.trim();
+            const net = document.getElementById('payNetworkSelect').value;
+            const btn = document.getElementById('verifyPayBtn');
+
+            if (!txid || txid.length < 20) {
+                return showPayAlert('يرجى إدخال رمز عملية (TXID) صحيح.');
             }
-            else if (type === 'vip') {
-                box.classList.add('border-yellow-500', 'bg-yellow-900/10');
-                box.style.boxShadow = '0 0 15px rgba(234, 179, 8, 0.1) inset';
-                badge.className += ' badge-glow-vip bg-yellow-900/50 text-yellow-400 border-yellow-500'; 
-                badge.innerHTML = '<i class="fas fa-crown ml-1"></i>VIP';
-                text.className = 'font-bold text-sm text-yellow-200';
-            }
-            else if (type === 'lite') {
-                box.classList.add('border-cyan-500', 'bg-cyan-900/10');
-                box.style.boxShadow = '0 0 15px rgba(6, 182, 212, 0.1) inset';
-                badge.className += ' glow-cyan bg-cyan-900/50 text-cyan-400 border-cyan-500'; 
-                badge.innerHTML = '<i class="fas fa-star ml-1"></i>LITE';
-                text.className = 'font-bold text-sm text-cyan-200';
-            }
-            else if (type === 'uploader') {
-                box.classList.add('border-red-500', 'bg-red-900/10');
-                box.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.1) inset';
-                badge.className += ' glow-uploader bg-red-900/50 text-red-400 border-red-500'; 
-                badge.innerHTML = '<i class="fas fa-upload ml-1"></i>الرافع';
-                text.className = 'font-bold text-sm text-red-200';
-            }
-            else {
-                badge.className += ' glow-free text-gray-400 bg-gray-800 border-gray-600'; 
-                badge.innerHTML = 'مجاني';
-                text.className = 'font-semibold text-sm text-gray-300';
-                box.style.boxShadow = 'none';
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري التحقق من الشبكة...';
+
+            try {
+                // 1. التأكد من عدم استخدام رقم العملية سابقاً
+                const { data: usedTx } = await sbClient.from('payment_transactions').select('txid').eq('txid', txid).limit(1);
+                if (usedTx && usedTx.length > 0) {
+                    throw new Error('تم استخدام رمز العملية هذا مسبقاً!');
+                }
+
+                let isVerified = false;
+
+                // 2. فحص العملية عبر TronScan API لشبكة TRC20
+                if (net === 'TRC20') {
+                    const res = await fetch(`https://apilist.tronscanapi.com/api/transaction-info?hash=${encodeURIComponent(txid)}`);
+                    const info = await res.json();
+                    if (info && info.contractRet === 'SUCCESS') {
+                        const trc20 = (info.trc20TransferInfo && info.trc20TransferInfo[0]) || null;
+                        if (trc20) {
+                            const amountUSDT = Number(trc20.amount_str || 0) / 1e6;
+                            const toAddr = (trc20.to_address || '').toLowerCase();
+                            if (toAddr === MERCHANT_USDT_TRC20.toLowerCase() && amountUSDT >= selectedPlan.price - 0.2) {
+                                isVerified = true;
+                            }
+                        }
+                    }
+                } else if (net === 'BEP20') {
+                    // فحص العملية عبر RPC العام لشبكة BNB Smart Chain
+                    const rpcRes = await fetch('https://bsc-dataseed.binance.org/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [txid] })
+                    });
+                    const rpcData = await rpcRes.json();
+                    const receipt = rpcData.result;
+                    if (receipt && receipt.status === '0x1' && Array.isArray(receipt.logs)) {
+                        const targetClean = MERCHANT_USDT_BEP20.toLowerCase().replace('0x', '');
+                        for (const log of receipt.logs) {
+                            if (log.topics && log.topics[2] && log.topics[2].toLowerCase().includes(targetClean)) {
+                                const rawVal = parseInt(log.data, 16) / 1e18;
+                                if (rawVal >= selectedPlan.price - 0.2) isVerified = true;
+                            }
+                        }
+                    }
+                }
+
+                if (!isVerified) {
+                    throw new Error('لم يتم العثور على دفعة مؤكدة بهذا الرمز تطابق المبلغ والعنوان. انتظر دقيقة بعد الإرسال وحاول مجدداً.');
+                }
+
+                // 3. تسجيل العملية وتفعيل الباقة للمستخدم فوراً
+                await sbClient.from('payment_transactions').insert([{
+                    txid: txid,
+                    username: currentUser.username,
+                    plan_type: selectedPlan.type,
+                    amount: selectedPlan.price,
+                    network: net
+                }]);
+
+                await applyPlanToUser(selectedPlan.type, selectedPlan.days, true);
+                showPayAlert(`🎉 تم التحقق بنجاح وتفعيل باقة ${selectedPlan.name} في حسابك!`, 'success');
+                setTimeout(() => location.reload(), 1500);
+
+            } catch (err) {
+                showPayAlert(err.message || 'تعذر التحقق من العملية.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt ml-1"></i> تحقق من الدفع وتفعيل الباقة فوراً';
             }
         }
 
-        // دوال القائمة والبحث السريعة
-        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0', 'opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full', 'translate-x-0'); document.body.style.overflow = 'hidden'; }
-        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100', 'opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0', 'translate-x-full'); document.body.style.overflow = 'auto'; }
-        function openSearch() { document.getElementById('searchModal').classList.remove('hidden'); setTimeout(() => document.getElementById('searchModal').classList.replace('opacity-0', 'opacity-100'), 10); document.getElementById('searchInput').focus(); document.body.style.overflow = 'hidden'; }
-        function closeSearch() { document.getElementById('searchModal').classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { document.getElementById('searchModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300); }
+        function updateUIButtons() {
+            const sub = currentUser ? (currentUser.subscription_type || 'free') : 'free';
+            setPreviewTier(sub);
+            const m = getSubMeta(sub);
+            const badge = document.getElementById('userBadge');
+            badge.innerHTML = `<i class="fas ${m.i} text-[8px]"></i> ${m.l}`;
+            badge.className = `text-[10px] font-bold px-2 py-1 rounded-md border flex items-center gap-1 ${m.b}`;
+
+            ['free','uploader','vip_lite','vip','vip_pro','vip_ultra'].forEach(t => {
+                const btn = document.getElementById(`btnPlan_${t}`);
+                if (!btn) return;
+                if (t === sub) {
+                    btn.innerText = 'باقتك الحالية نشطة ✓';
+                    btn.disabled = true;
+                    btn.className = 'w-full bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 font-black py-3 rounded-xl text-xs cursor-default';
+                }
+            });
+
+            if (currentUser) {
+                const av = localStorage.getItem(`profile_avatar_${currentUser.username}`) || currentUser.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.username)}&background=18181b&color=fff&size=120`;
+                document.getElementById('sidebarFooterAccount').innerHTML = `<a href="profile.html?user=${encodeURIComponent(currentUser.username)}" class="flex items-center justify-between p-2 rounded-xl bg-[#141418] border border-gray-800"><div class="flex items-center gap-3 overflow-hidden"><img src="${av}" class="w-11 h-11 rounded-full object-cover border-2 ${m.a}"><div class="flex flex-col items-start overflow-hidden"><span class="font-black text-sm truncate ${m.n}">${currentUser.username}</span><span class="text-[10px] text-gray-500 font-bold">إعدادات الحساب والملف الشخصي</span></div></div><i class="fas fa-chevron-left text-xs text-gray-500"></i></a>`;
+            }
+        }
+
+        function goToMyProfile() { if (!currentUser) window.location.href = 'auth.html'; else window.location.href = `profile.html?user=${encodeURIComponent(currentUser.username)}`; }
+        async function goToRandomManga() { const { data } = await sbClient.from('mangas').select('id').eq('status', 'approved'); if (data?.length) window.location.href = `manga.html?id=${data[Math.floor(Math.random()*data.length)].id}`; }
+        function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0','opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full','translate-x-0'); }
+        function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100','opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0','translate-x-full'); }
+        function openSearch() { document.getElementById('searchModal').classList.remove('hidden'); document.getElementById('searchModal').classList.add('flex'); document.getElementById('searchInput').focus(); }
+        function closeSearch() { document.getElementById('searchModal').classList.add('hidden'); document.getElementById('searchModal').classList.remove('flex'); }
     </script>
 </body>
 </html>
