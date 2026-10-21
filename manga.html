@@ -26,7 +26,6 @@
         .sidebar-link:hover { background-color: #1a1c23; color: #fff; }
         .sidebar-link i { width: 20px; text-align: center; color: #6b7280; }
 
-        /* توهجات الباقات والشارات */
         .glow-free { box-shadow: 0 0 10px rgba(156,163,175,0.2); border-color: #4b5563; color: #d1d5db; }
         .text-glow-free { color: #ffffff; }
         .avatar-glow-free { border-color: #6b7280; }
@@ -49,7 +48,6 @@
         .text-glow-ultra { color: #e879f9; text-shadow: 0 0 12px rgba(217,70,239,0.8); animation: hueRot 3s infinite linear; }
         @keyframes hueRot { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
-        /* وسام "الكاتب" الصغير المتلون حسب شعار الرافع الحالي */
         .author-pill { font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 5px; border-width: 1px; display: inline-flex; align-items: center; gap: 3px; line-height: 1.3; }
         .ad-banner-slot { background: linear-gradient(135deg, rgba(24,24,27,0.9), rgba(20,16,24,0.95)); border: 1px dashed rgba(244,114,182,0.4); }
         .hero-blur-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(28px) brightness(0.28); transform: scale(1.1); z-index: 0; }
@@ -194,7 +192,7 @@
                         <div id="mangaTagsContainer" class="flex flex-wrap gap-1.5 mb-4"></div>
                     </div>
 
-                    <!-- الأزرار الرئيسية (تفتح صفحة القراءة وصفحة التحميل المستقلتين) -->
+                    <!-- الأزرار الرئيسية -->
                     <div class="space-y-2.5 pt-3 border-t border-gray-800/80">
                         <div class="grid grid-cols-2 gap-2.5">
                             <button type="button" onclick="goToReadPage()" class="bg-accent hover:bg-pink-500 text-white font-black py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20 transition active:scale-95">
@@ -234,7 +232,7 @@
             </a>
         </div>
 
-        <!-- قسم التعليقات والمناقشة مع وسام "الكاتب" -->
+        <!-- قسم التعليقات والمناقشة (حد 200 حرف + إخفاء الأقدم بعد 10 تعليقات مع زر المزيد) -->
         <section id="commentsSection" class="bg-card border border-gray-800 rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <h2 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
@@ -245,7 +243,10 @@
             </div>
 
             <div class="space-y-2.5">
-                <textarea id="commentInput" rows="3" placeholder="اكتب تعليقك حول هذا العمل..." class="w-full bg-[#111115] text-white text-xs sm:text-sm p-3.5 rounded-2xl border border-gray-700 focus:border-accent outline-none font-bold resize-none"></textarea>
+                <div class="relative">
+                    <textarea id="commentInput" maxlength="200" oninput="updateCommentCharCounter()" rows="3" placeholder="اكتب تعليقك حول هذا العمل (بحد أقصى 200 حرف)..." class="w-full bg-[#111115] text-white text-xs sm:text-sm p-3.5 pb-7 rounded-2xl border border-gray-700 focus:border-accent outline-none font-bold resize-none"></textarea>
+                    <span id="commentCharCounter" class="absolute bottom-2.5 left-3 text-[10px] text-gray-500 font-black dir-ltr">0 / 200</span>
+                </div>
                 <div class="flex justify-between items-center">
                     <span class="text-[10px] text-gray-500 font-bold">تظهر شارتك المتوهجة بجانب اسمك في التعليقات</span>
                     <button type="button" id="submitCommentBtn" onclick="postNewComment()" class="bg-accent hover:bg-pink-500 text-white font-black px-5 py-2.5 rounded-xl text-xs transition active:scale-95 shadow-lg">
@@ -256,6 +257,13 @@
 
             <div id="commentsList" class="space-y-3 pt-2">
                 <div class="text-center py-8 text-gray-500 text-xs font-bold">لا توجد تعليقات بعد. كن أول من يعلق!</div>
+            </div>
+
+            <!-- زر إظهار التعليقات الأقدم عندما تتجاوز 10 تعليقات -->
+            <div id="commentsSeeMoreWrap" class="text-center pt-2 hidden">
+                <button type="button" id="commentsSeeMoreBtn" onclick="showMoreComments()" class="bg-[#121216] hover:bg-gray-800 border border-gray-700 hover:border-accent text-white text-xs font-black px-6 py-2.5 rounded-full transition active:scale-95 shadow-md">
+                    عرض المزيد من التعليقات <i class="fas fa-chevron-down mr-1 text-[10px]"></i>
+                </button>
             </div>
         </section>
 
@@ -297,10 +305,14 @@
         let allMangasCache = [];
         let profilesMap = {};
 
+        // متغيرات التعليقات (عرض أحدث 10 تعليقات وإخفاء الأقدم تحت زر المزيد)
+        let allMergedComments = [];
+        let visibleCommentsLimit = 10;
+        const MAX_COMMENT_LENGTH = 200;
+
         const PLAN_LIMITS = { free: 25, uploader: 50, vip_lite: 50, vip: 50, vip_pro: 100, vip_ultra: 999999 };
         const COMMENT_COOLDOWN_SECONDS = 30;
 
-        // بطاقات الإعلانات المدمجة بحجم الأغلفة داخل قسم الأعمال المشابهة
         const nativeCoverAdsPool = [
             {
                 title: 'اشترك في باقة VIP وتصفح بدون إعلانات!',
@@ -323,6 +335,18 @@
             await loadRelatedMangasByTags();
         };
 
+        function updateCommentCharCounter() {
+            const input = document.getElementById('commentInput');
+            const counter = document.getElementById('commentCharCounter');
+            if (!input || !counter) return;
+            if (input.value.length > MAX_COMMENT_LENGTH) {
+                input.value = input.value.slice(0, MAX_COMMENT_LENGTH);
+            }
+            const len = input.value.length;
+            counter.innerText = `${len} / ${MAX_COMMENT_LENGTH}`;
+            counter.className = `absolute bottom-2.5 left-3 text-[10px] font-black dir-ltr ${len >= MAX_COMMENT_LENGTH ? 'text-red-400' : 'text-gray-500'}`;
+        }
+
         function getSubMeta(t) {
             const map = {
                 vip_lite:  { b: 'bg-cyan-950/70 text-cyan-300 border-cyan-400 glow-cyan', i: 'fa-star', l: 'LITE', n: 'text-glow-cyan', a: 'avatar-glow-cyan', authorPill: 'bg-cyan-950/80 text-cyan-300 border-cyan-400 glow-cyan' },
@@ -339,7 +363,6 @@
         function hasNoCommentCooldown() { return ['vip', 'vip_pro', 'vip_ultra'].includes(getUserSubType()); }
         function getUserLibraryLimit() { return PLAN_LIMITS[getUserSubType()] || 25; }
 
-        // الانتقال المباشر إلى صفحة القراءة المستقلة (read.html أو reader.html)
         async function goToReadPage() {
             if (!currentMangaId) return;
             localStorage.setItem('selectedMangaId', String(currentMangaId));
@@ -350,7 +373,6 @@
             window.location.href = `reader.html?id=${currentMangaId}`;
         }
 
-        // الانتقال المباشر إلى صفحة التحميل المستقلة (download.html)
         function goToDownloadPage() {
             if (!currentMangaId) return;
             localStorage.setItem('selectedMangaId', String(currentMangaId));
@@ -452,6 +474,12 @@
                 const { data: manga, error } = await sbClient.from('mangas').select('*').eq('id', currentMangaId).single();
                 if (error || !manga) throw new Error('العمل غير موجود');
                 currentManga = manga;
+                currentMangaId = String(manga.id);
+
+                // تثبيت معرف المانغا في الرابط حتى يفتح أي متصفح نفس العمل بالضبط
+                if (!window.location.search.includes('id=')) {
+                    window.history.replaceState({}, '', `?id=${currentMangaId}`);
+                }
 
                 document.getElementById('dynamicPageTitle').innerText = `${manga.title} - Futa Arab`;
                 document.getElementById('mangaCover').src = manga.cover_image_url;
@@ -464,7 +492,6 @@
                     document.getElementById('mangaDateBadge').innerText = new Date(manga.created_at).toLocaleDateString('ar-EG');
                 }
 
-                // جلب رتبة الرافع الحقيقية من جدول profiles (الافتراضي 'free' وليس 'uploader')
                 const uploaderName = manga.uploader_name || 'مجهول';
                 const upProfile = await fetchProfileInfo(uploaderName);
                 const upSub = (upProfile && upProfile.subscription_type) ? upProfile.subscription_type : 'free';
@@ -599,9 +626,8 @@
             else { navigator.clipboard.writeText(window.location.href); alert('تم نسخ رابط العمل بنجاح!'); }
         }
 
-        // ================= التعليقات السحابية المشتركة بين كل المتصفحات =================
+        // ================= التعليقات السحابية + إخفاء الأقدم بعد 10 تعليقات بزر المزيد =================
         async function loadMangaComments() {
-            const listEl = document.getElementById('commentsList');
             let dbComments = [];
             try {
                 const { data, error } = await sbClient
@@ -609,26 +635,58 @@
                     .select('*')
                     .eq('manga_id', String(currentMangaId))
                     .order('created_at', { ascending: false });
-                if (!error && data) dbComments = data;
+                if (!error && Array.isArray(data)) dbComments = data;
             } catch (e) {}
 
+            // رفع أي تعليق كان محفوظاً محلياً فقط إلى قاعدة البيانات ليظهر في كل المتصفحات
             const localComments = JSON.parse(localStorage.getItem(`manga_comments_${currentMangaId}`) || '[]');
-            const merged = [...dbComments, ...localComments].filter((v, i, a) =>
-                a.findIndex(t => (t.id && v.id && t.id === v.id) || ((t.content || t.comment_text) === (v.content || v.comment_text) && t.username === v.username)) === i
+            for (const lc of localComments) {
+                const textVal = (lc.content || lc.comment_text || '').trim().slice(0, MAX_COMMENT_LENGTH);
+                if (!textVal) continue;
+                const alreadyInDb = dbComments.some(dc => dc.username === lc.username && (dc.content || dc.comment_text) === textVal);
+                if (!alreadyInDb) {
+                    try {
+                        const { data: inserted } = await sbClient.from('comments').insert([{
+                            manga_id: String(currentMangaId),
+                            username: lc.username || 'زائر',
+                            user_tier: lc.user_tier || 'free',
+                            content: textVal
+                        }]).select();
+                        if (inserted && inserted[0]) dbComments.unshift(inserted[0]);
+                    } catch (e) {}
+                }
+            }
+
+            allMergedComments = [...dbComments, ...localComments].filter((v, i, a) =>
+                a.findIndex(t => ((t.content || t.comment_text) === (v.content || v.comment_text) && t.username === v.username)) === i
             );
 
-            document.getElementById('commentsCountBadge').innerText = merged.length;
-            if (!merged.length) {
+            // ترتيب من الأحدث إلى الأقدم
+            allMergedComments.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+            const uniqueUsers = [...new Set(allMergedComments.map(c => c.username).filter(Boolean))];
+            await Promise.all(uniqueUsers.map(u => fetchProfileInfo(u)));
+
+            renderCommentsList();
+        }
+
+        function renderCommentsList() {
+            const listEl = document.getElementById('commentsList');
+            const seeMoreWrap = document.getElementById('commentsSeeMoreWrap');
+            const seeMoreBtn = document.getElementById('commentsSeeMoreBtn');
+
+            document.getElementById('commentsCountBadge').innerText = allMergedComments.length;
+
+            if (!allMergedComments.length) {
                 listEl.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs font-bold">لا توجد تعليقات بعد. كن أول من يعلق!</div>`;
+                seeMoreWrap.classList.add('hidden');
                 return;
             }
 
-            const uniqueUsers = [...new Set(merged.map(c => c.username).filter(Boolean))];
-            await Promise.all(uniqueUsers.map(u => fetchProfileInfo(u)));
-
             const uploaderUsername = (currentManga?.uploader_name || '').trim().toLowerCase();
+            const visibleSlice = allMergedComments.slice(0, visibleCommentsLimit);
 
-            listEl.innerHTML = merged.map(c => {
+            listEl.innerHTML = visibleSlice.map(c => {
                 const uName = c.username || 'زائر';
                 const prof = profilesMap[uName.trim().toLowerCase()];
                 const tier = (prof && prof.subscription_type) ? prof.subscription_type : (c.user_tier || 'free');
@@ -639,6 +697,8 @@
                 const authorBadgeHTML = isWorkAuthor
                     ? `<span class="author-pill ${meta.authorPill}"><i class="fas fa-pen-nib text-[8px]"></i>الكاتب</span>`
                     : '';
+
+                const safeContent = String(c.content || c.comment_text || '').slice(0, MAX_COMMENT_LENGTH);
 
                 return `
                     <div class="bg-[#111115] border border-gray-800/90 rounded-2xl p-3.5 text-right flex gap-3 items-start">
@@ -656,11 +716,25 @@
                                 </div>
                                 <span class="text-[10px] text-gray-500 font-bold">${c.created_at ? new Date(c.created_at).toLocaleDateString('ar-EG') : 'الآن'}</span>
                             </div>
-                            <p class="text-xs text-gray-200 font-semibold leading-relaxed break-words">${c.content || c.comment_text || ''}</p>
+                            <p class="text-xs text-gray-200 font-semibold leading-relaxed break-words">${safeContent}</p>
                         </div>
                     </div>
                 `;
             }).join('');
+
+            // إخفاء التعليقات الأقدم إذا زادت عن الحد المعروض (10 تعليقات) وإظهار زر المزيد
+            const remainingCount = allMergedComments.length - visibleCommentsLimit;
+            if (remainingCount > 0) {
+                seeMoreWrap.classList.remove('hidden');
+                seeMoreBtn.innerHTML = `عرض المزيد من التعليقات (${remainingCount} أقدم) <i class="fas fa-chevron-down mr-1 text-[10px]"></i>`;
+            } else {
+                seeMoreWrap.classList.add('hidden');
+            }
+        }
+
+        function showMoreComments() {
+            visibleCommentsLimit += 10;
+            renderCommentsList();
         }
 
         async function postNewComment() {
@@ -668,6 +742,11 @@
             const input = document.getElementById('commentInput');
             const text = input.value.trim();
             if (!text) return;
+
+            if (text.length > MAX_COMMENT_LENGTH) {
+                alert(`الحد الأقصى للتعليق هو ${MAX_COMMENT_LENGTH} حرف فقط.`);
+                return;
+            }
 
             if (!hasNoCommentCooldown()) {
                 const lastTime = Number(localStorage.getItem('futa_last_comment_ts') || 0);
@@ -685,14 +764,13 @@
                 manga_id: String(currentMangaId),
                 username: currentUser.username,
                 user_tier: getUserSubType(),
-                content: text
+                content: text.slice(0, MAX_COMMENT_LENGTH)
             };
 
             try {
                 const { error } = await sbClient.from('comments').insert([payload]);
                 if (error) {
-                    // محاولة ثانية إذا كان الجدول القديم لا يحتوي على عمود user_tier
-                    await sbClient.from('comments').insert([{ manga_id: String(currentMangaId), username: currentUser.username, content: text }]);
+                    await sbClient.from('comments').insert([{ manga_id: String(currentMangaId), username: currentUser.username, content: payload.content }]);
                 }
             } catch (e) {}
 
@@ -702,6 +780,7 @@
             localStorage.setItem('futa_last_comment_ts', String(Date.now()));
 
             input.value = '';
+            updateCommentCharCounter();
             btn.disabled = false;
             await loadMangaComments();
         }
@@ -750,7 +829,6 @@
                 const currentTags = getTagsArray(currentManga).map(t => t.toLowerCase());
                 const currentType = currentManga ? getWorkType(currentManga) : 'مانغا';
 
-                // ترتيب الأعمال المشابهة حسب عدد التصنيفات المشتركة ونوع العمل
                 const scored = others.map(m => {
                     const mTags = getTagsArray(m).map(t => t.toLowerCase());
                     const sharedTagsCount = mTags.filter(t => currentTags.includes(t)).length;
@@ -788,7 +866,6 @@
                         </a>
                     `);
 
-                    // إدراج إعلان غلاف مدمج بعد البطاقة الأولى وكل 3 بطاقات لغير المشتركين
                     if (showAds && (index === 0 || (index + 1) % 3 === 0)) {
                         html.push(createCoverAdCardHTML(adCounter++));
                     }
