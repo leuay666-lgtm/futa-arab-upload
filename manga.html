@@ -51,6 +51,8 @@
         .author-pill { font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 5px; border-width: 1px; display: inline-flex; align-items: center; gap: 3px; line-height: 1.3; }
         .ad-banner-slot { background: linear-gradient(135deg, rgba(24,24,27,0.9), rgba(20,16,24,0.95)); border: 1px dashed rgba(244,114,182,0.4); }
         .hero-blur-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(28px) brightness(0.28); transform: scale(1.1); z-index: 0; }
+        .chapter-row-read { border-color: rgba(16, 185, 129, 0.35); background-color: rgba(16, 185, 129, 0.05); }
+        .chapter-row-last { border-color: rgba(244, 114, 182, 0.65); box-shadow: 0 0 12px rgba(244, 114, 182, 0.15); }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
@@ -195,9 +197,9 @@
                     <!-- الأزرار الرئيسية -->
                     <div class="space-y-2.5 pt-3 border-t border-gray-800/80">
                         <div class="grid grid-cols-2 gap-2.5">
-                            <button type="button" onclick="goToReadPage()" class="bg-accent hover:bg-pink-500 text-white font-black py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20 transition active:scale-95">
+                            <button type="button" id="mainStartReadBtn" onclick="goToReadPage()" class="bg-accent hover:bg-pink-500 text-white font-black py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20 transition active:scale-95">
                                 <i class="fas fa-book-open"></i>
-                                <span>ابدأ القراءة الآن</span>
+                                <span id="mainStartReadText">ابدأ القراءة الآن</span>
                             </button>
                             <button type="button" onclick="goToDownloadPage()" class="bg-gradient-to-r from-yellow-500 to-amber-600 hover:opacity-95 text-black font-black py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95">
                                 <i class="fas fa-download"></i>
@@ -231,6 +233,62 @@
                 <i class="fas fa-bolt text-yellow-400 ml-1"></i> احصل على شارة متوهجة في التعليقات وتحميل فوري للفصول — <span class="text-yellow-400 underline">اشترك الآن ابتداءً من $2</span>
             </a>
         </div>
+
+        <!-- صندوق جميع الفصول (مع بحث عن فصل + تتبع الفصول المكتملة وأي فصل وصلت إليه + زر عرض المزيد) -->
+        <section id="chaptersBoxSection" class="bg-card border border-gray-800 rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
+            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-gray-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                        <i class="fas fa-layer-group text-accent"></i> قائمة الفصول
+                    </h2>
+                    <span id="chaptersTotalBadge" class="text-[11px] bg-gray-800 text-accent px-2.5 py-0.5 rounded-full font-black">1</span>
+                </div>
+
+                <!-- عداد الفصول المكتملة + زر عكس الترتيب -->
+                <div class="flex items-center gap-2">
+                    <span id="completedChaptersBadge" class="text-[10px] bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-xl font-black">
+                        <i class="fas fa-check-double ml-1"></i> مكتمل 0 / 1
+                    </span>
+                    <button type="button" onclick="toggleChaptersSortOrder()" id="sortChaptersBtn" class="bg-[#111115] hover:bg-gray-800 text-gray-300 border border-gray-700 text-[10px] font-black px-2.5 py-1 rounded-xl transition active:scale-95" title="عكس ترتيب الفصول">
+                        <i class="fas fa-sort-numeric-down ml-1 text-accent"></i> الأحدث أولاً
+                    </button>
+                </div>
+            </div>
+
+            <!-- شريط متابعة القراءة (يظهر الفصل الذي وصل إليه القارئ أو أكمله) -->
+            <div id="readingProgressBanner" class="bg-[#111115] border border-pink-500/30 rounded-2xl p-3 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div class="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/40 text-accent flex items-center justify-center flex-shrink-0 text-xs">
+                        <i class="fas fa-bookmark"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-[10px] text-gray-400 font-bold block">حالة القراءة الخاصة بك:</span>
+                        <p id="readingProgressText" class="text-xs font-black text-white truncate">لم تبدأ القراءة بعد</p>
+                    </div>
+                </div>
+                <button type="button" id="continueReadingBtn" onclick="continueFromLastChapter()" class="bg-accent hover:bg-pink-500 text-white text-[11px] font-black px-3.5 py-2 rounded-xl transition active:scale-95 whitespace-nowrap shadow">
+                    ابدأ الفصل 1 <i class="fas fa-play mr-1 text-[9px]"></i>
+                </button>
+            </div>
+
+            <!-- شريط البحث عن فصل في أعلى الصندوق -->
+            <div class="relative">
+                <i class="fas fa-search absolute right-3.5 top-3 text-gray-500 text-xs"></i>
+                <input type="text" id="chapterSearchInput" oninput="filterChaptersList()" placeholder="ابحث عن رقم الفصل أو عنوانه..." class="w-full bg-[#111115] text-white text-xs p-2.5 pr-9 rounded-xl border border-gray-700 focus:border-accent outline-none font-bold placeholder-gray-500">
+            </div>
+
+            <!-- قائمة الفصول -->
+            <div id="chaptersListContainer" class="space-y-2">
+                <div class="text-center py-6 text-gray-500 text-xs font-bold">جاري تجهيز الفصول...</div>
+            </div>
+
+            <!-- زر عرض المزيد من الفصول عندما تكون الفصول كثيرة -->
+            <div id="chaptersSeeMoreWrap" class="text-center pt-1 hidden">
+                <button type="button" id="chaptersSeeMoreBtn" onclick="showMoreChapters()" class="bg-[#121216] hover:bg-gray-800 border border-gray-700 hover:border-accent text-white text-xs font-black px-6 py-2.5 rounded-full transition active:scale-95 shadow-md">
+                    عرض المزيد من الفصول <i class="fas fa-chevron-down mr-1 text-[10px]"></i>
+                </button>
+            </div>
+        </section>
 
         <!-- قسم التعليقات والمناقشة (حد 200 حرف + إخفاء الأقدم بعد 10 تعليقات مع زر المزيد) -->
         <section id="commentsSection" class="bg-card border border-gray-800 rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
@@ -305,6 +363,11 @@
         let allMangasCache = [];
         let profilesMap = {};
 
+        // متغيرات صندوق الفصول (البحث + عرض المزيد + الترتيب + تتبع المكتمل)
+        let seriesChaptersList = [];
+        let visibleChaptersLimit = 6;
+        let chaptersSortDesc = true; // الأحدث أولاً
+
         // متغيرات التعليقات (عرض أحدث 10 تعليقات وإخفاء الأقدم تحت زر المزيد)
         let allMergedComments = [];
         let visibleCommentsLimit = 10;
@@ -331,8 +394,8 @@
         window.onload = async () => {
             await syncCurrentUser();
             await loadMangaDetails();
+            await loadRelatedMangasAndChapters();
             await loadMangaComments();
-            await loadRelatedMangasByTags();
         };
 
         function updateCommentCharCounter() {
@@ -363,20 +426,23 @@
         function hasNoCommentCooldown() { return ['vip', 'vip_pro', 'vip_ultra'].includes(getUserSubType()); }
         function getUserLibraryLimit() { return PLAN_LIMITS[getUserSubType()] || 25; }
 
-        async function goToReadPage() {
-            if (!currentMangaId) return;
-            localStorage.setItem('selectedMangaId', String(currentMangaId));
+        async function goToReadPage(targetChapterId) {
+            const readId = targetChapterId || currentMangaId;
+            if (!readId) return;
+            markChapterAsCompleted(readId);
+            localStorage.setItem('selectedMangaId', String(readId));
             try {
                 const res = await fetch('read.html', { method: 'HEAD' });
-                if (res.ok) { window.location.href = `read.html?id=${currentMangaId}`; return; }
+                if (res.ok) { window.location.href = `read.html?id=${readId}`; return; }
             } catch (e) {}
-            window.location.href = `reader.html?id=${currentMangaId}`;
+            window.location.href = `reader.html?id=${readId}`;
         }
 
-        function goToDownloadPage() {
-            if (!currentMangaId) return;
-            localStorage.setItem('selectedMangaId', String(currentMangaId));
-            window.location.href = `download.html?id=${currentMangaId}`;
+        function goToDownloadPage(targetChapterId) {
+            const dlId = targetChapterId || currentMangaId;
+            if (!dlId) return;
+            localStorage.setItem('selectedMangaId', String(dlId));
+            window.location.href = `download.html?id=${dlId}`;
         }
 
         async function syncCurrentUser() {
@@ -436,29 +502,20 @@
             return null;
         }
 
-        function extractMangaPages(m) {
-            if (!m) return [];
-            const candidates = [m.images, m.pages, m.pages_urls, m.image_urls, m.chapter_images, m.gallery];
-            for (const raw of candidates) {
-                if (!raw) continue;
-                if (Array.isArray(raw) && raw.length > 0) return raw;
-                if (typeof raw === 'string' && raw.trim() !== '') {
-                    try {
-                        const parsed = JSON.parse(raw);
-                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-                    } catch (e) {
-                        const split = raw.split(/[\n,]+/).map(s => s.trim()).filter(s => s.startsWith('http'));
-                        if (split.length > 0) return split;
-                    }
-                }
-            }
-            return m.cover_image_url ? [m.cover_image_url] : [];
-        }
+        function getWorkType(manga) {
+            if (!manga) return 'مانغا';
+            const wt = String(manga.work_type || '').trim().toLowerCase();
+            const tagsStr = (Array.isArray(manga.tags) ? manga.tags.join(',') : String(manga.tags || '')).toLowerCase();
+            const otherCols = [manga.type, manga.category, manga.manga_type, manga.format, manga.kind].map(x => String(x || '').toLowerCase()).join(' ');
 
-        function getWorkType(m) {
-            const raw = ((m.work_type || m.type || m.category || m.tags || '') + '').toLowerCase();
-            if (raw.includes('manhwa') || raw.includes('مانها') || raw.includes('مانهوا')) return 'مانها';
-            if (raw.includes('comic') || raw.includes('كوميك')) return 'كوميكس';
+            const tagParts = tagsStr.split(',').map(s => s.trim());
+            if (tagParts[0] === 'مانها' || tagParts[0] === 'مانهوا' || tagParts[0] === 'manhwa') return 'مانها';
+            if (tagParts[0] === 'كوميكس' || tagParts[0] === 'كوميك' || tagParts[0] === 'comics' || tagParts[0] === 'comic') return 'كوميكس';
+            if (tagParts[0] === 'مانغا' || tagParts[0] === 'مانجا' || tagParts[0] === 'manga') return 'مانغا';
+
+            const combined = `${wt} ${tagsStr} ${otherCols}`;
+            if (combined.includes('manhwa') || combined.includes('مانها') || combined.includes('مانهوا') || combined.includes('manhua')) return 'مانها';
+            if (combined.includes('comic') || combined.includes('كوميكس') || combined.includes('كوميك')) return 'كوميكس';
             return 'مانغا';
         }
 
@@ -476,7 +533,6 @@
                 currentManga = manga;
                 currentMangaId = String(manga.id);
 
-                // تثبيت معرف المانغا في الرابط حتى يفتح أي متصفح نفس العمل بالضبط
                 if (!window.location.search.includes('id=')) {
                     window.history.replaceState({}, '', `?id=${currentMangaId}`);
                 }
@@ -516,12 +572,224 @@
                     `<a href="tags.html?tag=${encodeURIComponent(t)}" class="text-[10px] bg-[#111115] hover:border-accent text-gray-300 px-2.5 py-1 rounded-lg border border-gray-700 font-bold transition">#${t}</a>`
                 ).join('');
 
-                const pages = extractMangaPages(manga);
-                document.getElementById('pagesCountBadge').innerHTML = `<i class="fas fa-file-image text-accent ml-1"></i> ${pages.length} صفحة`;
+                // جلب عدد الصفحات الحقيقي من جدول manga_pages
+                const { count } = await sbClient.from('manga_pages').select('*', { count: 'exact', head: true }).eq('manga_id', currentMangaId);
+                const pagesCount = count || 1;
+                document.getElementById('pagesCountBadge').innerHTML = `<i class="fas fa-file-image text-accent ml-1"></i> ${pagesCount} صفحة`;
 
                 recordReadingHistory(manga.id);
                 refreshLikeAndBookmarkUI();
             } catch (err) {}
+        }
+
+        // ================= نظام قائمة الفصول + البحث عن فصل + تتبع الفصول المكتملة =================
+        function getBaseSeriesTitle(title) {
+            if (!title) return '';
+            return title
+                .replace(/(\s*[-–—:|]\s*)?(الفصل|فصل|تشابتر|شابتر|chapter|ch\.?|ep\.?|حلقة)\s*\d+.*/i, '')
+                .replace(/\s+\d+\s*$/, '')
+                .trim()
+                .toLowerCase();
+        }
+
+        function extractChapterNumber(title, fallbackIndex) {
+            const match = String(title || '').match(/(?:الفصل|فصل|تشابتر|شابتر|chapter|ch\.?)\s*(\d+(?:\.\d+)?)/i) || String(title || '').match(/(\d+(?:\.\d+)?)\s*$/);
+            return match ? parseFloat(match[1]) : fallbackIndex;
+        }
+
+        function isChapterCompleted(chapId) {
+            const sId = String(chapId);
+            if (localStorage.getItem(`completed_chapter_${sId}`) === 'true' || localStorage.getItem(`read_chapter_${sId}`) === 'true') return true;
+            const completedList = JSON.parse(localStorage.getItem('futa_completed_chapters') || '[]').map(String);
+            if (completedList.includes(sId)) return true;
+            // التوافق مع سجل reader.html
+            if (localStorage.getItem(`reader_progress_${sId}`) || localStorage.getItem(`last_page_${sId}`)) return true;
+            return false;
+        }
+
+        function markChapterAsCompleted(chapId) {
+            const sId = String(chapId);
+            localStorage.setItem(`completed_chapter_${sId}`, 'true');
+            localStorage.setItem(`read_chapter_${sId}`, 'true');
+            let list = JSON.parse(localStorage.getItem('futa_completed_chapters') || '[]').map(String);
+            if (!list.includes(sId)) list.unshift(sId);
+            localStorage.setItem('futa_completed_chapters', JSON.stringify(list));
+            if (currentManga) {
+                const baseKey = getBaseSeriesTitle(currentManga.title) || String(currentManga.id);
+                localStorage.setItem(`last_read_series_${baseKey}`, sId);
+            }
+        }
+
+        function toggleChapterCompletedManual(event, chapId) {
+            event.stopPropagation();
+            const sId = String(chapId);
+            let list = JSON.parse(localStorage.getItem('futa_completed_chapters') || '[]').map(String);
+            if (isChapterCompleted(sId)) {
+                localStorage.removeItem(`completed_chapter_${sId}`);
+                localStorage.removeItem(`read_chapter_${sId}`);
+                localStorage.removeItem(`reader_progress_${sId}`);
+                list = list.filter(x => x !== sId);
+            } else {
+                localStorage.setItem(`completed_chapter_${sId}`, 'true');
+                localStorage.setItem(`read_chapter_${sId}`, 'true');
+                if (!list.includes(sId)) list.unshift(sId);
+            }
+            localStorage.setItem('futa_completed_chapters', JSON.stringify(list));
+            renderChaptersBox();
+        }
+
+        function buildSeriesChaptersList() {
+            if (!currentManga) return;
+            const baseTitle = getBaseSeriesTitle(currentManga.title);
+
+            // جمع كل الفصول التي تنتمي لنفس اسم المانغا/السلسلة
+            let matched = allMangasCache.filter(m => {
+                if (String(m.id) === String(currentManga.id)) return true;
+                const mBase = getBaseSeriesTitle(m.title);
+                return baseTitle && mBase && mBase === baseTitle;
+            });
+
+            if (matched.length === 0) matched = [currentManga];
+
+            // ترتيب زمني من الأقدم للأحدث لإعطاء أرقام الفصول (1، 2، 3...)
+            matched.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+
+            seriesChaptersList = matched.map((m, idx) => ({
+                id: String(m.id),
+                title: m.title || `الفصل ${idx + 1}`,
+                chapterNum: extractChapterNumber(m.title, idx + 1),
+                created_at: m.created_at,
+                uploader_name: m.uploader_name || 'مجهول'
+            }));
+
+            seriesChaptersList.sort((a, b) => a.chapterNum - b.chapterNum);
+            renderChaptersBox();
+        }
+
+        function renderChaptersBox() {
+            const container = document.getElementById('chaptersListContainer');
+            const seeMoreWrap = document.getElementById('chaptersSeeMoreWrap');
+            const seeMoreBtn = document.getElementById('chaptersSeeMoreBtn');
+            const query = (document.getElementById('chapterSearchInput')?.value || '').trim().toLowerCase();
+
+            document.getElementById('chaptersTotalBadge').innerText = seriesChaptersList.length;
+
+            // حساب الفصول المكتملة وأي فصل وصل إليه القارئ
+            const completedChapters = seriesChaptersList.filter(ch => isChapterCompleted(ch.id));
+            document.getElementById('completedChaptersBadge').innerHTML = `<i class="fas fa-check-double ml-1"></i> مكتمل ${completedChapters.length} / ${seriesChaptersList.length}`;
+
+            const baseKey = currentManga ? (getBaseSeriesTitle(currentManga.title) || String(currentManga.id)) : '';
+            const savedLastId = localStorage.getItem(`last_read_series_${baseKey}`);
+            const lastReadChapter = seriesChaptersList.find(c => c.id === savedLastId) || completedChapters[completedChapters.length - 1] || null;
+
+            const progText = document.getElementById('readingProgressText');
+            const contBtn = document.getElementById('continueReadingBtn');
+            const mainReadText = document.getElementById('mainStartReadText');
+
+            if (lastReadChapter) {
+                const isAllDone = completedChapters.length >= seriesChaptersList.length;
+                progText.innerHTML = isAllDone
+                    ? `<span class="text-emerald-400">أكملت قراءة جميع الفصول (${seriesChaptersList.length} / ${seriesChaptersList.length}) ✓ — آخرها الفصل ${lastReadChapter.chapterNum}</span>`
+                    : `وصلت إلى: <span class="text-accent">الفصل ${lastReadChapter.chapterNum}</span> (${lastReadChapter.title})`;
+                contBtn.innerHTML = `متابعة الفصل ${lastReadChapter.chapterNum} <i class="fas fa-play mr-1 text-[9px]"></i>`;
+                contBtn.onclick = () => goToReadPage(lastReadChapter.id);
+                if (mainReadText) mainReadText.innerText = `متابعة القراءة (فصل ${lastReadChapter.chapterNum})`;
+            } else {
+                const firstChap = seriesChaptersList[0];
+                progText.innerText = 'لم تبدأ قراءة أي فصل من هذا العمل بعد';
+                contBtn.innerHTML = `ابدأ الفصل ${firstChap ? firstChap.chapterNum : 1} <i class="fas fa-play mr-1 text-[9px]"></i>`;
+                contBtn.onclick = () => goToReadPage(firstChap ? firstChap.id : currentMangaId);
+            }
+
+            let list = [...seriesChaptersList];
+            if (chaptersSortDesc) list.reverse();
+
+            if (query) {
+                list = list.filter(ch =>
+                    String(ch.chapterNum).includes(query) ||
+                    (ch.title || '').toLowerCase().includes(query) ||
+                    `فصل ${ch.chapterNum}`.includes(query) ||
+                    `الفصل ${ch.chapterNum}`.includes(query)
+                );
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-gray-500 text-xs font-bold bg-[#111115] rounded-2xl border border-gray-800">لا يوجد فصل مطابق لبحثك.</div>`;
+                seeMoreWrap.classList.add('hidden');
+                return;
+            }
+
+            const visibleSlice = query ? list : list.slice(0, visibleChaptersLimit);
+
+            container.innerHTML = visibleSlice.map(ch => {
+                const isDone = isChapterCompleted(ch.id);
+                const isCurrent = String(ch.id) === String(currentMangaId);
+                const isLastReached = lastReadChapter && String(lastReadChapter.id) === String(ch.id);
+                const savedPage = localStorage.getItem(`reader_progress_${ch.id}`) || localStorage.getItem(`last_page_${ch.id}`);
+
+                return `
+                    <div onclick="goToReadPage('${ch.id}')" class="cursor-pointer bg-[#111115] hover:bg-[#191920] border ${isLastReached ? 'chapter-row-last' : isDone ? 'chapter-row-read' : 'border-gray-800'} rounded-2xl p-3 flex items-center justify-between gap-3 transition group">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="w-10 h-10 rounded-xl ${isDone ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-gray-800 text-accent border-gray-700'} border flex flex-col items-center justify-center flex-shrink-0 font-black text-xs">
+                                <span>#${ch.chapterNum}</span>
+                            </div>
+                            <div class="overflow-hidden text-right">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <h3 class="font-black text-xs sm:text-sm ${isDone ? 'text-gray-300' : 'text-white'} group-hover:text-accent transition truncate">
+                                        الفصل ${ch.chapterNum} — ${ch.title}
+                                    </h3>
+                                    ${isCurrent ? `<span class="text-[9px] bg-pink-500/20 text-accent border border-pink-500/40 px-2 py-0.5 rounded font-black">الحالي</span>` : ''}
+                                    ${isLastReached ? `<span class="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded font-black"><i class="fas fa-map-marker-alt ml-1"></i>آخر وصول</span>` : ''}
+                                </div>
+                                <div class="flex items-center gap-2 text-[10px] text-gray-500 font-bold mt-0.5">
+                                    <span><i class="far fa-calendar-alt ml-1"></i>${ch.created_at ? new Date(ch.created_at).toLocaleDateString('ar-EG') : 'منشور'}</span>
+                                    ${savedPage ? `<span class="text-cyan-400">• وصلت لصفحة ${savedPage}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <button type="button" onclick="toggleChapterCompletedManual(event, '${ch.id}')" class="px-2.5 py-1.5 rounded-xl text-[10px] font-black border transition active:scale-95 flex items-center gap-1 ${isDone ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/50' : 'bg-gray-800/80 text-gray-400 border-gray-700 hover:text-white'}" title="تعليم كمكتمل / مقروء">
+                                <i class="fas ${isDone ? 'fa-check-circle' : 'fa-circle'} text-[9px]"></i>
+                                <span>${isDone ? 'مكتمل ✓' : 'غير مقروء'}</span>
+                            </button>
+                            <span class="bg-accent/15 group-hover:bg-accent text-accent group-hover:text-white w-8 h-8 rounded-xl flex items-center justify-center transition text-xs">
+                                <i class="fas fa-book-open"></i>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const remaining = list.length - visibleChaptersLimit;
+            if (!query && remaining > 0) {
+                seeMoreWrap.classList.remove('hidden');
+                seeMoreBtn.innerHTML = `عرض المزيد من الفصول (${remaining} فصل إضافي) <i class="fas fa-chevron-down mr-1 text-[10px]"></i>`;
+            } else {
+                seeMoreWrap.classList.add('hidden');
+            }
+        }
+
+        function filterChaptersList() {
+            renderChaptersBox();
+        }
+
+        function showMoreChapters() {
+            visibleChaptersLimit += 8;
+            renderChaptersBox();
+        }
+
+        function toggleChaptersSortOrder() {
+            chaptersSortDesc = !chaptersSortDesc;
+            const btn = document.getElementById('sortChaptersBtn');
+            btn.innerHTML = chaptersSortDesc
+                ? '<i class="fas fa-sort-numeric-down ml-1 text-accent"></i> الأحدث أولاً'
+                : '<i class="fas fa-sort-numeric-up ml-1 text-accent"></i> الأقدم أولاً';
+            renderChaptersBox();
+        }
+
+        function continueFromLastChapter() {
+            goToReadPage(currentMangaId);
         }
 
         function getTagsArray(m) {
@@ -638,7 +906,6 @@
                 if (!error && Array.isArray(data)) dbComments = data;
             } catch (e) {}
 
-            // رفع أي تعليق كان محفوظاً محلياً فقط إلى قاعدة البيانات ليظهر في كل المتصفحات
             const localComments = JSON.parse(localStorage.getItem(`manga_comments_${currentMangaId}`) || '[]');
             for (const lc of localComments) {
                 const textVal = (lc.content || lc.comment_text || '').trim().slice(0, MAX_COMMENT_LENGTH);
@@ -661,7 +928,6 @@
                 a.findIndex(t => ((t.content || t.comment_text) === (v.content || v.comment_text) && t.username === v.username)) === i
             );
 
-            // ترتيب من الأحدث إلى الأقدم
             allMergedComments.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
             const uniqueUsers = [...new Set(allMergedComments.map(c => c.username).filter(Boolean))];
@@ -722,7 +988,6 @@
                 `;
             }).join('');
 
-            // إخفاء التعليقات الأقدم إذا زادت عن الحد المعروض (10 تعليقات) وإظهار زر المزيد
             const remainingCount = allMergedComments.length - visibleCommentsLimit;
             if (remainingCount > 0) {
                 seeMoreWrap.classList.remove('hidden');
@@ -785,7 +1050,7 @@
             await loadMangaComments();
         }
 
-        // ================= الأعمال المشابهة حسب التصنيف + إعلانات الأغلفة =================
+        // ================= الأعمال المشابهة حسب التصنيف + بناء قائمة الفصول =================
         function renderMiniStarsHTML(score) {
             let s = '';
             for (let i = 1; i <= 5; i++) {
@@ -820,12 +1085,15 @@
                 </a>`;
         }
 
-        async function loadRelatedMangasByTags() {
+        async function loadRelatedMangasAndChapters() {
             try {
                 const { data } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
                 allMangasCache = data || [];
-                const others = allMangasCache.filter(m => String(m.id) !== String(currentMangaId));
 
+                // تجهيز صندوق الفصول فور جلب القائمة
+                buildSeriesChaptersList();
+
+                const others = allMangasCache.filter(m => String(m.id) !== String(currentMangaId));
                 const currentTags = getTagsArray(currentManga).map(t => t.toLowerCase());
                 const currentType = currentManga ? getWorkType(currentManga) : 'مانغا';
 
