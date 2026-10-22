@@ -357,9 +357,19 @@
         }
 
         function getWorkType(manga) {
-            const rawType = ((manga.work_type || manga.type || manga.category || manga.tags || '') + '').toLowerCase();
-            if (rawType.includes('manhwa') || rawType.includes('مانها') || rawType.includes('مانهوا')) return 'مانها';
-            if (rawType.includes('comic') || rawType.includes('كوميكس') || rawType.includes('كوميك')) return 'كوميكس';
+            if (!manga) return 'مانغا';
+            const wt = String(manga.work_type || '').trim().toLowerCase();
+            const tagsStr = (Array.isArray(manga.tags) ? manga.tags.join(',') : String(manga.tags || '')).toLowerCase();
+            const otherCols = [manga.type, manga.category, manga.manga_type, manga.format, manga.kind].map(x => String(x || '').toLowerCase()).join(' ');
+
+            const tagParts = tagsStr.split(',').map(s => s.trim());
+            if (tagParts[0] === 'مانها' || tagParts[0] === 'مانهوا' || tagParts[0] === 'manhwa') return 'مانها';
+            if (tagParts[0] === 'كوميكس' || tagParts[0] === 'كوميك' || tagParts[0] === 'comics' || tagParts[0] === 'comic') return 'كوميكس';
+            if (tagParts[0] === 'مانغا' || tagParts[0] === 'مانجا' || tagParts[0] === 'manga') return 'مانغا';
+
+            const combined = `${wt} ${tagsStr} ${otherCols}`;
+            if (combined.includes('manhwa') || combined.includes('مانها') || combined.includes('مانهوا') || combined.includes('manhua')) return 'مانها';
+            if (combined.includes('comic') || combined.includes('كوميكس') || combined.includes('كوميك')) return 'كوميكس';
             return 'مانغا';
         }
 
