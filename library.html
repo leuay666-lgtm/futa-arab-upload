@@ -236,7 +236,14 @@
         let activeTab = 'bookmarks';
         let visibleLibLimit = 12;
 
-        // حدود سعة المفضلة وسجل القراءة فقط (أما الإعجابات والتحميلات والمرفوعات فهي لا نهائية للجميع)
+        // قوائم المستخدم السحابية المرتبطة بحسابه في Supabase
+        let userCloudLists = {
+            bookmarks: [],
+            history: [],
+            likes: [],
+            downloads: []
+        };
+
         const PLAN_LIMITS = {
             free: 25,
             uploader: 50,
@@ -246,7 +253,6 @@
             vip_ultra: 999999
         };
 
-        // بطاقات الإعلانات المدمجة بين الأغلفة (تظهر لغير المشتركين)
         const nativeCoverAdsPool = [
             {
                 title: 'اشترك في باقة VIP وتصفح بدون إعلانات!',
@@ -267,10 +273,14 @@
             const t = params.get('tab');
             if (t && ['bookmarks', 'history', 'likes', 'downloads', 'uploads'].includes(t)) activeTab = t;
 
-            await syncUserAndPerks();
             await fetchApprovedMangas();
+            await syncUserAndPerks();
             switchTab(activeTab);
         };
+
+        function getUserKey() {
+            return currentUser && currentUser.username ? currentUser.username.trim().toLowerCase() : null;
+        }
 
         function getUserSubType() {
             return currentUser ? (currentUser.subscription_type || 'free') : 'free';
@@ -296,19 +306,123 @@
             return map[t] || { b: 'bg-gray-800 text-gray-400 border-gray-600 glow-free', i: 'fa-user', l: 'مجاني', n: 'text-glow-free', a: 'avatar-glow-free' };
         }
 
-        async function syncUserAndPerks() {
-            if (currentUser) {
+        function safeParseArray(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) return val.map(x => typeof x === 'object' ? String(x.id) : String(x)).filter(Boolean);
+            if (typeof val === 'string') {
                 try {
-                    const { data: p } = await sbClient.from('profiles').select('*').ilike('username', currentUser.username).limit(1).single();
+                    const p = JSON.parse(val);
+                    if (Array.isArray(p)) return p.map(x => typeof x === 'object' ? String(x.id) : String(x)).filter(Boolean);
+                } catch (e) {
+                    return val.split(',').map(s => s.trim()).filter(Boolean);
+                }
+            }
+            return [];
+        }
+
+        // جمع أي أعمال قديمة محفوظة في المتصفح الحالي ونقلها لحساب المستخدم السحابي ثم تنظيف المتصفح العام
+        function collectAndCleanLegacyLocalData(uKey) {
+            const legacyBookmarks = safeParseArray(localStorage.getItem('futa_bookmarks') || localStorage.getItem('bookmarks'));
+            const legacyHistory = safeParseArray(localStorage.getItem('futa_history') || localStorage.getItem('reading_history'));
+            const legacyLikes = safeParseArray(localStorage.getItem('futa_likes'));
+            const legacyDownloads = safeParseArray(localStorage.getItem('futa_downloads') || localStorage.getItem('downloaded_mangas') || localStorage.getItem('downloads_history'));
+
+            allMangas.forEach(m => {
+                const id = String(m.id);
+                if (localStorage.getItem(`bookmark_${id}`) === 'true' || localStorage.getItem(`fav_${id}`) === 'true') {
+                    if (!legacyBookmarks.includes(id)) legacyBookmarks.push(id);
+                }
+                if (localStorage.getItem(`liked_${id}`) === 'true' || localStorage.getItem(`like_${id}`) === 'true') {
+                    if (!legacyLikes.includes(id)) legacyLikes.push(id);
+                }
+                if (localStorage.getItem(`downloaded_${id}`) === 'true' || localStorage.getItem(`dl_${id}`) === 'true') {
+                    if (!legacyDownloads.includes(id)) legacyDownloads.push(id);
+                }
+            });
+
+            const userBk = safeParseArray(localStorage.getItem(`futa_bookmarks_${uKey}`));
+            const userHi = safeParseArray(localStorage.getItem(`futa_history_${uKey}`));
+            const userLi = safeParseArray(localStorage.getItem(`futa_likes_${uKey}`));
+            const userDl = safeParseArray(localStorage.getItem(`futa_downloads_${uKey}`));
+
+            const mergedLocal = {
+                bookmarks: [...new Set([...userBk, ...legacyBookmarks])],
+                history: [...new Set([...userHi, ...legacyHistory])],
+                likes: [...new Set([...userLi, ...legacyLikes])],
+                downloads: [...new Set([...userDl, ...legacyDownloads])]
+            };
+
+            // مسح المفاتيح العامة غير المرتبطة بحساب حتى لا تبقى ظاهرة بعد تسجيل الخروج
+            ['futa_bookmarks', 'bookmarks', 'futa_history', 'reading_history', 'futa_likes', 'futa_downloads', 'downloaded_mangas', 'downloads_history'].forEach(k => localStorage.removeItem(k));
+            allMangas.forEach(m => {
+                const id = String(m.id);
+                localStorage.removeItem(`bookmark_${id}`);
+                localStorage.removeItem(`fav_${id}`);
+                localStorage.removeItem(`downloaded_${id}`);
+                localStorage.removeItem(`dl_${id}`);
+            });
+
+            return mergedLocal;
+        }
+
+        function saveListsToUserLocal(uKey) {
+            if (!uKey) return;
+            localStorage.setItem(`futa_bookmarks_${uKey}`, JSON.stringify(userCloudLists.bookmarks));
+            localStorage.setItem(`futa_history_${uKey}`, JSON.stringify(userCloudLists.history));
+            localStorage.setItem(`futa_likes_${uKey}`, JSON.stringify(userCloudLists.likes));
+            localStorage.setItem(`futa_downloads_${uKey}`, JSON.stringify(userCloudLists.downloads));
+        }
+
+        async function saveListsToSupabaseCloud() {
+            const uKey = getUserKey();
+            if (!uKey || !currentUser) return;
+            saveListsToUserLocal(uKey);
+            try {
+                await sbClient.from('profiles').update({
+                    bookmarks_list: JSON.stringify(userCloudLists.bookmarks),
+                    history_list: JSON.stringify(userCloudLists.history),
+                    likes_list: JSON.stringify(userCloudLists.likes),
+                    downloads_list: JSON.stringify(userCloudLists.downloads)
+                }).ilike('username', currentUser.username.trim());
+            } catch (e) {}
+        }
+
+        async function syncUserAndPerks() {
+            if (currentUser && currentUser.username) {
+                const uKey = getUserKey();
+                const localCollected = collectAndCleanLegacyLocalData(uKey);
+
+                try {
+                    const { data: p } = await sbClient.from('profiles').select('*').ilike('username', currentUser.username.trim()).limit(1).single();
                     if (p) {
                         if (p.subscription_type !== 'free' && p.subscription_expires_at && new Date(p.subscription_expires_at) < new Date()) {
                             p.subscription_type = 'free';
-                            await sbClient.from('profiles').update({ subscription_type: 'free', library_limit: 25, ad_free: false }).ilike('username', currentUser.username);
+                            await sbClient.from('profiles').update({ subscription_type: 'free', library_limit: 25, ad_free: false }).ilike('username', currentUser.username.trim());
                         }
                         currentUser = { ...currentUser, ...p };
                         localStorage.setItem('futa_user_logged', JSON.stringify(currentUser));
+
+                        const cloudBk = safeParseArray(p.bookmarks_list);
+                        const cloudHi = safeParseArray(p.history_list);
+                        const cloudLi = safeParseArray(p.likes_list);
+                        const cloudDl = safeParseArray(p.downloads_list);
+
+                        const limit = getUserLimit();
+                        // دمج بيانات السحابة مع أي عنصر جديد أضافه المستخدم في هذا المتصفح
+                        userCloudLists.bookmarks = [...new Set([...localCollected.bookmarks, ...cloudBk])].slice(0, limit);
+                        userCloudLists.history   = [...new Set([...localCollected.history, ...cloudHi])].slice(0, limit);
+                        userCloudLists.likes     = [...new Set([...localCollected.likes, ...cloudLi])];
+                        userCloudLists.downloads = [...new Set([...localCollected.downloads, ...cloudDl])];
+
+                        await saveListsToSupabaseCloud();
+                    } else {
+                        userCloudLists = localCollected;
+                        saveListsToUserLocal(uKey);
                     }
-                } catch (e) {}
+                } catch (e) {
+                    userCloudLists = localCollected;
+                    saveListsToUserLocal(uKey);
+                }
 
                 const m = getSubMeta(getUserSubType());
                 const badge = document.getElementById('userBadge');
@@ -327,6 +441,9 @@
                         </div>
                         <i class="fas fa-chevron-left text-xs text-gray-500"></i>
                     </a>`;
+            } else {
+                // إذا قام المستخدم بتسجيل الخروج: تصفير القوائم وعدم إظهار أي أعمال لحساب سابق
+                userCloudLists = { bookmarks: [], history: [], likes: [], downloads: [] };
             }
             document.querySelectorAll('.site-ad-slot').forEach(s => s.classList.toggle('hidden', Boolean(isUserAdFree())));
         }
@@ -338,60 +455,22 @@
             } catch (e) { allMangas = []; }
         }
 
-        // جلب عناصر كل تبويب (المفضلة والسجل بحدود الباقة، بينما الإعجابات والتحميلات والمرفوعات بدون أي حدود نهائياً)
         function getSavedIdsForTab(tab) {
-            const limit = getUserLimit();
-            let ids = [];
+            // إذا لم يكن المستخدم مسجلاً للدخول، لا تعرض أي مانغا على الإطلاق
+            if (!currentUser || !currentUser.username) return [];
 
-            if (tab === 'bookmarks') {
-                const raw = JSON.parse(localStorage.getItem('futa_bookmarks') || localStorage.getItem('bookmarks') || '[]');
-                ids = Array.isArray(raw) ? raw.map(x => typeof x === 'object' ? String(x.id) : String(x)) : [];
-                allMangas.forEach(m => {
-                    if ((localStorage.getItem(`bookmark_${m.id}`) === 'true' || localStorage.getItem(`fav_${m.id}`) === 'true') && !ids.includes(String(m.id))) {
-                        ids.push(String(m.id));
-                    }
-                });
-                if (ids.length > limit) {
-                    ids = ids.slice(0, limit);
-                    localStorage.setItem('futa_bookmarks', JSON.stringify(ids));
-                }
-            } else if (tab === 'history') {
-                const raw = JSON.parse(localStorage.getItem('futa_history') || localStorage.getItem('reading_history') || '[]');
-                ids = Array.isArray(raw) ? raw.map(x => typeof x === 'object' ? String(x.id) : String(x)) : [];
-                const lastSelected = localStorage.getItem('selectedMangaId');
-                if (lastSelected && !ids.includes(String(lastSelected))) ids.unshift(String(lastSelected));
-                if (ids.length > limit) {
-                    ids = ids.slice(0, limit);
-                    localStorage.setItem('futa_history', JSON.stringify(ids));
-                }
-            } else if (tab === 'likes') {
-                // لا نهائي بدون حدود لجميع الباقات
-                const raw = JSON.parse(localStorage.getItem('futa_likes') || '[]');
-                ids = Array.isArray(raw) ? raw.map(String) : [];
-                allMangas.forEach(m => {
-                    if ((localStorage.getItem(`liked_${m.id}`) === 'true' || localStorage.getItem(`like_${m.id}`) === 'true') && !ids.includes(String(m.id))) {
-                        ids.push(String(m.id));
-                    }
-                });
-            } else if (tab === 'downloads') {
-                // لا نهائي بدون حدود لجميع الباقات
-                const raw = JSON.parse(localStorage.getItem('futa_downloads') || localStorage.getItem('downloaded_mangas') || localStorage.getItem('downloads_history') || '[]');
-                ids = Array.isArray(raw) ? raw.map(x => typeof x === 'object' ? String(x.id) : String(x)) : [];
-                allMangas.forEach(m => {
-                    if ((localStorage.getItem(`downloaded_${m.id}`) === 'true' || localStorage.getItem(`dl_${m.id}`) === 'true') && !ids.includes(String(m.id))) {
-                        ids.push(String(m.id));
-                    }
-                });
-            } else if (tab === 'uploads') {
-                // أعمال المستخدم المرفوعة: لا نهائية بدون أي حدود لجميع الباقات
-                if (currentUser && currentUser.username) {
-                    const uName = currentUser.username.trim().toLowerCase();
-                    ids = allMangas
-                        .filter(m => (m.uploader_name || '').trim().toLowerCase() === uName)
-                        .map(m => String(m.id));
-                }
+            const limit = getUserLimit();
+            if (tab === 'bookmarks') return userCloudLists.bookmarks.slice(0, limit);
+            if (tab === 'history') return userCloudLists.history.slice(0, limit);
+            if (tab === 'likes') return userCloudLists.likes;
+            if (tab === 'downloads') return userCloudLists.downloads;
+            if (tab === 'uploads') {
+                const uName = currentUser.username.trim().toLowerCase();
+                return allMangas
+                    .filter(m => (m.uploader_name || '').trim().toLowerCase() === uName)
+                    .map(m => String(m.id));
             }
-            return [...new Set(ids)];
+            return [];
         }
 
         function switchTab(tab) {
@@ -412,24 +491,30 @@
             };
             document.getElementById('pageTitle').innerHTML = titles[tab] || titles.bookmarks;
 
-            // إخفاء زر تفريغ القائمة في تبويب "مرفوعاتي" وإظهار زر رفع عمل جديد
-            document.getElementById('clearTabBtn').classList.toggle('hidden', tab === 'uploads');
+            document.getElementById('clearTabBtn').classList.toggle('hidden', tab === 'uploads' || !currentUser);
             document.getElementById('newUploadQuickBtn').classList.toggle('hidden', tab !== 'uploads');
 
             renderCurrentTab();
         }
 
         function updateCapacityUI(count) {
-            const sub = getUserSubType();
-            const limit = getUserLimit();
-            const isUnlimitedPlan = sub === 'vip_ultra' || limit >= 999999;
-
             const counterEl = document.getElementById('capacityCounter');
             const barEl = document.getElementById('capacityBar');
             const hintEl = document.getElementById('capacityHint');
             const upLink = document.getElementById('upgradeCapacityLink');
 
-            // الإعجابات والتحميلات والمرفوعات مفتوحة بلا حدود (∞) لجميع المستخدمين
+            if (!currentUser) {
+                counterEl.innerText = `غير مسجل الدخول`;
+                barEl.style.width = '0%';
+                hintEl.innerText = 'يرجى تسجيل الدخول لحفظ ومزامنة مكتبتك عبر جميع المتصفحات والأجهزة.';
+                upLink.classList.add('hidden');
+                return;
+            }
+
+            const sub = getUserSubType();
+            const limit = getUserLimit();
+            const isUnlimitedPlan = sub === 'vip_ultra' || limit >= 999999;
+
             if (activeTab === 'likes' || activeTab === 'downloads' || activeTab === 'uploads') {
                 const labelMap = {
                     likes: 'عمل معجب به',
@@ -441,7 +526,7 @@
                 barEl.className = 'bg-emerald-500 h-full transition-all duration-500';
                 hintEl.innerText = activeTab === 'uploads'
                     ? 'جميع الأعمال التي ترفعها محفوظة في حسابك للأبد بدون أي حد أقصى (ارفع 25 عملاً أسبوعياً لتفعيل شارة الرافع!).'
-                    : 'هذا القسم مفتوح بالكامل (لا نهائي ∞) لجميع الباقات بدون أي حدود تخزين!';
+                    : 'هذا القسم مفتوح بالكامل (لا نهائي ∞) ومرتبط بحسابك السحابي في جميع المتصفحات!';
                 upLink.classList.add('hidden');
                 return;
             }
@@ -451,7 +536,7 @@
                 counterEl.innerText = `${count} / ∞ (لا نهائي - ULTRA)`;
                 barEl.style.width = '100%';
                 barEl.className = 'bg-accent h-full transition-all duration-500';
-                hintEl.innerText = 'أنت تمتلك باقة VIP Ultra: تخزين مانغا وتتبع سجل لا نهائي!';
+                hintEl.innerText = 'أنت تمتلك باقة VIP Ultra: تخزين مانغا سحابي وتتبع سجل لا نهائي في كل المتصفحات!';
             } else {
                 const pct = Math.min(100, Math.round((count / limit) * 100));
                 counterEl.innerText = `${count} / ${limit} عمل`;
@@ -459,14 +544,24 @@
                 barEl.className = `h-full transition-all duration-500 ${pct >= 90 ? 'bg-red-500' : 'bg-accent'}`;
                 hintEl.innerText = count >= limit
                     ? `⚠️ وصلت للحد الأقصى لباقتك (${limit} عمل)! قم بترقية باقتك لحفظ المزيد.`
-                    : `باقتك الحالية (${getSubMeta(sub).l}) تتيح حفظ حتى ${limit} عملاً في المفضلة والسجل.`;
+                    : `باقتك الحالية (${getSubMeta(sub).l}) تتيح حفظ ومزامنة حتى ${limit} عملاً في حسابك.`;
             }
         }
 
-        function getWorkType(m) {
-            const raw = ((m.work_type || m.type || m.category || m.tags || '') + '').toLowerCase();
-            if (raw.includes('manhwa') || raw.includes('مانها') || raw.includes('مانهوا')) return 'مانها';
-            if (raw.includes('comic') || raw.includes('كوميك')) return 'كوميكس';
+        function getWorkType(manga) {
+            if (!manga) return 'مانغا';
+            const wt = String(manga.work_type || '').trim().toLowerCase();
+            const tagsStr = (Array.isArray(manga.tags) ? manga.tags.join(',') : String(manga.tags || '')).toLowerCase();
+            const otherCols = [manga.type, manga.category, manga.manga_type, manga.format, manga.kind].map(x => String(x || '').toLowerCase()).join(' ');
+
+            const tagParts = tagsStr.split(',').map(s => s.trim());
+            if (tagParts[0] === 'مانها' || tagParts[0] === 'مانهوا' || tagParts[0] === 'manhwa') return 'مانها';
+            if (tagParts[0] === 'كوميكس' || tagParts[0] === 'كوميك' || tagParts[0] === 'comics' || tagParts[0] === 'comic') return 'كوميكس';
+            if (tagParts[0] === 'مانغا' || tagParts[0] === 'مانجا' || tagParts[0] === 'manga') return 'مانغا';
+
+            const combined = `${wt} ${tagsStr} ${otherCols}`;
+            if (combined.includes('manhwa') || combined.includes('مانها') || combined.includes('مانهوا') || combined.includes('manhua')) return 'مانها';
+            if (combined.includes('comic') || combined.includes('كوميكس') || combined.includes('كوميك')) return 'كوميكس';
             return 'مانغا';
         }
 
@@ -478,7 +573,7 @@
 
         function getLikesCount(m) {
             const id = String(m.id);
-            const isLiked = localStorage.getItem(`liked_${id}`) === 'true' || localStorage.getItem(`like_${id}`) === 'true';
+            const isLiked = userCloudLists.likes.includes(id);
             const savedCount = localStorage.getItem(`likes_count_${id}`);
             if (savedCount !== null && !isNaN(parseInt(savedCount))) return parseInt(savedCount);
             const dbLikes = Number(m.likes_count || m.likes || 0);
@@ -522,6 +617,20 @@
         function renderCurrentTab() {
             const grid = document.getElementById('libraryGrid');
             const seeMoreWrap = document.getElementById('libSeeMoreWrap');
+
+            // إذا كان المستخدم قد سجل الخروج، لا نعرض أي مانغا ونطلب تسجيل الدخول
+            if (!currentUser || !currentUser.username) {
+                updateCapacityUI(0);
+                seeMoreWrap.classList.add('hidden');
+                grid.innerHTML = `
+                    <div class="col-span-2 md:col-span-3 text-center py-16 px-4 bg-card rounded-2xl border border-gray-800">
+                        <i class="fas fa-user-lock text-3xl text-accent mb-3 block"></i>
+                        <p class="text-xs text-gray-300 font-bold mb-4">يرجى تسجيل الدخول لعرض مكتبتك الخاصة ومزامنة أعمالك المحفوظة عبر جميع المتصفحات.</p>
+                        <a href="auth.html" class="inline-block bg-accent hover:bg-pink-500 text-white text-xs font-black px-6 py-2.5 rounded-xl shadow">تسجيل الدخول / حساب جديد</a>
+                    </div>`;
+                return;
+            }
+
             const ids = getSavedIdsForTab(activeTab);
             const items = ids.map(id => allMangas.find(m => String(m.id) === String(id))).filter(Boolean);
 
@@ -530,11 +639,11 @@
             if (items.length === 0) {
                 seeMoreWrap.classList.add('hidden');
                 const emptyTextMap = {
-                    bookmarks: 'قائمة المفضلة فارغة حالياً. أضف أعمالك المفضلة من صفحة المانغا!',
-                    history: 'سجل القراءة فارغ حالياً. ابدأ بقراءة أي مانغا ليتم حفظها هنا تلقائياً!',
+                    bookmarks: 'قائمة المفضلة فارغة حالياً. أضف أعمالك المفضلة من صفحة المانغا ليتم حفظها في حسابك!',
+                    history: 'سجل القراءة فارغ حالياً. ابدأ بقراءة أي مانغا ليتم حفظها في حسابك تلقائياً!',
                     likes: 'لم تقم بالإعجاب بأي عمل بعد.',
-                    downloads: 'قائمة التحميلات فارغة حالياً. أي فصل تقوم بتحميله سيظهر هنا تلقائياً بدون حدود!',
-                    uploads: currentUser ? 'لم تقم برفع أي عمل بحسابك بعد. ابدأ الرفع الآن واحصل على شارة الرافع!' : 'يرجى تسجيل الدخول لعرض أعمالك المرفوعة.'
+                    downloads: 'قائمة التحميلات فارغة حالياً. أي فصل تقوم بتحميله سيُحفظ في حسابك تلقائياً بدون حدود!',
+                    uploads: 'لم تقم برفع أي عمل بحسابك بعد. ابدأ الرفع الآن واحصل على شارة الرافع!'
                 };
                 const actionBtnHTML = activeTab === 'uploads'
                     ? `<a href="https://leuay666-lgtm.github.io/futa-arab-upload/upload.html" class="inline-block bg-red-600 hover:bg-red-500 text-white text-xs font-black px-6 py-2.5 rounded-xl shadow"><i class="fas fa-upload ml-1"></i>ارفع عملك الأول الآن</a>`
@@ -557,7 +666,7 @@
             visibleSlice.forEach((m, index) => {
                 const likes = getLikesCount(m);
                 const ratingNum = likes < 2 ? 1.5 : likes < 5 ? 2.0 : likes < 10 ? 4.5 : 5.0;
-                const isLikedByMe = localStorage.getItem(`liked_${m.id}`) === 'true' || localStorage.getItem(`like_${m.id}`) === 'true';
+                const isLikedByMe = userCloudLists.likes.includes(String(m.id));
 
                 const removeBtnHTML = activeTab !== 'uploads'
                     ? `<button type="button" onclick="removeSingleItem('${m.id}')" title="إزالة من القائمة" class="absolute top-2 left-2 z-30 w-7 h-7 rounded-lg bg-black/80 hover:bg-red-600 text-gray-300 hover:text-white border border-gray-700 flex items-center justify-center text-xs transition"><i class="fas fa-times"></i></button>`
@@ -586,19 +695,13 @@
                     </div>
                 `);
 
-                // إدراج إعلان غلاف بين الأغلفة بعد أول بطاقة وكل 3 بطاقات لغير المشتركين
                 if (showAds && (index === 0 || (index + 1) % 3 === 0)) {
                     cardsHtml.push(createCoverAdCardHTML(adCounter++));
                 }
             });
 
             grid.innerHTML = cardsHtml.join('');
-
-            if (items.length > visibleLibLimit) {
-                seeMoreWrap.classList.remove('hidden');
-            } else {
-                seeMoreWrap.classList.add('hidden');
-            }
+            seeMoreWrap.classList.toggle('hidden', items.length <= visibleLibLimit);
         }
 
         function showMoreLibraryItems() {
@@ -606,48 +709,31 @@
             renderCurrentTab();
         }
 
-        function removeSingleItem(id) {
+        async function removeSingleItem(id) {
+            if (!currentUser) return;
             const strId = String(id);
             if (activeTab === 'bookmarks') {
-                const updated = getSavedIdsForTab('bookmarks').filter(x => x !== strId);
-                localStorage.setItem('futa_bookmarks', JSON.stringify(updated));
-                localStorage.setItem('bookmarks', JSON.stringify(updated));
-                localStorage.removeItem(`bookmark_${strId}`);
-                localStorage.removeItem(`fav_${strId}`);
+                userCloudLists.bookmarks = userCloudLists.bookmarks.filter(x => x !== strId);
             } else if (activeTab === 'history') {
-                const updated = getSavedIdsForTab('history').filter(x => x !== strId);
-                localStorage.setItem('futa_history', JSON.stringify(updated));
-                localStorage.setItem('reading_history', JSON.stringify(updated));
-                if (localStorage.getItem('selectedMangaId') === strId) localStorage.removeItem('selectedMangaId');
+                userCloudLists.history = userCloudLists.history.filter(x => x !== strId);
             } else if (activeTab === 'likes') {
-                const updated = getSavedIdsForTab('likes').filter(x => x !== strId);
-                localStorage.setItem('futa_likes', JSON.stringify(updated));
-                localStorage.removeItem(`liked_${strId}`);
-                localStorage.removeItem(`like_${strId}`);
+                userCloudLists.likes = userCloudLists.likes.filter(x => x !== strId);
             } else if (activeTab === 'downloads') {
-                const updated = getSavedIdsForTab('downloads').filter(x => x !== strId);
-                localStorage.setItem('futa_downloads', JSON.stringify(updated));
-                localStorage.setItem('downloaded_mangas', JSON.stringify(updated));
-                localStorage.removeItem(`downloaded_${strId}`);
-                localStorage.removeItem(`dl_${strId}`);
+                userCloudLists.downloads = userCloudLists.downloads.filter(x => x !== strId);
             }
             renderCurrentTab();
+            await saveListsToSupabaseCloud();
         }
 
-        function clearCurrentTabList() {
-            if (activeTab === 'uploads') return;
-            if (!confirm('هل أنت متأكد من مسح جميع العناصر في هذه القائمة؟')) return;
-            const ids = getSavedIdsForTab(activeTab);
-            ids.forEach(id => {
-                if (activeTab === 'bookmarks') { localStorage.removeItem(`bookmark_${id}`); localStorage.removeItem(`fav_${id}`); }
-                else if (activeTab === 'likes') { localStorage.removeItem(`liked_${id}`); localStorage.removeItem(`like_${id}`); }
-                else if (activeTab === 'downloads') { localStorage.removeItem(`downloaded_${id}`); localStorage.removeItem(`dl_${id}`); }
-            });
-            if (activeTab === 'bookmarks') { localStorage.removeItem('futa_bookmarks'); localStorage.removeItem('bookmarks'); }
-            if (activeTab === 'history') { localStorage.removeItem('futa_history'); localStorage.removeItem('reading_history'); localStorage.removeItem('selectedMangaId'); }
-            if (activeTab === 'likes') { localStorage.removeItem('futa_likes'); }
-            if (activeTab === 'downloads') { localStorage.removeItem('futa_downloads'); localStorage.removeItem('downloaded_mangas'); localStorage.removeItem('downloads_history'); }
+        async function clearCurrentTabList() {
+            if (!currentUser || activeTab === 'uploads') return;
+            if (!confirm('هل أنت متأكد من مسح جميع العناصر في هذه القائمة من حسابك؟')) return;
+            if (activeTab === 'bookmarks') userCloudLists.bookmarks = [];
+            if (activeTab === 'history') userCloudLists.history = [];
+            if (activeTab === 'likes') userCloudLists.likes = [];
+            if (activeTab === 'downloads') userCloudLists.downloads = [];
             renderCurrentTab();
+            await saveListsToSupabaseCloud();
         }
 
         function goToMyProfile() { if (!currentUser) window.location.href = 'auth.html'; else window.location.href = `profile.html?user=${encodeURIComponent(currentUser.username)}`; }
