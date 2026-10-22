@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -156,11 +156,113 @@
             </button>
         </div>
     </div>
-
     <script>
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
         const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // ================= إعدادات Cloudflare R2 الخاصة بك =================
+        const R2_CONFIG = {
+            accountId: '5d7f318dfa90e1abf119ef75d7b376ba',
+            bucketName: 'futa-arab-manga',
+            accessKeyId: '99930e6317d28d63f56f6a95dcfe1283',
+            secretAccessKey: 'ae7da65df82457250aab923da2af348886f22817e1c3c690c96d44b4722487be',
+            endpointHost: '5d7f318dfa90e1abf119ef75d7b376ba.r2.cloudflarestorage.com',
+            publicBaseUrl: 'https://pub-93e9e8fc2af0406fa9512e96e7ae716f.r2.dev'
+        };
+
+        async function sha256Hex(message) {
+            const msgBuffer = typeof message === 'string' ? new TextEncoder().encode(message) : message;
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function hmacSha256(key, data) {
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                typeof key === 'string' ? new TextEncoder().encode(key) : key,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+            return await crypto.subtle.sign('HMAC', cryptoKey, new TextEncoder().encode(data));
+        }
+
+        async function getSignatureKey(key, dateStamp, regionName, serviceName) {
+            const kDate = await hmacSha256('AWS4' + key, dateStamp);
+            const kRegion = await hmacSha256(kDate, regionName);
+            const kService = await hmacSha256(kRegion, serviceName);
+            return await hmacSha256(kService, 'aws4_request');
+        }
+
+        function resolveR2PublicBaseUrl() {
+            let base = (R2_CONFIG.publicBaseUrl || '').trim();
+            if (!base || !base.startsWith('http')) {
+                throw new Error('رابط R2 العام غير معرف بشكل صحيح');
+            }
+            return base.replace(/\/+$/, '');
+        }
+
+        async function uploadFileToR2(objectKey, fileBlob) {
+            const pubBase = resolveR2PublicBaseUrl();
+            const now = new Date();
+            const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+            const dateStamp = amzDate.slice(0, 8);
+            const region = 'auto';
+            const service = 's3';
+            const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
+
+            const cleanAccessKey = R2_CONFIG.accessKeyId.replace(/[\s-]/g, '');
+            const cleanSecretKey = R2_CONFIG.secretAccessKey.replace(/[\s-]/g, '');
+
+            const canonicalUri = `/${R2_CONFIG.bucketName}/${objectKey.split('/').map(encodeURIComponent).join('/')}`;
+            const queryParams = new URLSearchParams({
+                'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+                'X-Amz-Credential': `${cleanAccessKey}/${credentialScope}`,
+                'X-Amz-Date': amzDate,
+                'X-Amz-Expires': '3600',
+                'X-Amz-SignedHeaders': 'host'
+            });
+            queryParams.sort();
+            const canonicalQueryString = queryParams.toString();
+            const canonicalHeaders = `host:${R2_CONFIG.endpointHost}\n`;
+            const signedHeaders = 'host';
+            const payloadHash = 'UNSIGNED-PAYLOAD';
+
+            const canonicalRequest = [
+                'PUT',
+                canonicalUri,
+                canonicalQueryString,
+                canonicalHeaders,
+                signedHeaders,
+                payloadHash
+            ].join('\n');
+
+            const stringToSign = [
+                'AWS4-HMAC-SHA256',
+                amzDate,
+                credentialScope,
+                await sha256Hex(canonicalRequest)
+            ].join('\n');
+
+            const signingKey = await getSignatureKey(cleanSecretKey, dateStamp, region, service);
+            const signatureBuffer = await hmacSha256(signingKey, stringToSign);
+            const signature = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+            const uploadUrl = `https://${R2_CONFIG.endpointHost}${canonicalUri}?${canonicalQueryString}&X-Amz-Signature=${signature}`;
+
+            const response = await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': fileBlob.type || 'image/webp' },
+                body: fileBlob
+            });
+
+            if (!response.ok) {
+                throw new Error(`فشل الرفع إلى R2 (${response.status}) - تأكد من إضافة CORS Policy في إعدادات R2`);
+            }
+
+            return `${pubBase}/${objectKey}`;
+        }
 
         if (window['pdfjs-dist/build/pdf']) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -463,13 +565,11 @@
                     const desc = document.getElementById('mangaDesc').value.trim() || null;
                     const coverFile = document.getElementById('mangaCover').files[0];
 
-                    updateProgressUI('<i class="fas fa-compress-arrows-alt"></i> رفع الغلاف...', 10);
-                    const coverName = `cover_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
-                    const { error: coverErr } = await sbClient.storage.from('manga-covers').upload(coverName, await compressImage(coverFile, 0.75));
-                    if (coverErr) throw coverErr;
-                    const coverUrl = sbClient.storage.from('manga-covers').getPublicUrl(coverName).data.publicUrl;
+                    updateProgressUI('<i class="fas fa-compress-arrows-alt"></i> رفع الغلاف إلى Cloudflare R2...', 10);
+                    const coverKey = `covers/cover_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
+                    const compressedCover = await compressImage(coverFile, 0.75);
+                    const coverUrl = await uploadFileToR2(coverKey, compressedCover);
 
-                    // تم إزالة work_type بناءً على طلب المستخدم لحل خطأ Schema Cache
                     const finalTagsArray = [selectedWorkType, ...Array.from(selectedTags)];
                     const mangaData = { 
                         title, title_en: titleEn, description: desc, uploader_name: uploader,
@@ -483,14 +583,14 @@
 
                 const totalPages = pageTasks.length;
                 for (let i = 0; i < totalPages; i++) {
-                    updateProgressUI(`<i class="fas fa-cloud-upload-alt"></i> رفع صفحة (${i + 1}/${totalPages})...`, Math.round(15 + ((i + 1) / totalPages) * 85));
-                    const pageName = `page_${targetMangaId}_${i + 1}_${Math.random().toString(36).substring(2, 7)}.webp`;
-                    const { error: pErr } = await sbClient.storage.from('manga-pages').upload(pageName, await pageTasks[i].getWebP());
-                    if (pErr) throw pErr;
+                    updateProgressUI(`<i class="fas fa-cloud-upload-alt"></i> رفع صفحة (${i + 1}/${totalPages}) إلى R2...`, Math.round(15 + ((i + 1) / totalPages) * 85));
+                    const pageKey = `chapters/manga_${targetMangaId}/page_${i + 1}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}.webp`;
+                    const compressedPage = await pageTasks[i].getWebP();
+                    const pageUrl = await uploadFileToR2(pageKey, compressedPage);
                     
                     await sbClient.from('manga_pages').insert([{
                         manga_id: targetMangaId,
-                        image_url: sbClient.storage.from('manga-pages').getPublicUrl(pageName).data.publicUrl,
+                        image_url: pageUrl,
                         page_number: i + 1
                     }]);
                 }
@@ -505,7 +605,7 @@
                 }
 
                 statusDiv.className = 'text-center text-sm font-bold p-3 rounded-xl border border-green-900 bg-green-900/20 text-green-400 space-y-2';
-                updateProgressUI(`<i class="fas fa-check-circle"></i> تم رفع الفصل بنجاح!`, 100);
+                updateProgressUI(`<i class="fas fa-check-circle"></i> تم رفع الفصل إلى R2 وحفظه بنجاح!`, 100);
                 
                 document.querySelectorAll('input:not([readonly]), textarea').forEach(el => el.value = '');
                 selectedTags.clear();
