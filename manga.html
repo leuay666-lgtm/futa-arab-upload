@@ -1159,7 +1159,6 @@
             const matches = allMangasCache.filter(m => (m.title||'').toLowerCase().includes(q) || (m.tags||'').toLowerCase().includes(q)).slice(0, 15);
             res.innerHTML = matches.length ? matches.map(m => `<a href="manga.html?id=${m.id}" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 items-center"><img src="${m.cover_image_url}" class="w-12 h-16 object-cover rounded-lg"><div class="flex-1"><h3 class="font-bold text-xs text-white line-clamp-1">${m.title}</h3><p class="text-[10px] text-gray-400 mt-0.5">${getWorkType(m)}</p></div></a>`).join('') : '<div class="text-center text-gray-500 mt-10 text-xs font-bold">لا توجد نتائج مطابقة.</div>';
         });
-        <script>
         const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
 
