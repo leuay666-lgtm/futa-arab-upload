@@ -105,6 +105,7 @@
             </a>
         </div>
     </div>
+
     <!-- الشريط العلوي -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -354,6 +355,7 @@
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
         <i class="fas fa-arrow-up"></i>
     </button>
+
     <script>
         const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
@@ -367,6 +369,7 @@
         let userCloudLists = { bookmarks: [], history: [], likes: [], downloads: [] };
 
         let seriesChaptersList = [];
+        let targetResumeChapterId = null;
         let visibleChaptersLimit = 6;
         let chaptersSortDesc = true;
 
@@ -463,7 +466,7 @@
         function getUserLibraryLimit() { return PLAN_LIMITS[getUserSubType()] || 25; }
 
         async function goToReadPage(targetChapterId) {
-            const readId = targetChapterId || currentMangaId;
+            const readId = targetChapterId || targetResumeChapterId || currentMangaId;
             if (!readId) return;
             markChapterAsCompleted(readId);
             await recordReadingHistory(readId);
@@ -629,7 +632,7 @@
                 const pagesCount = count || 1;
                 document.getElementById('pagesCountBadge').innerHTML = `<i class="fas fa-file-image text-accent ml-1"></i> ${pagesCount} صفحة`;
 
-                await recordReadingHistory(manga.id);
+                localStorage.setItem('selectedMangaId', String(manga.id));
                 refreshLikeAndBookmarkUI();
             } catch (err) {}
         }
@@ -727,8 +730,10 @@
             const progText = document.getElementById('readingProgressText');
             const contBtn = document.getElementById('continueReadingBtn');
             const mainReadText = document.getElementById('mainStartReadText');
+            const mainReadBtn = document.getElementById('mainStartReadBtn');
 
             if (lastReadChapter) {
+                targetResumeChapterId = lastReadChapter.id;
                 const isAllDone = completedChapters.length >= seriesChaptersList.length;
                 progText.innerHTML = isAllDone
                     ? `<span class="text-emerald-400">أكملت قراءة جميع الفصول (${seriesChaptersList.length} / ${seriesChaptersList.length}) ✓ — آخرها الفصل ${lastReadChapter.chapterNum}</span>`
@@ -736,11 +741,15 @@
                 contBtn.innerHTML = `متابعة الفصل ${lastReadChapter.chapterNum} <i class="fas fa-play mr-1 text-[9px]"></i>`;
                 contBtn.onclick = () => goToReadPage(lastReadChapter.id);
                 if (mainReadText) mainReadText.innerText = `متابعة القراءة (فصل ${lastReadChapter.chapterNum})`;
+                if (mainReadBtn) mainReadBtn.onclick = () => goToReadPage(lastReadChapter.id);
             } else {
                 const firstChap = seriesChaptersList[0];
+                targetResumeChapterId = firstChap ? firstChap.id : currentMangaId;
                 progText.innerText = 'لم تبدأ قراءة أي فصل من هذا العمل بعد';
                 contBtn.innerHTML = `ابدأ الفصل ${firstChap ? firstChap.chapterNum : 1} <i class="fas fa-play mr-1 text-[9px]"></i>`;
-                contBtn.onclick = () => goToReadPage(firstChap ? firstChap.id : currentMangaId);
+                contBtn.onclick = () => goToReadPage(targetResumeChapterId);
+                if (mainReadText) mainReadText.innerText = 'ابدأ القراءة الآن';
+                if (mainReadBtn) mainReadBtn.onclick = () => goToReadPage(targetResumeChapterId);
             }
 
             let list = [...seriesChaptersList];
@@ -819,7 +828,7 @@
                 : '<i class="fas fa-sort-numeric-up ml-1 text-accent"></i> الأقدم أولاً';
             renderChaptersBox();
         }
-        function continueFromLastChapter() { goToReadPage(currentMangaId); }
+        function continueFromLastChapter() { goToReadPage(targetResumeChapterId || currentMangaId); }
 
         function getTagsArray(m) {
             if (!m || !m.tags) return [];
