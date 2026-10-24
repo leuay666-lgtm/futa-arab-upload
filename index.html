@@ -145,6 +145,7 @@
             </a>
         </div>
     </div>
+
     <!-- الشريط العلوي -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -294,6 +295,7 @@
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
         <i class="fas fa-arrow-up"></i>
     </button>
+
     <script>
         const supabaseUrl = 'https://vosnoijtrovgtvpxnzsr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0';
@@ -354,6 +356,69 @@
         function updateBannerAdsVisibility() {
             const adSlots = document.querySelectorAll('.site-ad-slot');
             adSlots.forEach(slot => slot.classList.toggle('hidden', Boolean(isUserAdFree())));
+        }
+
+        // استخراج الاسم الأساسي للعمل لدمج الفصول المتعددة في بطاقة واحدة في الصفحة الرئيسية
+        function getBaseSeriesTitle(title) {
+            if (!title) return '';
+            return title
+                .replace(/(\s*[-–—:|]\s*)?(الفصل|فصل|تشابتر|شابتر|chapter|ch\.?|ep\.?|حلقة)\s*\d+.*/i, '')
+                .replace(/\s+\d+\s*$/, '')
+                .trim()
+                .toLowerCase();
+        }
+
+        function getCleanDisplayTitle(title) {
+            if (!title) return 'بدون عنوان';
+            return title
+                .replace(/(\s*[-–—:|]\s*)?(الفصل|فصل|تشابتر|شابتر|chapter|ch\.?|ep\.?|حلقة)\s*\d+.*/i, '')
+                .trim() || title;
+        }
+
+        function extractChapterNumber(title, fallbackIndex) {
+            const match = String(title || '').match(/(?:الفصل|فصل|تشابتر|شابتر|chapter|ch\.?)\s*(\d+(?:\.\d+)?)/i) || String(title || '').match(/(\d+(?:\.\d+)?)\s*$/);
+            return match ? parseFloat(match[1]) : fallbackIndex;
+        }
+
+        function groupMangasBySeries(rawList) {
+            const seriesMap = new Map();
+
+            for (const item of rawList) {
+                const baseKey = getBaseSeriesTitle(item.title) || String(item.id);
+                const chapNum = extractChapterNumber(item.title, 1);
+
+                if (!seriesMap.has(baseKey)) {
+                    seriesMap.set(baseKey, {
+                        ...item,
+                        title: getCleanDisplayTitle(item.title),
+                        latest_created_at: item.created_at,
+                        _lowestChapNum: chapNum
+                    });
+                } else {
+                    const existing = seriesMap.get(baseKey);
+
+                    // الاحتفاظ بأحدث تاريخ إضافة ليبقى العمل في صدارة قسم الأحدث عند نزول فصل جديد
+                    if (new Date(item.created_at || 0) > new Date(existing.latest_created_at || 0)) {
+                        existing.latest_created_at = item.created_at;
+                    }
+
+                    // ربط البطاقة بمعرّف الفصل الأول ليكون هو المدخل الأساسي في صفحة تعريف المانغا
+                    if (chapNum < existing._lowestChapNum) {
+                        existing.id = item.id;
+                        existing._lowestChapNum = chapNum;
+                        if (item.cover_image_url) existing.cover_image_url = item.cover_image_url;
+                        if (item.description && item.description !== 'بدون وصف') existing.description = item.description;
+                    } else if (!existing.cover_image_url && item.cover_image_url) {
+                        existing.cover_image_url = item.cover_image_url;
+                    }
+
+                    if (Number(item.likes_count || 0) > Number(existing.likes_count || 0)) {
+                        existing.likes_count = item.likes_count;
+                    }
+                }
+            }
+
+            return Array.from(seriesMap.values()).sort((a, b) => new Date(b.latest_created_at || 0) - new Date(a.latest_created_at || 0));
         }
 
         function getWorkType(manga) {
@@ -490,7 +555,9 @@
                     .eq('status', 'approved')
                     .order('created_at', { ascending: false });
 
-                allMangas = (!error && data) ? data : [];
+                const rawMangas = (!error && data) ? data : [];
+                // دمج الفصول المتعددة ليظهر كل عمل مرة واحدة فقط في الصفحة الرئيسية
+                allMangas = groupMangasBySeries(rawMangas);
                 applyWorkFilterAndRender();
             } catch (err) {
                 console.error(err);
