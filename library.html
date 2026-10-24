@@ -99,6 +99,7 @@
             </a>
         </div>
     </div>
+
     <!-- الشريط العلوي المحدث -->
     <nav class="sticky top-0 z-40 bg-[#121214]/90 backdrop-blur-md border-b border-gray-800/80 shadow-md w-full">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -164,7 +165,7 @@
                     <div id="capacityBar" class="bg-accent h-full transition-all duration-500" style="width: 0%"></div>
                 </div>
                 <div class="flex justify-between items-center mt-2 text-[10px] font-bold text-gray-500">
-                    <span id="capacityHint">الباقة المجانية تتيح حفظ حتى 25 عملاً في المفضلة والسجل.</span>
+                    <span id="capacityHint">الباقة المجانية تتيح حفظ حتى 25 عملاً في المفضلة والسجل والإعجابات.</span>
                     <a href="subscription.html" id="upgradeCapacityLink" class="text-yellow-400 hover:underline"><i class="fas fa-crown ml-1"></i>زيادة السعة</a>
                 </div>
             </div>
@@ -229,10 +230,13 @@
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-4 right-4 bg-accent text-white w-10 h-10 rounded shadow-lg flex items-center justify-center hover:opacity-90 transition active:scale-95 z-50">
         <i class="fas fa-arrow-up"></i>
     </button>
+
     <script>
         const sbClient = supabase.createClient('https://vosnoijtrovgtvpxnzsr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvc25vaWp0cm92Z3R2cHhuenNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDI0MjUsImV4cCI6MjEwNzU3ODQyNX0.k9B4P5vOMqNKFzpALb2aZrajjeyeKFaJW5qJz0iTqS0');
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
         let allMangas = [];
+        let uniqueSeriesMangas = [];
+        let seriesCanonicalMap = new Map();
         let activeTab = 'bookmarks';
         let visibleLibLimit = 12;
 
@@ -267,6 +271,87 @@
                 image: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=500'
             }
         ];
+
+        // دوال استخراج الاسم الأساسي ودمج الفصول لمنع تكرار نفس العمل في المكتبة والبحث
+        function getBaseSeriesTitle(title) {
+            if (!title) return '';
+            return title
+                .replace(/(\s*[-–—:|]\s*)?(الفصل|فصل|تشابتر|شابتر|chapter|ch\.?|ep\.?|حلقة)\s*\d+.*/i, '')
+                .replace(/\s+\d+\s*$/, '')
+                .trim()
+                .toLowerCase();
+        }
+
+        function getCleanDisplayTitle(title) {
+            if (!title) return 'بدون عنوان';
+            return title
+                .replace(/(\s*[-–—:|]\s*)?(الفصل|فصل|تشابتر|شابتر|chapter|ch\.?|ep\.?|حلقة)\s*\d+.*/i, '')
+                .trim() || title;
+        }
+
+        function extractChapterNumber(title, fallbackIndex) {
+            const match = String(title || '').match(/(?:الفصل|فصل|تشابتر|شابتر|chapter|ch\.?)\s*(\d+(?:\.\d+)?)/i) || String(title || '').match(/(\d+(?:\.\d+)?)\s*$/);
+            return match ? parseFloat(match[1]) : fallbackIndex;
+        }
+
+        function groupMangasBySeries(rawList) {
+            const seriesMap = new Map();
+
+            for (const item of rawList) {
+                const baseKey = getBaseSeriesTitle(item.title) || String(item.id);
+                const chapNum = extractChapterNumber(item.title, 1);
+
+                if (!seriesMap.has(baseKey)) {
+                    seriesMap.set(baseKey, {
+                        ...item,
+                        title: getCleanDisplayTitle(item.title),
+                        latest_created_at: item.created_at,
+                        _lowestChapNum: chapNum
+                    });
+                } else {
+                    const existing = seriesMap.get(baseKey);
+
+                    if (new Date(item.created_at || 0) > new Date(existing.latest_created_at || 0)) {
+                        existing.latest_created_at = item.created_at;
+                    }
+
+                    if (chapNum < existing._lowestChapNum) {
+                        existing.id = item.id;
+                        existing._lowestChapNum = chapNum;
+                        if (item.cover_image_url) existing.cover_image_url = item.cover_image_url;
+                        if (item.description && item.description !== 'بدون وصف') existing.description = item.description;
+                    } else if (!existing.cover_image_url && item.cover_image_url) {
+                        existing.cover_image_url = item.cover_image_url;
+                    }
+
+                    if (Number(item.likes_count || 0) > Number(existing.likes_count || 0)) {
+                        existing.likes_count = item.likes_count;
+                    }
+                }
+            }
+
+            seriesCanonicalMap = seriesMap;
+            return Array.from(seriesMap.values()).sort((a, b) => new Date(b.latest_created_at || 0) - new Date(a.latest_created_at || 0));
+        }
+
+        // دمج وتصفية قائمة معرّفات الفصول بحيث لا يتكرر نفس العمل أكثر من مرة
+        function deduplicateIdsBySeries(idList) {
+            const seenSeries = new Set();
+            const resultIds = [];
+
+            for (const rawId of idList) {
+                const strId = String(rawId);
+                const foundManga = allMangas.find(m => String(m.id) === strId);
+                if (!foundManga) continue;
+
+                const baseKey = getBaseSeriesTitle(foundManga.title) || strId;
+                if (!seenSeries.has(baseKey)) {
+                    seenSeries.add(baseKey);
+                    resultIds.push(strId);
+                }
+            }
+            return resultIds;
+        }
 
         window.onload = async () => {
             const params = new URLSearchParams(window.location.search);
@@ -408,19 +493,31 @@
                         const cloudDl = safeParseArray(p.downloads_list);
 
                         const limit = getUserLimit();
-                        // دمج بيانات السحابة مع أي عنصر جديد أضافه المستخدم في هذا المتصفح
-                        userCloudLists.bookmarks = [...new Set([...localCollected.bookmarks, ...cloudBk])].slice(0, limit);
-                        userCloudLists.history   = [...new Set([...localCollected.history, ...cloudHi])].slice(0, limit);
-                        userCloudLists.likes     = [...new Set([...localCollected.likes, ...cloudLi])];
-                        userCloudLists.downloads = [...new Set([...localCollected.downloads, ...cloudDl])];
+                        // دمج بيانات السحابة مع إزالة تكرار الفصول لنفس العمل وتطبيق حد الباقة على المفضلة والسجل والإعجابات
+                        userCloudLists.bookmarks = deduplicateIdsBySeries([...new Set([...localCollected.bookmarks, ...cloudBk])]).slice(0, limit);
+                        userCloudLists.history   = deduplicateIdsBySeries([...new Set([...localCollected.history, ...cloudHi])]).slice(0, limit);
+                        userCloudLists.likes     = deduplicateIdsBySeries([...new Set([...localCollected.likes, ...cloudLi])]).slice(0, limit);
+                        userCloudLists.downloads = deduplicateIdsBySeries([...new Set([...localCollected.downloads, ...cloudDl])]);
 
                         await saveListsToSupabaseCloud();
                     } else {
-                        userCloudLists = localCollected;
+                        const limit = getUserLimit();
+                        userCloudLists = {
+                            bookmarks: deduplicateIdsBySeries(localCollected.bookmarks).slice(0, limit),
+                            history: deduplicateIdsBySeries(localCollected.history).slice(0, limit),
+                            likes: deduplicateIdsBySeries(localCollected.likes).slice(0, limit),
+                            downloads: deduplicateIdsBySeries(localCollected.downloads)
+                        };
                         saveListsToUserLocal(uKey);
                     }
                 } catch (e) {
-                    userCloudLists = localCollected;
+                    const limit = getUserLimit();
+                    userCloudLists = {
+                        bookmarks: deduplicateIdsBySeries(localCollected.bookmarks).slice(0, limit),
+                        history: deduplicateIdsBySeries(localCollected.history).slice(0, limit),
+                        likes: deduplicateIdsBySeries(localCollected.likes).slice(0, limit),
+                        downloads: deduplicateIdsBySeries(localCollected.downloads)
+                    };
                     saveListsToUserLocal(uKey);
                 }
 
@@ -452,25 +549,56 @@
             try {
                 const { data } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
                 allMangas = data || [];
-            } catch (e) { allMangas = []; }
+                uniqueSeriesMangas = groupMangasBySeries(allMangas);
+            } catch (e) {
+                allMangas = [];
+                uniqueSeriesMangas = [];
+            }
         }
 
-        function getSavedIdsForTab(tab) {
+        function getDeduplicatedTabItems(tab) {
             // إذا لم يكن المستخدم مسجلاً للدخول، لا تعرض أي مانغا على الإطلاق
             if (!currentUser || !currentUser.username) return [];
 
             const limit = getUserLimit();
-            if (tab === 'bookmarks') return userCloudLists.bookmarks.slice(0, limit);
-            if (tab === 'history') return userCloudLists.history.slice(0, limit);
-            if (tab === 'likes') return userCloudLists.likes;
-            if (tab === 'downloads') return userCloudLists.downloads;
+            let rawItems = [];
+
             if (tab === 'uploads') {
                 const uName = currentUser.username.trim().toLowerCase();
-                return allMangas
-                    .filter(m => (m.uploader_name || '').trim().toLowerCase() === uName)
-                    .map(m => String(m.id));
+                rawItems = allMangas.filter(m => (m.uploader_name || '').trim().toLowerCase() === uName);
+            } else {
+                let ids = [];
+                if (tab === 'bookmarks') ids = userCloudLists.bookmarks;
+                else if (tab === 'history') ids = userCloudLists.history;
+                else if (tab === 'likes') ids = userCloudLists.likes;
+                else if (tab === 'downloads') ids = userCloudLists.downloads;
+
+                rawItems = ids.map(id => allMangas.find(m => String(m.id) === String(id))).filter(Boolean);
             }
-            return [];
+
+            // دمج الفصول المتعددة لنفس العمل لكي يظهر كل عمل مرة واحدة فقط بعنوانه النظيف
+            const seenSeries = new Set();
+            const uniqueItems = [];
+
+            for (const item of rawItems) {
+                const baseKey = getBaseSeriesTitle(item.title) || String(item.id);
+                if (!seenSeries.has(baseKey)) {
+                    seenSeries.add(baseKey);
+                    const canonical = seriesCanonicalMap.get(baseKey);
+                    uniqueItems.push({
+                        ...item,
+                        title: getCleanDisplayTitle(item.title),
+                        cover_image_url: item.cover_image_url || (canonical ? canonical.cover_image_url : '')
+                    });
+                }
+            }
+
+            // تطبيق حد الباقة (25 للمجاني، 50 لـ VIP، 100 لـ VIP Pro، ولا نهائي لـ VIP Ultra) على المفضلة والسجل وأعجبتني
+            if (tab === 'bookmarks' || tab === 'history' || tab === 'likes') {
+                return uniqueItems.slice(0, limit);
+            }
+
+            return uniqueItems;
         }
 
         function switchTab(tab) {
@@ -515,9 +643,9 @@
             const limit = getUserLimit();
             const isUnlimitedPlan = sub === 'vip_ultra' || limit >= 999999;
 
-            if (activeTab === 'likes' || activeTab === 'downloads' || activeTab === 'uploads') {
+            // التحميلات والمرفوعات فقط مفتوحة بلا حدود لجميع الباقات، بينما (المفضلة، السجل، وأعجبتني) تتبع حد الباقة
+            if (activeTab === 'downloads' || activeTab === 'uploads') {
                 const labelMap = {
-                    likes: 'عمل معجب به',
                     downloads: 'عمل محمّل',
                     uploads: 'عمل مرفوع بواسطة حسابك'
                 };
@@ -536,7 +664,7 @@
                 counterEl.innerText = `${count} / ∞ (لا نهائي - ULTRA)`;
                 barEl.style.width = '100%';
                 barEl.className = 'bg-accent h-full transition-all duration-500';
-                hintEl.innerText = 'أنت تمتلك باقة VIP Ultra: تخزين مانغا سحابي وتتبع سجل لا نهائي في كل المتصفحات!';
+                hintEl.innerText = 'أنت تمتلك باقة VIP Ultra: تخزين مانغا سحابي وتتبع سجل وإعجابات لا نهائي في كل المتصفحات!';
             } else {
                 const pct = Math.min(100, Math.round((count / limit) * 100));
                 counterEl.innerText = `${count} / ${limit} عمل`;
@@ -544,7 +672,7 @@
                 barEl.className = `h-full transition-all duration-500 ${pct >= 90 ? 'bg-red-500' : 'bg-accent'}`;
                 hintEl.innerText = count >= limit
                     ? `⚠️ وصلت للحد الأقصى لباقتك (${limit} عمل)! قم بترقية باقتك لحفظ المزيد.`
-                    : `باقتك الحالية (${getSubMeta(sub).l}) تتيح حفظ ومزامنة حتى ${limit} عملاً في حسابك.`;
+                    : `باقتك الحالية (${getSubMeta(sub).l}) تتيح حفظ ومزامنة حتى ${limit} عملاً في المفضلة والسجل والإعجابات.`;
             }
         }
 
@@ -631,8 +759,7 @@
                 return;
             }
 
-            const ids = getSavedIdsForTab(activeTab);
-            const items = ids.map(id => allMangas.find(m => String(m.id) === String(id))).filter(Boolean);
+            const items = getDeduplicatedTabItems(activeTab);
 
             updateCapacityUI(items.length);
 
@@ -709,17 +836,29 @@
             renderCurrentTab();
         }
 
+        // حذف العمل وجميع الفصول التابعة لنفس الاسم الأساسي حتى لا يظهر فصل آخر مكانه
         async function removeSingleItem(id) {
             if (!currentUser) return;
             const strId = String(id);
+            const targetManga = allMangas.find(m => String(m.id) === strId);
+            const targetBaseKey = targetManga ? getBaseSeriesTitle(targetManga.title) : null;
+
+            const shouldRemoveId = (itemId) => {
+                const sId = String(itemId);
+                if (sId === strId) return true;
+                if (!targetBaseKey) return false;
+                const m = allMangas.find(x => String(x.id) === sId);
+                return m && getBaseSeriesTitle(m.title) === targetBaseKey;
+            };
+
             if (activeTab === 'bookmarks') {
-                userCloudLists.bookmarks = userCloudLists.bookmarks.filter(x => x !== strId);
+                userCloudLists.bookmarks = userCloudLists.bookmarks.filter(x => !shouldRemoveId(x));
             } else if (activeTab === 'history') {
-                userCloudLists.history = userCloudLists.history.filter(x => x !== strId);
+                userCloudLists.history = userCloudLists.history.filter(x => !shouldRemoveId(x));
             } else if (activeTab === 'likes') {
-                userCloudLists.likes = userCloudLists.likes.filter(x => x !== strId);
+                userCloudLists.likes = userCloudLists.likes.filter(x => !shouldRemoveId(x));
             } else if (activeTab === 'downloads') {
-                userCloudLists.downloads = userCloudLists.downloads.filter(x => x !== strId);
+                userCloudLists.downloads = userCloudLists.downloads.filter(x => !shouldRemoveId(x));
             }
             renderCurrentTab();
             await saveListsToSupabaseCloud();
@@ -737,7 +876,10 @@
         }
 
         function goToMyProfile() { if (!currentUser) window.location.href = 'auth.html'; else window.location.href = `profile.html?user=${encodeURIComponent(currentUser.username)}`; }
-        function goToRandomManga() { if (allMangas.length) window.location.href = `manga.html?id=${allMangas[Math.floor(Math.random()*allMangas.length)].id}`; }
+        function goToRandomManga() {
+            const list = uniqueSeriesMangas.length ? uniqueSeriesMangas : allMangas;
+            if (list.length) window.location.href = `manga.html?id=${list[Math.floor(Math.random()*list.length)].id}`;
+        }
         function openSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-0','opacity-100'); document.getElementById('sidebarOverlay').classList.remove('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-full','translate-x-0'); }
         function closeSidebar() { document.getElementById('sidebarOverlay').classList.replace('opacity-100','opacity-0'); document.getElementById('sidebarOverlay').classList.add('pointer-events-none'); document.getElementById('sidebarMenu').classList.replace('translate-x-0','translate-x-full'); }
         function openSearch() { document.getElementById('searchModal').classList.remove('hidden'); document.getElementById('searchModal').classList.add('flex'); document.getElementById('searchInput').focus(); }
@@ -747,7 +889,8 @@
             const q = e.target.value.trim().toLowerCase();
             const res = document.getElementById('searchResults');
             if (q.length < 2) { res.innerHTML = ''; return; }
-            const matches = allMangas.filter(m => (m.title||'').toLowerCase().includes(q) || (m.tags||'').toLowerCase().includes(q)).slice(0, 15);
+            const sourceList = uniqueSeriesMangas.length ? uniqueSeriesMangas : allMangas;
+            const matches = sourceList.filter(m => (m.title||'').toLowerCase().includes(q) || (m.tags||'').toLowerCase().includes(q)).slice(0, 15);
             res.innerHTML = matches.length ? matches.map(m => `<a href="manga.html?id=${m.id}" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 items-center"><img src="${m.cover_image_url}" class="w-12 h-16 object-cover rounded-lg"><div class="flex-1"><h3 class="font-bold text-xs text-white line-clamp-1">${m.title}</h3><p class="text-[10px] text-gray-400 mt-0.5">${getWorkType(m)}</p></div></a>`).join('') : '<div class="text-center text-gray-500 mt-10 text-xs font-bold">لا توجد نتائج مطابقة.</div>';
         });
     </script>
