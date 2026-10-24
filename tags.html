@@ -86,6 +86,31 @@
             box-shadow: 0 0 12px rgba(244, 114, 182, 0.45);
         }
 
+        /* أزرار التصنيفات الرئيسية العلوية (مانغا / مانها / كوميكس / فوتا) */
+        .primary-tag-btn {
+            background-color: #16161d;
+            border: 1px solid #3f3f46;
+            color: #f3f4f6;
+            padding: 9px 20px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 900;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+        }
+        .primary-tag-btn:hover {
+            border-color: #f472b6;
+            color: #ffffff;
+        }
+        .primary-tag-btn.active {
+            background-color: #f472b6;
+            border-color: #f472b6;
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(244, 114, 182, 0.55);
+        }
+
         /* أزرار ترقيم الصفحات (Pagination) المطابقة للصورة */
         .page-num-btn {
             width: 42px;
@@ -220,7 +245,15 @@
         </div>
 
         <!-- صندوق أزرار التاغات الثابتة (لا تتغير أو تتحرك عند الضغط عليها) -->
-        <div class="bg-card border border-gray-800/90 rounded-2xl p-5 shadow-lg">
+        <div class="bg-card border border-gray-800/90 rounded-2xl p-5 shadow-lg space-y-4">
+            <!-- القائمة العلوية للتصنيفات الأساسية (مانغا / مانها / كوميكس / فوتا) -->
+            <div class="pb-3.5 border-b border-gray-800/80">
+                <div id="primaryTagsContainer" class="flex flex-wrap gap-2.5 justify-center sm:justify-start">
+                    <!-- يتم بناء التصنيفات الـ 4 الأساسية هنا -->
+                </div>
+            </div>
+
+            <!-- قائمة باقي التصنيفات الفرعية -->
             <div id="tagsFilterContainer" class="flex flex-wrap gap-2.5 justify-center sm:justify-start">
                 <!-- يتم بناء الأزرار مرة واحدة فقط هنا وتبقى ثابتة -->
             </div>
@@ -293,6 +326,7 @@
         let currentUser = localStorage.getItem('futa_user_logged') ? JSON.parse(localStorage.getItem('futa_user_logged')) : null;
         let allMangas = [];
         let filteredMangasList = [];
+        const PRIMARY_TOP_TAGS = ['مانغا', 'مانها', 'كوميكس', 'فوتا'];
         let fixedAvailableTags = [];
         let selectedTags = new Set();
 
@@ -315,6 +349,86 @@
             }
         ];
 
+        function normalizeTagName(rawTag) {
+            const t = String(rawTag || '').trim();
+            if (!t) return '';
+            if (t === 'مانجا' || t.toLowerCase() === 'manga') return 'مانغا';
+            if (t === 'مانهوا' || t.toLowerCase() === 'manhwa' || t.toLowerCase() === 'manhua') return 'مانها';
+            if (t === 'كوميك' || t.toLowerCase() === 'comic' || t.toLowerCase() === 'comics') return 'كوميكس';
+            if (t === 'فوتاناري' || t.toLowerCase() === 'futa' || t.toLowerCase() === 'futanari') return 'فوتا';
+            return t;
+        }
+
+        // دوال استخراج الاسم الأساسي ودمج الفصول لمنع تكرار نفس العمل في صفحة التصنيفات
+        function getBaseSeriesTitle(title) {
+            if (!title) return '';
+            return title
+                .replace(/(\s*[-–—:|]\s*)?(الفصل|فصل|تشابتر|شابتر|chapter|ch\.?|ep\.?|حلقة)\s*\d+.*/i, '')
+                .replace(/\s+\d+\s*$/, '')
+                .trim()
+                .toLowerCase();
+        }
+
+        function getCleanDisplayTitle(title) {
+            if (!title) return 'بدون عنوان';
+            return title
+                .replace(/(\s*[-–—:|]\s*)?(الفصل|فصل|تشابتر|شابتر|chapter|ch\.?|ep\.?|حلقة)\s*\d+.*/i, '')
+                .trim() || title;
+        }
+
+        function extractChapterNumber(title, fallbackIndex) {
+            const match = String(title || '').match(/(?:الفصل|فصل|تشابتر|شابتر|chapter|ch\.?)\s*(\d+(?:\.\d+)?)/i) || String(title || '').match(/(\d+(?:\.\d+)?)\s*$/);
+            return match ? parseFloat(match[1]) : fallbackIndex;
+        }
+
+        function groupMangasBySeries(rawList) {
+            const seriesMap = new Map();
+
+            for (const item of rawList) {
+                const baseKey = getBaseSeriesTitle(item.title) || String(item.id);
+                const chapNum = extractChapterNumber(item.title, 1);
+
+                if (!seriesMap.has(baseKey)) {
+                    seriesMap.set(baseKey, {
+                        ...item,
+                        title: getCleanDisplayTitle(item.title),
+                        latest_created_at: item.created_at,
+                        _lowestChapNum: chapNum
+                    });
+                } else {
+                    const existing = seriesMap.get(baseKey);
+
+                    if (new Date(item.created_at || 0) > new Date(existing.latest_created_at || 0)) {
+                        existing.latest_created_at = item.created_at;
+                    }
+
+                    // دمج التاغات بين الفصول لضمان عدم ضياع أي تصنيف
+                    if (item.tags) {
+                        const mergedTags = new Set([
+                            ...(existing.tags ? existing.tags.split(',').map(s => s.trim()).filter(Boolean) : []),
+                            ...item.tags.split(',').map(s => s.trim()).filter(Boolean)
+                        ]);
+                        existing.tags = Array.from(mergedTags).join(',');
+                    }
+
+                    if (chapNum < existing._lowestChapNum) {
+                        existing.id = item.id;
+                        existing._lowestChapNum = chapNum;
+                        if (item.cover_image_url) existing.cover_image_url = item.cover_image_url;
+                        if (item.description && item.description !== 'بدون وصف') existing.description = item.description;
+                    } else if (!existing.cover_image_url && item.cover_image_url) {
+                        existing.cover_image_url = item.cover_image_url;
+                    }
+
+                    if (Number(item.likes_count || 0) > Number(existing.likes_count || 0)) {
+                        existing.likes_count = item.likes_count;
+                    }
+                }
+            }
+
+            return Array.from(seriesMap.values()).sort((a, b) => new Date(b.latest_created_at || 0) - new Date(a.latest_created_at || 0));
+        }
+
         window.onload = async () => {
             updateAuthUI();
 
@@ -322,7 +436,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const urlTag = urlParams.get('tag') || localStorage.getItem('selectedTag');
             if (urlTag) {
-                selectedTags.add(urlTag.trim());
+                selectedTags.add(normalizeTagName(urlTag));
                 localStorage.removeItem('selectedTag');
             }
 
@@ -404,31 +518,36 @@
 
         // --- بناء قائمة التصنيفات المجهزة مرة واحدة فقط بحيث لا تتغير أبداً عند الضغط عليها ---
         async function loadTagsAndMangas() {
-            const presetTags = ['مانغا', 'مانها', 'كوميكس', 'رومانسي', 'فانتازيا', 'دراما', 'أكشن', 'كوميدي', 'مدرسي', 'خارق للطبيعة', 'وان شوت'];
-            const tagsSet = new Set(presetTags);
+            const presetSecondaryTags = ['رومانسي', 'فانتازيا', 'دراما', 'أكشن', 'كوميدي', 'مدرسي', 'خارق للطبيعة', 'وان شوت'];
+            const tagsSet = new Set(presetSecondaryTags);
 
             try {
                 const { data: tagsData } = await sbClient.from('tags').select('*').order('name');
                 if (tagsData) {
                     tagsData.forEach(t => {
-                        if (t.name && t.name.trim()) tagsSet.add(t.name.trim());
+                        const norm = normalizeTagName(t.name);
+                        if (norm && !PRIMARY_TOP_TAGS.includes(norm)) tagsSet.add(norm);
                     });
                 }
 
                 const { data: mangasData } = await sbClient.from('mangas').select('*').eq('status', 'approved').order('created_at', { ascending: false });
                 if (mangasData) {
-                    allMangas = mangasData;
-                    mangasData.forEach(m => {
+                    // دمج الفصول المتعددة لمنع تكرار الأعمال في صفحة التصنيفات
+                    allMangas = groupMangasBySeries(mangasData);
+                    allMangas.forEach(m => {
                         if (m.tags) {
                             m.tags.split(',').forEach(t => {
-                                if (t.trim()) tagsSet.add(t.trim());
+                                const norm = normalizeTagName(t);
+                                if (norm && !PRIMARY_TOP_TAGS.includes(norm)) tagsSet.add(norm);
                             });
                         }
                     });
                 }
             } catch (e) {}
 
-            selectedTags.forEach(t => tagsSet.add(t));
+            selectedTags.forEach(t => {
+                if (!PRIMARY_TOP_TAGS.includes(t)) tagsSet.add(t);
+            });
             fixedAvailableTags = Array.from(tagsSet);
 
             // رسم أزرار التصنيفات مرة واحدة فقط
@@ -437,9 +556,23 @@
         }
 
         function buildFixedTagsDOMOnce() {
-            const container = document.getElementById('tagsFilterContainer');
-            container.innerHTML = '';
+            const primaryContainer = document.getElementById('primaryTagsContainer');
+            const secondaryContainer = document.getElementById('tagsFilterContainer');
+            primaryContainer.innerHTML = '';
+            secondaryContainer.innerHTML = '';
 
+            // 1. بناء القائمة العلوية (مانغا / مانها / كوميكس / فوتا)
+            PRIMARY_TOP_TAGS.forEach(tag => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.setAttribute('data-tag', tag);
+                btn.className = `primary-tag-btn ${selectedTags.has(tag) ? 'active' : ''}`;
+                btn.innerText = tag;
+                btn.onclick = () => toggleTagSelection(tag, btn);
+                primaryContainer.appendChild(btn);
+            });
+
+            // 2. بناء قائمة باقي التصنيفات الفرعية
             fixedAvailableTags.forEach(tag => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -447,7 +580,7 @@
                 btn.className = `tag-btn ${selectedTags.has(tag) ? 'active' : ''}`;
                 btn.innerText = tag;
                 btn.onclick = () => toggleTagSelection(tag, btn);
-                container.appendChild(btn);
+                secondaryContainer.appendChild(btn);
             });
         }
 
@@ -466,7 +599,7 @@
         function clearFilters() {
             selectedTags.clear();
             window.history.replaceState(null, '', 'tags.html');
-            document.querySelectorAll('#tagsFilterContainer .tag-btn').forEach(btn => {
+            document.querySelectorAll('#primaryTagsContainer .primary-tag-btn, #tagsFilterContainer .tag-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             applyTagsFilter(1);
@@ -545,9 +678,18 @@
                 filteredMangasList = [...allMangas];
             } else {
                 filteredMangasList = allMangas.filter(manga => {
-                    const mangaTags = (manga.tags ? manga.tags.split(',').map(t => t.trim()) : []);
-                    mangaTags.push(getWorkType(manga));
-                    return Array.from(selectedTags).every(sel => mangaTags.includes(sel));
+                    const rawTags = (manga.tags ? manga.tags.split(',').map(t => normalizeTagName(t)) : []);
+                    const workType = getWorkType(manga);
+                    rawTags.push(workType);
+
+                    const combinedText = `${manga.title || ''} ${manga.description || ''} ${manga.tags || ''}`.toLowerCase();
+
+                    return Array.from(selectedTags).every(sel => {
+                        if (sel === 'فوتا') {
+                            return rawTags.includes('فوتا') || combinedText.includes('فوتا') || combinedText.includes('فوتاناري') || combinedText.includes('futa');
+                        }
+                        return rawTags.includes(sel);
+                    });
                 });
             }
 
@@ -657,43 +799,44 @@
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
-            const query = e.target.value.trim();
+            const query = e.target.value.trim().toLowerCase();
             const resultsContainer = document.getElementById('searchResults');
             if (query.length < 2) {
                 resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold"><i class="fas fa-search text-3xl mb-4 opacity-20 block"></i>ابدأ بكتابة اسم العمل أو التصنيف...</div>';
                 return;
             }
             resultsContainer.innerHTML = '<div class="text-center text-accent mt-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const { data, error } = await sbClient.from('mangas').select('*').eq('status', 'approved').or(`title.ilike.%${query}%,title_en.ilike.%${query}%,tags.ilike.%${query}%`).limit(15);
-                    if (error || !data || data.length === 0) {
-                        resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>';
-                        return;
-                    }
-                    resultsContainer.innerHTML = data.map(manga => `
-                        <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
-                            <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
-                            <div class="flex-1 overflow-hidden">
-                                <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
-                            </div>
-                        </a>
-                    `).join('');
-                } catch (err) {
-                    resultsContainer.innerHTML = '<div class="text-center text-red-500 mt-20 text-sm font-bold">حدث خطأ أثناء البحث!</div>';
+            searchTimeout = setTimeout(() => {
+                const matches = allMangas.filter(m =>
+                    (m.title || '').toLowerCase().includes(query) ||
+                    (m.title_en || '').toLowerCase().includes(query) ||
+                    (m.tags || '').toLowerCase().includes(query) ||
+                    getWorkType(m).includes(query)
+                ).slice(0, 15);
+
+                if (matches.length === 0) {
+                    resultsContainer.innerHTML = '<div class="text-center text-gray-500 mt-20 text-sm font-bold">لم يتم العثور على نتائج.</div>';
+                    return;
                 }
-            }, 600);
+
+                resultsContainer.innerHTML = matches.map(manga => `
+                    <a href="manga.html?id=${manga.id}" onclick="localStorage.setItem('selectedMangaId', '${manga.id}')" class="flex gap-3 bg-[#18181b] p-2.5 rounded-xl border border-gray-800 hover:bg-[#222] transition items-start shadow-md cursor-pointer">
+                        <img src="${manga.cover_image_url}" class="w-14 h-20 object-cover rounded-lg flex-shrink-0 bg-black shadow-sm">
+                        <div class="flex-1 overflow-hidden">
+                            <h3 class="font-bold text-sm text-white mb-1 leading-tight line-clamp-1">${manga.title}</h3>
+                            <span class="text-[10px] text-gray-400 font-bold">${getWorkType(manga)} • ${manga.uploader_name || 'مجهول'}</span>
+                        </div>
+                    </a>
+                `).join('');
+            }, 300);
         });
 
-        async function goToRandomManga() {
-            try {
-                const { data } = await sbClient.from('mangas').select('id').eq('status', 'approved');
-                if (data && data.length > 0) {
-                    const randomId = data[Math.floor(Math.random() * data.length)].id;
-                    localStorage.setItem('selectedMangaId', randomId);
-                    window.location.href = `manga.html?id=${randomId}`;
-                }
-            } catch (e) {}
+        function goToRandomManga() {
+            if (allMangas.length > 0) {
+                const randomId = allMangas[Math.floor(Math.random() * allMangas.length)].id;
+                localStorage.setItem('selectedMangaId', randomId);
+                window.location.href = `manga.html?id=${randomId}`;
+            }
         }
     </script>
 </body>
